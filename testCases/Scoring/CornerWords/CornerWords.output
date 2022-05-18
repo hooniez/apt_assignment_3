@@ -1,0 +1,207 @@
+Welcome to Scrabble!
+-------------------
+Menu
+----
+1. New Game
+2. Load Game
+3. Credits (Show student information)
+4. Quit
+
+> Enter the filename from which load a game
+> 
+Let's play!
+
+BB, it's your turn
+Score for AA: 0
+Score for BB: 0
+    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14
+  -------------------------------------------------------------
+A |   |   |   |   |   |   |   | T |   |   | I | F |   | D |   |
+B |   |   |   |   |   |   |   | G |   |   | R | L |   | S |   |
+C |   |   |   |   |   |   |   | E |   |   | X | P |   | A |   |
+D |   |   |   |   |   |   |   | Y |   | L | O | O | G | F |   |
+E |   |   |   |   |   |   |   | N | I | T | O | T | D | O |   |
+F |   |   |   |   |   |   |   | T |   |   |   | Z |   |   |   |
+G |   | W |   |   |   |   |   | A |   |   |   | E |   |   |   |
+H |   | Y |   |   |   |   |   | V |   |   |   | R |   |   |   |
+I |   | O | S | N | U | A | N | N | V | I | E | A | D |   |   |
+J |   |   |   |   |   |   | E | A |   |   |   | M |   |   |   |
+K |   |   |   | A | B | I | R | L |   |   |   | A |   |   |   |
+L |   |   |   | G | W |   |   | T | S | R |   | E |   |   |   |
+M |   |   | E | K | U | E | N | I | P |   |   | U |   |   |   |
+N |   |   |   |   | O |   |   | A |   |   |   | B |   |   |   |
+O |   |   |   |   | I |   |   | I | I | E |   |   |   |   |   |
+
+Your hand is 
+H-4, M-3, A-1, T-1, R-1, S-1, U-1
+> > > BB made the words: 
+ - IFSDH: 12 points.
+For a score of 12, Good job!
+
+AA, it's your turn
+Score for AA: 0
+Score for BB: 12
+    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14
+  -------------------------------------------------------------
+A |   |   |   |   |   |   |   | T |   |   | I | F | S | D | H |
+B |   |   |   |   |   |   |   | G |   |   | R | L |   | S |   |
+C |   |   |   |   |   |   |   | E |   |   | X | P |   | A |   |
+D |   |   |   |   |   |   |   | Y |   | L | O | O | G | F |   |
+E |   |   |   |   |   |   |   | N | I | T | O | T | D | O |   |
+F |   |   |   |   |   |   |   | T |   |   |   | Z |   |   |   |
+G |   | W |   |   |   |   |   | A |   |   |   | E |   |   |   |
+H |   | Y |   |   |   |   |   | V |   |   |   | R |   |   |   |
+I |   | O | S | N | U | A | N | N | V | I | E | A | D |   |   |
+J |   |   |   |   |   |   | E | A |   |   |   | M |   |   |   |
+K |   |   |   | A | B | I | R | L |   |   |   | A |   |   |   |
+L |   |   |   | G | W |   |   | T | S | R |   | E |   |   |   |
+M |   |   | E | K | U | E | N | I | P |   |   | U |   |   |   |
+N |   |   |   |   | O |   |   | A |   |   |   | B |   |   |   |
+O |   |   |   |   | I |   |   | I | I | E |   |   |   |   |   |
+
+Your hand is 
+N-1, C-3, D-2, I-1, E-1, R-1, H-4
+> > > > AA made the words: 
+ - HNDI: 8 points.
+ - SN: 2 points.
+ - AD: 3 points.
+ - LOOGFI: 10 points.
+For a score of 23, Good job!
+
+BB, it's your turn
+Score for AA: 23
+Score for BB: 12
+    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14
+  -------------------------------------------------------------
+A |   |   |   |   |   |   |   | T |   |   | I | F | S | D | H |
+B |   |   |   |   |   |   |   | G |   |   | R | L |   | S | N |
+C |   |   |   |   |   |   |   | E |   |   | X | P |   | A | D |
+D |   |   |   |   |   |   |   | Y |   | L | O | O | G | F | I |
+E |   |   |   |   |   |   |   | N | I | T | O | T | D | O |   |
+F |   |   |   |   |   |   |   | T |   |   |   | Z |   |   |   |
+G |   | W |   |   |   |   |   | A |   |   |   | E |   |   |   |
+H |   | Y |   |   |   |   |   | V |   |   |   | R |   |   |   |
+I |   | O | S | N | U | A | N | N | V | I | E | A | D |   |   |
+J |   |   |   |   |   |   | E | A |   |   |   | M |   |   |   |
+K |   |   |   | A | B | I | R | L |   |   |   | A |   |   |   |
+L |   |   |   | G | W |   |   | T | S | R |   | E |   |   |   |
+M |   |   | E | K | U | E | N | I | P |   |   | U |   |   |   |
+N |   |   |   |   | O |   |   | A |   |   |   | B |   |   |   |
+O |   |   |   |   | I |   |   | I | I | E |   |   |   |   |   |
+
+Your hand is 
+M-3, A-1, T-1, R-1, U-1, E-1, J-8
+> > > BB made the words: 
+ - MAEKUENIP: 17 points.
+For a score of 17, Good job!
+
+AA, it's your turn
+Score for AA: 23
+Score for BB: 29
+    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14
+  -------------------------------------------------------------
+A |   |   |   |   |   |   |   | T |   |   | I | F | S | D | H |
+B |   |   |   |   |   |   |   | G |   |   | R | L |   | S | N |
+C |   |   |   |   |   |   |   | E |   |   | X | P |   | A | D |
+D |   |   |   |   |   |   |   | Y |   | L | O | O | G | F | I |
+E |   |   |   |   |   |   |   | N | I | T | O | T | D | O |   |
+F |   |   |   |   |   |   |   | T |   |   |   | Z |   |   |   |
+G |   | W |   |   |   |   |   | A |   |   |   | E |   |   |   |
+H |   | Y |   |   |   |   |   | V |   |   |   | R |   |   |   |
+I |   | O | S | N | U | A | N | N | V | I | E | A | D |   |   |
+J |   |   |   |   |   |   | E | A |   |   |   | M |   |   |   |
+K |   |   |   | A | B | I | R | L |   |   |   | A |   |   |   |
+L |   |   |   | G | W |   |   | T | S | R |   | E |   |   |   |
+M | M | A | E | K | U | E | N | I | P |   |   | U |   |   |   |
+N |   |   |   |   | O |   |   | A |   |   |   | B |   |   |   |
+O |   |   |   |   | I |   |   | I | I | E |   |   |   |   |   |
+
+Your hand is 
+C-3, E-1, R-1, H-4, L-1, Q-10, O-0
+> > > AA made the words: 
+ - MCE: 7 points.
+For a score of 7, Good job!
+
+BB, it's your turn
+Score for AA: 30
+Score for BB: 29
+    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14
+  -------------------------------------------------------------
+A |   |   |   |   |   |   |   | T |   |   | I | F | S | D | H |
+B |   |   |   |   |   |   |   | G |   |   | R | L |   | S | N |
+C |   |   |   |   |   |   |   | E |   |   | X | P |   | A | D |
+D |   |   |   |   |   |   |   | Y |   | L | O | O | G | F | I |
+E |   |   |   |   |   |   |   | N | I | T | O | T | D | O |   |
+F |   |   |   |   |   |   |   | T |   |   |   | Z |   |   |   |
+G |   | W |   |   |   |   |   | A |   |   |   | E |   |   |   |
+H |   | Y |   |   |   |   |   | V |   |   |   | R |   |   |   |
+I |   | O | S | N | U | A | N | N | V | I | E | A | D |   |   |
+J |   |   |   |   |   |   | E | A |   |   |   | M |   |   |   |
+K |   |   |   | A | B | I | R | L |   |   |   | A |   |   |   |
+L |   |   |   | G | W |   |   | T | S | R |   | E |   |   |   |
+M | M | A | E | K | U | E | N | I | P |   |   | U |   |   |   |
+N | C |   |   |   | O |   |   | A |   |   |   | B |   |   |   |
+O | E |   |   |   | I |   |   | I | I | E |   |   |   |   |   |
+
+Your hand is 
+T-1, R-1, U-1, E-1, J-8, E-1, O-1
+> > > > BB made the words: 
+ - EEOJI: 12 points.
+For a score of 12, Good job!
+
+AA, it's your turn
+Score for AA: 30
+Score for BB: 41
+    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14
+  -------------------------------------------------------------
+A |   |   |   |   |   |   |   | T |   |   | I | F | S | D | H |
+B |   |   |   |   |   |   |   | G |   |   | R | L |   | S | N |
+C |   |   |   |   |   |   |   | E |   |   | X | P |   | A | D |
+D |   |   |   |   |   |   |   | Y |   | L | O | O | G | F | I |
+E |   |   |   |   |   |   |   | N | I | T | O | T | D | O |   |
+F |   |   |   |   |   |   |   | T |   |   |   | Z |   |   |   |
+G |   | W |   |   |   |   |   | A |   |   |   | E |   |   |   |
+H |   | Y |   |   |   |   |   | V |   |   |   | R |   |   |   |
+I |   | O | S | N | U | A | N | N | V | I | E | A | D |   |   |
+J |   |   |   |   |   |   | E | A |   |   |   | M |   |   |   |
+K |   |   |   | A | B | I | R | L |   |   |   | A |   |   |   |
+L |   |   |   | G | W |   |   | T | S | R |   | E |   |   |   |
+M | M | A | E | K | U | E | N | I | P |   |   | U |   |   |   |
+N | C |   |   |   | O |   |   | A |   |   |   | B |   |   |   |
+O | E | E | O | J | I |   |   | I | I | E |   |   |   |   |   |
+
+Your hand is 
+R-1, H-4, L-1, Q-10, O-0, E-1, C-1
+> > AA made the words: 
+ - CQ: 13 points.
+ - AQE: 12 points.
+For a score of 25, Good job!
+
+BB, it's your turn
+Score for AA: 55
+Score for BB: 41
+    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14
+  -------------------------------------------------------------
+A |   |   |   |   |   |   |   | T |   |   | I | F | S | D | H |
+B |   |   |   |   |   |   |   | G |   |   | R | L |   | S | N |
+C |   |   |   |   |   |   |   | E |   |   | X | P |   | A | D |
+D |   |   |   |   |   |   |   | Y |   | L | O | O | G | F | I |
+E |   |   |   |   |   |   |   | N | I | T | O | T | D | O |   |
+F |   |   |   |   |   |   |   | T |   |   |   | Z |   |   |   |
+G |   | W |   |   |   |   |   | A |   |   |   | E |   |   |   |
+H |   | Y |   |   |   |   |   | V |   |   |   | R |   |   |   |
+I |   | O | S | N | U | A | N | N | V | I | E | A | D |   |   |
+J |   |   |   |   |   |   | E | A |   |   |   | M |   |   |   |
+K |   |   |   | A | B | I | R | L |   |   |   | A |   |   |   |
+L |   |   |   | G | W |   |   | T | S | R |   | E |   |   |   |
+M | M | A | E | K | U | E | N | I | P |   |   | U |   |   |   |
+N | C | Q |   |   | O |   |   | A |   |   |   | B |   |   |   |
+O | E | E | O | J | I |   |   | I | I | E |   |   |   |   |   |
+
+Your hand is 
+T-1, R-1, U-1, E-1
+> 
+Game successfully saved
+
+> 
+Goodbye

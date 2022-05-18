@@ -1,0 +1,24 @@
+2
+testCases/Scoring/Scoring/Scoring
+place M at J11
+place A at K11
+place D at L11
+place Done
+place Y at J9
+place U at J10
+place I at J12
+place Done
+place N at F10
+place U at H10
+place E at G10
+place Done
+place F at L5
+place K at H5          
+place W at J5
+place Done
+place B at J6
+place Done
+place S at J8
+place A at K8
+place Done
+save testCases/Scoring/Scoring/AfterScoring

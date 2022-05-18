@@ -1,0 +1,30 @@
+2
+testCases/IncorrectPlacement/NotContinuousLine/NotContinuousLine
+place W at G11
+place R at G12
+place S at G13
+place Done
+place W at G10
+place R at G11
+place S at G13
+place Done
+place W at G10
+place R at G11
+place S at H11
+place Done
+place W at G11
+place R at H11
+place S at H12
+place Done
+place W at G10
+place R at G11
+place S at G14
+place Done
+place W at E3
+place R at F3
+place S at G3
+place Done
+place W at H11
+place R at H12
+place S at H13
+place Done

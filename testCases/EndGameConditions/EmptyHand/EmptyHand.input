@@ -1,0 +1,14 @@
+2
+testCases/EndGameConditions/EmptyHand/EmptyHand
+place S at G14
+place T at F14
+place A at E14
+place Done
+place A at B10
+place E at B12
+place Done
+place S at D14
+place C at C14
+place K at B14
+place R at A14
+place Done
