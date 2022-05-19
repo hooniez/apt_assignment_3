@@ -1,0 +1,6 @@
+*.o
+Makefile
+main.cpp
+*.ipynb
+.ipynb_checkpoints
+scrabble
