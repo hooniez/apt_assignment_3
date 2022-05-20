@@ -5,7 +5,7 @@
 #include "AiMap.h"
 
 AiMap::AiMap(): aiMap(std::make_shared<aiMapType>()){
-    aiMap->reserve(NUM_ELEMENTS_IN_AI_MAP + 0.1 * NUM_ELEMENTS_IN_AI_MAP);
+    aiMap->reserve(NUM_ELEMENTS_IN_AI_MAP);
 }
 
 
