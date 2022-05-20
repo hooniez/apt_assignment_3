@@ -17,6 +17,7 @@ public:
     Tile();
     Tile(Letter, Value);
     Tile(Letter);
+    Tile(const Tile&);
     Letter getLetter() const;
     Value getValue() const;
     // check if the letter in the tile matches the letter given

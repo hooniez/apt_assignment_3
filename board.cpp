@@ -587,7 +587,7 @@ bool Board::isPlacementValid(){
 }
 
 std::vector<std::string>& Board::getCurrWords() {
-    currTilesLoc.clear();
+    pushPlacedTiles();
     return currWords;
 }
 
@@ -624,4 +624,23 @@ void Board::setTilesToReturn() {
         tilesToReturn.push_back(board[(*it)[0]][(*it)[1]]);
         board[(*it)[0]][(*it)[1]] = nullptr;
     }
+}
+
+void Board::pushPlacedTiles() {
+    // Iterate currTilesLoc and find the corresponding TilePtr
+    // and create PlacedTilePtr with it and its coordinates.
+    // then push it in placedTiles
+    placedTilePtr placedTile;
+    TilePtr tile;
+    size_t x = 0;
+    size_t y = 0;
+    for (auto it = currTilesLoc.cbegin();
+         it != currTilesLoc.cend(); ++it) {
+        tile = board[(*it)[0]][(*it)[1]];
+        x = (*it)[0];
+        y = (*it)[1];
+        placedTile = std::make_shared<PlacedTile>(tile,std::make_tuple(x,y));
+        placedTiles.push(placedTile);
+    }
+    currTilesLoc.clear();
 }

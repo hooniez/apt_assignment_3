@@ -7,11 +7,14 @@
 #include <memory>
 #include <tuple>
 #include <string>
+#include <queue>
 
 #include "types.h"
 #include "tile.h"
 #include "player.h"
 #include "WordBuilder.h"
+#include "PlacedTile.h"
+
 
 class Board {
 
@@ -50,7 +53,7 @@ public:
     /*
      * Getter method used by save/load
      */
-    std::vector<std::vector<TilePtr>> getBoard();
+    std::vector<std::vector<TilePtr> > getBoard();
     // Getter method used by save/load
     TilePtr getTile(size_t x, size_t y);
     // gets if the board is empty
@@ -114,13 +117,15 @@ public:
     std::vector<TilePtr>& getTilesToReturn();
     // Clear the board of invalid tiles and put them in tilesToReturn
     void setTilesToReturn();
+    // Store all the tiles placed in placedTiles
+    void pushPlacedTiles();
 
 private:
-    std::vector<std::vector<TilePtr>> board;
+    std::vector<std::vector<TilePtr> > board;
     unsigned int width;
     unsigned int height;
     bool misEmpty;
-    std::vector<std::vector<int>> currTilesLoc;
+    std::vector<std::vector<int> > currTilesLoc;
 
     /*                          Milestone 1 & 2 Above
      * -------------------------------------------------------------------
@@ -133,6 +138,8 @@ private:
     // If tiles placed are deemed invalid, they are put back in tilesToReturn.
     std::vector<TilePtr> tilesToReturn;
     std::vector<std::string> currWords;
+    std::priority_queue<placedTilePtr> placedTiles;
+
 
 };
 typedef std::shared_ptr<Board> BoardPtr;
