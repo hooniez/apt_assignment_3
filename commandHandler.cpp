@@ -54,7 +54,7 @@ void CommandHandler::reset()
     firstWord = "";
 }
 
-bool CommandHandler::isPlaceCommandValid(const BoardPtr &board)
+bool CommandHandler::isPlaceCommandValid(const BoardPtr board)
 {
     /*
      * Checking whether the first word is "place" is necessary as multiple
@@ -132,7 +132,7 @@ bool CommandHandler::isPlaceCommandValid(const BoardPtr &board)
     return isValid;
 }
 
-bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr &board)
+bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr board, const WordBuilderPtr wordBuilder)
 {
     if (numWords == 2)
     {
@@ -146,14 +146,9 @@ bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr &board)
         else
         {
             /*
-             * board checks whether placed letters are valid and returns a
-             * vector of pointers to placed tiles back if invalid. If the
-             * placed tiles are legal, the first element of the returned
-             * vector should contain nullptr, implying there are no tiles
-             * are illegal
+             * board checks whether placed letters are valid
              */
-            auto returnedTiles = board->checkLetterPosValidity();
-            if (returnedTiles[0] != nullptr)
+            if (!board->isPlacementValid())
             {
                 if (board->isEmpty())
                 {
@@ -180,21 +175,28 @@ bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr &board)
                         << std::endl;
                 }
                 // Put the returned tiles back in the player's hand
-                for (const auto &placedTile : returnedTiles)
+                for (const auto &placedTile : board->getTilesToReturn())
                 {
                     currPlayer->getHand()->append(placedTile);
                 }
-            }
-            else
-            {
-                isValid = true;
+            } else {
+                if (!board->isWordValid(wordBuilder)) {
+                    std::cout << "Invalid Input: Make sure your words are valid words" << std::endl;
+                    // Put the returned tiles back in the player's hand
+                    for (const auto &placedTile : board->getTilesToReturn())
+                    {
+                        currPlayer->getHand()->append(placedTile);
+                    }
+                } else {
+                    isValid = true;
+                }
             }
         }
     }
     return isValid;
 }
 
-bool CommandHandler::isReplaceCommandValid(const TileBagPtr &tileBag)
+bool CommandHandler::isReplaceCommandValid(const TileBagPtr tileBag)
 {
     if (numWords != 2)
     {

@@ -1,7 +1,9 @@
 #include "game.h"
 #include "filemanager.h"
 
-Game::Game() : inSession(true), numRounds(0), commandHandler(std::make_shared<CommandHandler>())
+Game::Game() : inSession(true), numRounds(0),
+               commandHandler(std::make_shared<CommandHandler>()),
+               wordBuilder(std::make_shared<WordBuilder>("words"))
 {
     initialiseBoard();
     initialiseTileBag();
@@ -195,7 +197,7 @@ void Game::readCommand()
                         auto secondWord = commandHandler->playerCommand[1];
                         if (firstWord == "place" && secondWord == "Done")
                         {
-                            if (commandHandler->isPlaceDoneCommandValid(board))
+                            if (commandHandler->isPlaceDoneCommandValid(board, wordBuilder))
                                 executePlaceDoneCommand(numTilesPlaced);
                             placeDoneTyped = true;
                         }
@@ -284,7 +286,7 @@ void Game::executePlaceDoneCommand(size_t &numTilesPlaced)
 // Calculate scores from the generated words after "place Done"
 int Game::calculateScores()
 {
-    auto words = board->getAllWords();
+    auto words = board->getCurrWords();
     int score = 0;
     std::cout << currPlayer->getName() << " made the words: " << std::endl;
     for (auto it = words.cbegin(); it != words.cend(); ++it)

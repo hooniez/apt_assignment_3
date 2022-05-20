@@ -6,23 +6,23 @@
 #include <algorithm>
 #include <memory>
 #include <tuple>
+#include <string>
 
 #include "types.h"
 #include "tile.h"
 #include "player.h"
+#include "WordBuilder.h"
 
 class Board {
 
 
 public:
-
     /*
-     * creates a board with a specified width, height and if it is empty
+     * Create a board with a specified width, height and if it is empty
      * if misEmpty set to false will not do Empty board error checking
      */
     Board(unsigned int width, unsigned int height, bool misEmpty=true);
     ~Board();
-
     /* 
      * returns true if any tiles are adjacent, modifies tiles
      * array to pointers to the tiles. order is above, right, below, left
@@ -30,66 +30,46 @@ public:
      * pre-condition: gridLoc is a valid location
      */
     bool checkIfValid(const std::string &gridLoc);
-
     /* 
      * Checks if the gridLoc is empty to place a tile
      * pre-condition: gridLoc is a valid location
      */
     bool checkIfEmpty(const std::string &gridLoc);
-
     /* 
      * Setter method for tile
      * pre-condition: is a valid position format, [A-O1-14]
      */
     bool setTile(std::string position, TilePtr tile);
 
-    // Gets all the words created by the letters put on the board that turn
-    std::vector<std::string> getAllWords();
-
-    /*
-     * Checks that the letters placed on the board this
-     * turn meet scrabble rules
-     */
-    std::vector<TilePtr> checkLetterPosValidity();
-
     // Ends the turn clears the list of letters added this turn
     void clearCoords();
-
     // Getter method used by save/load
     unsigned int getWidth();
-
     // Getter method used by save/load
     unsigned int getLength();
-
     /*
      * Getter method used by save/load
      */
     std::vector<std::vector<TilePtr>> getBoard();
-
     // Getter method used by save/load
     TilePtr getTile(size_t x, size_t y);
-
     // gets if the board is empty
     bool isEmpty();
-
     // sets the board to be not empty.
     void setNotEmpty();
-
     // sets the boards empty status
     void setEmptyStatus(bool status);
-
-    // Return the number of tiles a player herself has placed in one round
-    size_t getNumPlacedTiles();
-
     /*
      * Check if a tile is within the board
      * pre-condition: the values are within the range of the board width,height
      */
     bool checkIfInBoard(unsigned int x, unsigned int y);
-
     // adjacency checking function checks that tile meets adjacency rules
     bool checkAdjacentTiles();
-
+    // Checks whether all placed tiles are on the same line
+    bool checkAllOnTheSameLine();
+    // Checks whether the first placement was made through the center cell
+    bool checkTheFirstPlacement();
     /*
      * Adds a single word, starting from a single coord,
      * in a specified direction
@@ -97,14 +77,12 @@ public:
      */
     std::string addWordInDirection(std::vector<int>
                                    &startingLetterCoords, Direction dir);
-
     /*
      * Converts a specified string to a coordinate
      * pre-condition: The string be in the form "letterintegerinteger"
      * in order to work. For example: "A13"
      */
     std::vector<int> convertPosToInt(const std::string &position);
-
     /*
      * gets the direction of a word, returns none direction
      * if they are not on same row or column
@@ -113,13 +91,49 @@ public:
     Direction getWordDirection(std::vector<int> &location1,
                                std::vector<int> &location2);
 
-// Board Attributes:
+    // Get all the words created by the letters put on the board in the current turn &
+    // store them in the data member currWords if all are valid.
+    void makeCurrWords();
+
+    // Return the vector currWords that contains all the valid words
+    std::vector<std::string>& getCurrWords();
+
+    // Check whether the placement is legal according to the game rules
+    bool isPlacementValid();
+
+    /*                          Milestone 1 & 2 Above
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     *                          Milestone 3 & 4 Below
+     */
+
+    // Check whether the placed tiles make up words found in a dictionary stored in wordBuilder
+    bool isWordValid(WordBuilderPtr wordBuilder);
+    std::vector<TilePtr>& getTilesToReturn();
+    // Clear the board of invalid tiles and put them in tilesToReturn
+    void setTilesToReturn();
+
 private:
-    std::vector <std::vector<TilePtr>> board;
+    std::vector<std::vector<TilePtr>> board;
     unsigned int width;
     unsigned int height;
     bool misEmpty;
-    std::vector<std::vector<int>> currentWordCoords;
+    std::vector<std::vector<int>> currTilesLoc;
+
+    /*                          Milestone 1 & 2 Above
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     *                          Milestone 3 & 4 Below
+     */
+
+    // If tiles placed are deemed invalid, they are put back in tilesToReturn.
+    std::vector<TilePtr> tilesToReturn;
+    std::vector<std::string> currWords;
+
 };
 typedef std::shared_ptr<Board> BoardPtr;
 
