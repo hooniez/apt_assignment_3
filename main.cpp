@@ -82,11 +82,11 @@ void mainMenu()
 void printCredits()
 {
     vector<pair<string, string>> contributors =
-        {
-            {"Cal Lamshed", "s3706239"},
-            {"Yongjie Shi", "s3759362"},
-            {"Max Foord", "s3888349"},
-            {"Myeonghoon Sun", "s3774430"}};
+            {
+                    {"Cal Lamshed", "s3706239"},
+                    {"Yongjie Shi", "s3759362"},
+                    {"Max Foord", "s3888349"},
+                    {"Myeonghoon Sun", "s3774430"}};
 
     std::cout << "\n----------------------------------" << std::endl;
     for (pair<string, string> contributor : contributors)
@@ -117,7 +117,7 @@ bool loadGame()
     std::string fileName;
     std::shared_ptr<Game> game = nullptr;
 
-    std::cout << "Enter the filename from which load a game" << std::endl;
+    std::cout << "Enter the filename from which to load a game" << std::endl;
     std::cout << "> ";
     std::getline(std::cin, fileName);
 

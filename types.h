@@ -15,6 +15,7 @@ enum Input
 #define NUM_PLAYER_TILES 7
 #define NUM_PLAYERS 2
 #define BIGO_ADDITIONAL_SCORE 50
+#define TOTAL_WORDS_IN_DIC 227568
 
 const char TILES_TXT_PATH[] = "ScrabbleTiles.txt";
 

@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "commandHandler.h"
 #include "player.h"
+#include "WordBuilder.h"
 
 /*
  * Game's role is to initialise every object that makes up Scrabble (e.g.
@@ -97,6 +98,14 @@ private:
     bool inSession;
     size_t numRounds;
     CommandHandlerPtr commandHandler;
+    /*                          Milestone 1 & 2 Above
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     *                          Milestone 3 & 4 Below
+     */
+    WordBuilderPtr wordBuilder;
 };
 
 #endif // ASSIGNMENT2_GAME_H
