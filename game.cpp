@@ -311,8 +311,8 @@ int Game::calculateScores()
         int currWordScore = 0;
         for (auto const &ch : *it)
         {
-            currWordScore += letterValMap.at(ch);
-            score += letterValMap.at(ch);
+            currWordScore += letterScoreMap.at(ch);
+            score += letterScoreMap.at(ch);
         }
 
         std::cout << " - " << *it << ": " << currWordScore << " points."

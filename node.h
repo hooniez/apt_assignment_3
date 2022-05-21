@@ -1,4 +1,3 @@
-
 #ifndef ASSIGN2_NODE_H
 #define ASSIGN2_NODE_H
 
@@ -8,16 +7,16 @@ template <class T>
 class Node
 {
 public:
-   Node(T content);
-   Node(Node &other);
-   ~Node();
-   void setNext(std::shared_ptr<Node<T>>);
-   std::shared_ptr<Node<T>> getNext() const;
-   T getContent() const;
+    Node(T content);
+    Node(Node &other);
+    ~Node();
+    void setNext(std::shared_ptr<Node<T>>);
+    std::shared_ptr<Node<T>> getNext() const;
+    T getContent() const;
 
 private:
-   const T content;
-   std::shared_ptr<Node<T>> next;
+    const T content;
+    std::shared_ptr<Node<T>> next;
 };
 
 template <class T>

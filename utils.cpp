@@ -28,16 +28,16 @@ void utils::printBoard(std::ostream& out, BoardPtr board)
     out << std::endl;
 
     // creating rows
-    for(unsigned int i = 0; i < board->getLength(); i++) 
+    for(unsigned int i = 0; i < board->getLength(); i++)
     {
         char rowAsChar = (char)(i+65);
         out << rowAsChar <<" |";
-        for(unsigned int k = 0; k < board->getWidth(); k++) 
+        for(unsigned int k = 0; k < board->getWidth(); k++)
         {
-            if(board->getBoard()[i][k] == nullptr) 
+            if(board->getBoard()[i][k] == nullptr)
             {
                 out << "   |";
-            } else 
+            } else
             {
                 char tileLetter = board->getBoard()[i][k]->getLetter();
                 out << " " << tileLetter << " |";
@@ -54,14 +54,14 @@ void utils::printTiles(std::ostream& out, LinkedListPtr<TilePtr> tiles)
     for (int i = 0; i < tiles->getLength(); ++i)
     {
         tile = tiles->peekAt(i);
-        if (i > 0) 
+        if (i > 0)
         {
             out << ", ";
         }
-        
+
         out << tile->getLetter()
-                  << "-"
-                  << tile->getValue();
+            << "-"
+            << tile->getValue();
     }
     out << std::endl;
 }
@@ -80,7 +80,7 @@ void utils::printTurn(std::ostream& out, PlayerPtr player) {
 void utils::printScores(std::ostream& out, std::vector<PlayerPtr>& players) {
     for (const auto &playerPtr : players) {
         out << "Score for " << playerPtr->getName()
-        << ": " << playerPtr->getScore() << std::endl;
+            << ": " << playerPtr->getScore() << std::endl;
     }
 }
 

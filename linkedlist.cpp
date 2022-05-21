@@ -211,7 +211,7 @@ T LinkedList<T>::getTile(Letter letter)
 
 template <class T>
 LinkedList<T>::LinkedList(const LinkedList<T> &other) : head(other.head),
-                          tail(other.tail), length(other.length)
+                                                        tail(other.tail), length(other.length)
 {}
 
 template class LinkedList<TilePtr>;

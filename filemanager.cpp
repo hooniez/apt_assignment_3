@@ -1,3 +1,9 @@
+//
+// Created by Myeonghoon Sun on 21/5/2022.
+//
+
+#include "filemanager.h"
+
 #include <fstream>
 #include <vector>
 #include <string>
@@ -15,11 +21,11 @@ using std::string;
 using std::vector;
 
 void files::saveGame(
-    std::vector<PlayerPtr> players,
-    BoardPtr board,
-    TileBagPtr tileBag,
-    PlayerPtr currPlayer,
-    const std::string &fileName)
+        std::vector<PlayerPtr> players,
+        BoardPtr board,
+        TileBagPtr tileBag,
+        PlayerPtr currPlayer,
+        const std::string &fileName)
 {
     std::ofstream outFile;
     outFile.open(fileName + ".save", std::ofstream::out);
@@ -127,7 +133,7 @@ std::shared_ptr<TileBag> files::parseTileBag(std::ifstream &in)
     {
 
         tb = std::make_shared<TileBag>(
-            std::make_shared<LinkedList<TilePtr>>());
+                std::make_shared<LinkedList<TilePtr>>());
     }
     return tb;
 }
@@ -284,10 +290,10 @@ LinkedListPtr<TilePtr> files::parseTiles(std::string tileStr)
      * tile representation eg"S-" that that tile will be ignored
      */
     if (
-        tileStr.length() >= 3 &&
-        std::isalpha(tileStr[0]) &&
-        tileStr[1] == '-' &&
-        std::isdigit(tileStr[2]))
+            tileStr.length() >= 3 &&
+            std::isalpha(tileStr[0]) &&
+            tileStr[1] == '-' &&
+            std::isdigit(tileStr[2]))
     {
         for (unsigned int i = 0; i < tileStr.length(); ++i)
         {
@@ -305,7 +311,7 @@ LinkedListPtr<TilePtr> files::parseTiles(std::string tileStr)
             {
 
                 tiles->append(std::make_shared<Tile>(
-                    letter[0], std::stoi(val)));
+                        letter[0], std::stoi(val)));
                 letter = "";
                 val = "";
             }

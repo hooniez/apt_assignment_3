@@ -16,31 +16,83 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="45861f05-9093-4a50-b324-3019e47426f0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Dictionary.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dictionary.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/assignment3.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PlacedTile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/PlacedTile.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PlacedTile.h" beforeDir="false" afterPath="$PROJECT_DIR$/PlacedTile.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PlacedTile.o" beforeDir="false" afterPath="$PROJECT_DIR$/PlacedTile.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WordBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WordBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AiMap.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AiMap.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AiMapBuilder.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AiMapBuilder.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backwardAiMap" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forwardAiMap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Untitled-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ScrabbleTiles.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ScrabbleTiles.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Untitled.ipynb" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/board.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/board.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/board.h" beforeDir="false" afterPath="$PROJECT_DIR$/board.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/board.o" beforeDir="false" afterPath="$PROJECT_DIR$/board.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/commandHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/commandHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commandHandler.o" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/filemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/filemanager.o" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/game.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.h" beforeDir="false" afterPath="$PROJECT_DIR$/game.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.o" beforeDir="false" afterPath="$PROJECT_DIR$/game.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linkedlist.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/linkedlist.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linkedlist.h" beforeDir="false" afterPath="$PROJECT_DIR$/linkedlist.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linkedlist.o" beforeDir="false" afterPath="$PROJECT_DIR$/linkedlist.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node.o" beforeDir="false" afterPath="$PROJECT_DIR$/node.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/player.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/player.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/player.o" beforeDir="false" afterPath="$PROJECT_DIR$/player.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scrabble" beforeDir="false" afterPath="$PROJECT_DIR$/scrabble" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/CompleteGamePlay/CompleteGamePlay.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/CompleteGamePlay/CompleteGamePlay.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/CompleteGamePlay/CompleteGamePlay.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/EndGameConditions/2Passes/2Passes.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/EndGameConditions/2Passes/2Passes.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/EndGameConditions/2Passes/2Passes.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/EndGameConditions/EmptyHand/EmptyHand.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/EndGameConditions/EmptyHand/EmptyHand.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/EndGameConditions/EmptyHand/EmptyHand.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/FirstTile/AfterFirstTile.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/FirstTile/FirstTile.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/FirstTile/FirstTile.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/FirstTile/FirstTile.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/IncorrectPlacement/InvalidPlaceInput/AfterInvalidPlaceInput.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/IncorrectPlacement/InvalidPlaceInput/InvalidPlaceInput.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/IncorrectPlacement/InvalidPlaceInput/InvalidPlaceInput.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/IncorrectPlacement/InvalidPlaceInput/InvalidPlaceInput.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/IncorrectPlacement/NotContinuousLine/NotContinuousLine.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/IncorrectPlacement/NotContinuousLine/NotContinuousLine.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/IncorrectPlacement/NotContinuousLine/NotContinuousLine.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/InvalidSaveFile/InvalidSave.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/InvalidSaveFile/InvalidSave.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/InvalidSaveFile/InvalidSave.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/PlayerName/PlayerName.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/PlayerName/PlayerName.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/PlayerName/PlayerName.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/Bingo/Bingo.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/Bingo/Bingo.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/Bingo/Bingo.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/CornerWords/AfterCornerWords.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/CornerWords/CornerWords.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/CornerWords/CornerWords.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/CornerWords/CornerWords.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/Scoring/AfterScoring.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/Scoring/Scoring.input" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/Scoring/Scoring.output" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testCases/Scoring/Scoring/Scoring.save" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tile.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tile.h" beforeDir="false" afterPath="$PROJECT_DIR$/tile.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tile.o" beforeDir="false" afterPath="$PROJECT_DIR$/tile.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tilebag.h" beforeDir="false" afterPath="$PROJECT_DIR$/tilebag.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tilebag.o" beforeDir="false" afterPath="$PROJECT_DIR$/tilebag.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/types.h" beforeDir="false" afterPath="$PROJECT_DIR$/types.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/utils.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/utils.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/words" beforeDir="false" afterPath="$PROJECT_DIR$/words" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,6 +140,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="$PROJECT_DIR$/filemanager.cpp" />
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -109,6 +164,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
   </component>
   <component name="RunManager" selected="Makefile Application.all">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
@@ -139,7 +195,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1653074498297</updated>
-      <workItem from="1653074500884" duration="20102000" />
+      <workItem from="1653074500884" duration="21496000" />
     </task>
     <servers />
   </component>
@@ -156,5 +212,21 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/game.cpp</url>
+          <line>4</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/game.cpp</url>
+          <line>9</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

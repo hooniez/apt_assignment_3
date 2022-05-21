@@ -6,19 +6,19 @@
  */
 
 Player::Player(std::string name)
-    : name(name),
-      score(0),
-      hand(std::make_shared<LinkedList<TilePtr>>()),
-      numPasses(0)
+        : name(name),
+          score(0),
+          hand(std::make_shared<LinkedList<TilePtr>>()),
+          numPasses(0)
 {
 }
 
 Player::Player(std::string name, int score,
                LinkedListPtr<TilePtr> hand)
-    : name(name),
-      score(score),
-      hand(hand),
-      numPasses(0)
+        : name(name),
+          score(score),
+          hand(hand),
+          numPasses(0)
 {
 }
 

@@ -1,4 +1,3 @@
-
 #include "node.h"
 
 template <class T>
