@@ -4,6 +4,16 @@
 #include "player.h"
 #include "board.h"
 
+void utils::printConfigSetting(std::ostream& out, configSettingPtr configSetting) {
+    if (configSetting->empty())
+        out << std::endl;
+    else {
+        for (const auto &configOption: *configSetting)
+            out << configOption << " ";
+        out << std::endl;
+    }
+}
+
 void utils::printBoard(std::ostream& out, BoardPtr board)
 {
     out << " ";

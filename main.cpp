@@ -16,9 +16,9 @@ using std::string;
 using std::vector;
 
 void printMenu();
-void mainMenu(const validOptions&);
+void mainMenu(const configSettingPtr&);
 void printCredits();
-void startNewGame(const validOptions&);
+void startNewGame(const configSettingPtr&);
 bool loadGame();
 
 /*                          Milestone 1 & 2 Above
@@ -29,17 +29,17 @@ bool loadGame();
  *                          Milestone 3 & 4 Below
  */
 
-validOptions readOptions(int, const char *[]);
-validOptions readOptionsUntilValid();
-void printOptions();
+configSettingPtr readConfig(int, const char *[]);
+configSettingPtr readConfigUntilValid();
+void printConfigOptions();
 
 int main(int argc, const char *argv[])
 {
-    validOptions optionsValid = readOptions(argc, argv);
+    configSettingPtr optionsValid = readConfig(argc, argv);
 
     // If the entered options are invalid, make the user type again until they are valid
     if (!optionsValid)
-        optionsValid = readOptionsUntilValid();
+        optionsValid = readConfigUntilValid();
 
     std::cout << "\nWelcome to Scrabble!" << std::endl;
     std::cout << "-------------------" << std::endl;
@@ -52,7 +52,7 @@ int main(int argc, const char *argv[])
     return EXIT_SUCCESS;
 }
 
-void mainMenu(const validOptions &options)
+void mainMenu(const configSettingPtr &options)
 {
     bool terminate = false;
     std::string input;
@@ -120,7 +120,7 @@ void printCredits()
               << std::endl;
 }
 
-void startNewGame(const validOptions &options)
+void startNewGame(const configSettingPtr &options)
 {
     std::cout << "\nStarting a New Game"
               << std::endl;
@@ -177,21 +177,21 @@ void printMenu()
 
 // Read an option(s) and return a set of correctly formatted options
 // Otherwise, return nullptr.
-validOptions readOptions(int argc, const char *argv[]) {
-    validOptions options = nullptr;
+configSettingPtr readConfig(int argc, const char *argv[]) {
+    configSettingPtr options = nullptr;
 
     // If no options are typed
     if (argc == 1)
         // Return an empty set rather than nullptr
-        options = std::make_shared<validOptionType>();
+        options = std::make_shared<configSettingType>();
 
     // Check if options specified are fewer than the total number of available options
     // argc - 1 excludes the program name
-    if (argc - 1 <= OPTIONS.size()) {
+    if (argc - 1 <= CONFIGOPTIONS.size()) {
         for (int i = 1; i < argc; ++i) {
-            if (OPTIONS.count(argv[i]) == 1) {
+            if (CONFIGOPTIONS.count(argv[i]) == 1) {
                 if (!options)
-                    options = std::make_shared<validOptionType>();
+                    options = std::make_shared<configSettingType>();
                 options->insert(std::string(argv[i]));
             } else { // If any one of the options is invalid
                 options = nullptr;
@@ -201,9 +201,9 @@ validOptions readOptions(int argc, const char *argv[]) {
     return options;
 }
 
-validOptions readOptionsUntilValid() {
-    validOptions optionsValid = nullptr;
-    printOptions();
+configSettingPtr readConfigUntilValid() {
+    configSettingPtr optionsValid = nullptr;
+    printConfigOptions();
 
     std::string userOption;
     bool done = false;
@@ -214,10 +214,10 @@ validOptions readOptionsUntilValid() {
         utils::promptInput();
         std::getline(std::cin, userOption);
         // If the user correctly types in an option
-        if (OPTIONS.count(userOption) == 1) {
+        if (CONFIGOPTIONS.count(userOption) == 1) {
             // If no valid option has been entered
             if (!optionsValid)
-                optionsValid = std::make_shared<validOptionType>();
+                optionsValid = std::make_shared<configSettingType>();
             optionsValid->insert(userOption);
 
             // Only if optionsValid has a valid option entered, enter the condition below
@@ -225,14 +225,14 @@ validOptions readOptionsUntilValid() {
         } else if (optionsValid && (userOption == "--done")) {
             done = true;
         } else {
-            printOptions();
+            printConfigOptions();
         }
     }
     return optionsValid;
 }
 
 // Give information on what command-line options are available
-void printOptions() {
+void printConfigOptions() {
     std::cout << "Invalid Option(s)\n" << std::endl;
     std::cout << "Available options are:" << std::endl;
     std::cout << "To play against a computer: --ai" << std::endl;

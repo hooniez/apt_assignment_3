@@ -6,13 +6,15 @@
 #include "game.h"
 #include "linkedlist.h"
 #include "board.h"
+#include "strstream"
 
 namespace files
 {
     void saveGame(std::vector<PlayerPtr> players,
                   BoardPtr board, TileBagPtr tileBag, PlayerPtr currPlayer,
-                  const std::string &fileName);
+                  configSettingPtr configSetting, const std::string &fileName);
     std::shared_ptr<Game> loadGame(std::string fileName);
+    configSettingPtr parseConfigSetting(std::ifstream &in);
     PlayerPtr parsePlayerTurn(std::ifstream &in,
                               std::vector<PlayerPtr> players);
     LinkedListPtr<TilePtr> parseTiles(std::string tileStr);

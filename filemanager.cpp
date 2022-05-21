@@ -25,10 +25,15 @@ void files::saveGame(
         BoardPtr board,
         TileBagPtr tileBag,
         PlayerPtr currPlayer,
+        configSettingPtr configSetting,
         const std::string &fileName)
 {
     std::ofstream outFile;
     outFile.open(fileName + ".save", std::ofstream::out);
+
+    // Write configuration settings first
+    utils::printConfigSetting(outFile, configSetting);
+
     for (const auto &player : players)
     {
         utils::printPlayer(outFile, player);
@@ -52,6 +57,9 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     {
         invalid = true;
     }
+
+    configSettingPtr configSetting;
+    configSetting = files::parseConfigSetting(inFile);
 
     std::vector<PlayerPtr> players;
     PlayerPtr player;
@@ -83,10 +91,28 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
         tileBag != nullptr &&
         playerTurn != nullptr)
     {
-        game = std::make_shared<Game>(players, board, tileBag, playerTurn);
+        game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn);
     }
 
     return game;
+}
+
+/*
+ * Read the first line of the file to find out the configuration setting of the game
+ * If it is a regular game without any extra configuration, the file starts with an empty line
+ * Otherwise, such configuration options as --ai, --dictionary, or --hint will be read
+ * on the first line
+ */
+configSettingPtr files::parseConfigSetting(std::ifstream &in) {
+    configSettingPtr configSetting = std::make_shared<configSettingType>();
+    std::string line;
+    std::getline(in, line);
+    std::istringstream settings(line);
+    std::string option;
+    while (settings >> option) {
+        configSetting->insert(option);
+    }
+    return configSetting;
 }
 
 /*

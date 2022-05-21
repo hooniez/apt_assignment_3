@@ -578,9 +578,6 @@ bool Board::isPlacementValid(){
         // Fill the data member currWords with all the words created by
         // the letters put on the board in the current turn.
         makeCurrWords();
-        // set the board as not empty
-        if (misEmpty)
-            misEmpty = false;
     } else {
         // Clear the board of invalid tiles and put them in tilesToReturn
         setTilesToReturn();
@@ -590,6 +587,8 @@ bool Board::isPlacementValid(){
 }
 
 std::vector<std::string>& Board::getCurrWords() {
+    if (misEmpty)
+        misEmpty = false;
     pushPlacedTiles();
     return currWords;
 }
@@ -607,11 +606,7 @@ bool Board::isWordValid(DictionaryPtr dict) {
 
     // User dict to check whether words are valid
     isValid = dict->isInDict(currWords);
-    if (isValid) {
-        // set the board as not empty, as letters added successfully
-        if (misEmpty)
-            misEmpty = false;
-    } else {
+    if (!isValid) {
         setTilesToReturn();
         currTilesLoc.clear();
     }

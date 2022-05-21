@@ -16,6 +16,7 @@
 #include "player.h"
 #include "Dictionary.h"
 #include "types.h"
+#include "WordBuilder.h"
 
 /*
  * Game's role is to initialise every object that makes up Scrabble (e.g.
@@ -28,13 +29,15 @@
 class Game
 {
 public:
-    Game(const validOptions&);
-    Game(
+    Game(const configSettingPtr&);
+    Game(configSettingPtr configSetting,
         std::vector<PlayerPtr> players,
         BoardPtr board,
         std::shared_ptr<TileBag> tileBag,
         PlayerPtr playerTurn);
     ~Game();
+    // Process options read from the command-line and accordingly initialise data members
+    void processConfigSetting(const configSettingPtr& options);
     void initialiseBoard();
     void initialiseTileBag();
     /*
@@ -86,10 +89,12 @@ public:
      */
     void printResult();
     bool isInSession();
+
     std::vector<PlayerPtr> getPlayers();
     PlayerPtr getCurrPlayer();
     BoardPtr getBoard();
     std::shared_ptr<TileBag> getTileBag();
+
 
 private:
     PlayerPtr currPlayer;
@@ -107,6 +112,8 @@ private:
      *                          Milestone 3 & 4 Below
      */
     DictionaryPtr dictionary;
+    WordBuilderPtr wordBuilder;
+    configSettingPtr configSetting;
 };
 
 #endif // ASSIGNMENT2_GAME_H

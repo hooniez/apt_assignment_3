@@ -13,14 +13,14 @@ enum Input
     QUIT
 };
 
-typedef std::set<std::string> validOptionType;
-typedef std::shared_ptr<validOptionType> validOptions;
-const std::set<std::string> OPTIONS = {"--ai", "--dictionary", "--hint"};
+typedef std::set<std::string> configSettingType;
+typedef std::shared_ptr<configSettingType> configSettingPtr;
+const std::set<std::string> CONFIGOPTIONS = {"--ai", "--dictionary", "--hint"};
 
 #define BOARD_LENGTH 15
 #define NUM_PLAYER_TILES 7
 #define NUM_PLAYERS 2
-#define BIGO_ADDITIONAL_SCORE 50
+#define BINGO_ADDITIONAL_SCORE 50
 #define TOTAL_WORDS_IN_DIC 228000
 #define NUM_ELEMENTS_IN_AI_MAP 2010000
 

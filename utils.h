@@ -8,6 +8,7 @@
 #include "board.h"
 
 namespace utils {
+    void printConfigSetting(std::ostream& out, configSettingPtr configSetting);
     void printBoard(std::ostream& out, BoardPtr board);
     void printTiles(std::ostream& out, LinkedListPtr<TilePtr> tiles);
     void printPlayer(std::ostream& out, PlayerPtr player);

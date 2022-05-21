@@ -1,48 +1,66 @@
 #include "game.h"
 #include "filemanager.h"
 
-Game::Game(const validOptions& options) : inSession(true), numRounds(0),
-               commandHandler(std::make_shared<CommandHandler>()),
-               dictionary(nullptr)
+Game::Game(const configSettingPtr& configSetting) : inSession(true), numRounds(0),
+                                                    commandHandler(std::make_shared<CommandHandler>()),
+                                                    dictionary(nullptr), wordBuilder(nullptr),
+                                                    configSetting(configSetting)
+
 {
+    processConfigSetting(configSetting);
     initialiseBoard();
     initialiseTileBag();
     initialisePlayers();
     currPlayer = players[0];
-    if (options->count("--ai")) {
-        dictionary = std::make_shared<Dictionary>("words");
-
-        // TODO Implement AI
-    }
-
-    if (options->count("--dictionary")) {
-        // wordBuilder is designed to have the dictionary as its data member
-        dictionary = std::make_shared<Dictionary>("words");
-    }
-
-    if (options->count("--hint")) {
-        // TODO Implement hint
-    }
-
-
 }
 
 Game::Game(
+        configSettingPtr configSetting,
     std::vector<PlayerPtr> players,
     BoardPtr board,
     std::shared_ptr<TileBag> tileBag,
-    PlayerPtr playerTurn) : currPlayer(playerTurn),
+    PlayerPtr playerTurn):
+                            currPlayer(playerTurn),
                             players(players),
                             board(board),
                             tileBag(tileBag),
                             inSession(true),
                             numRounds(0),
-                            commandHandler(std::make_shared<CommandHandler>())
+                            commandHandler(std::make_shared<CommandHandler>()),
+                            configSetting(configSetting)
+
 {
+    for (const auto &option : *configSetting) {
+        std::cout << option << std::endl;
+    }
 }
 
-Game::~Game()
-{
+Game::~Game() = default;
+
+void Game::processConfigSetting(const configSettingPtr& options) {
+    // If options is not empty
+    if (!options->empty()) {
+        // Create a dictionary as all the options require it.
+        dictionary = std::make_shared<Dictionary>("words");
+        // If options includes --ai, create wordBuilder as a player
+        if (options->count("--ai")) {
+            // If options includes --hint, allow wordBuilder to give hints
+            if (options->count("--hint")) {
+                wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
+                                                            "backwardAiMap",
+                                                            "AI", true);
+            } else
+                // If options doesnt include --hint, do not allow wordBuilder to give hints
+                wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
+                                                            "backwardAiMap",
+                                                            "AI", false);
+        }
+        // If options includes just --hint, do not create wordBuilder as a player
+        // but allow it to give hints
+    } else if (options->count("--hint")) {
+        wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
+                                                    "backwardAiMap", true);
+    }
 }
 
 void Game::initialiseBoard()
@@ -59,8 +77,14 @@ void Game::initialiseTileBag()
 // vector, and dealing tiles to them
 void Game::initialisePlayers()
 {
+
+    size_t numHumanPlayers = NUM_PLAYERS;
+    // If the player plays against wordBuilder
+    if (wordBuilder && wordBuilder->isPlaying)
+        numHumanPlayers = 1;
+
     // Read in the players' names
-    for (size_t i = 0; i < NUM_PLAYERS; ++i)
+    for (size_t i = 0; i < numHumanPlayers; ++i)
     {
         std::string playerName = readPlayerName(i);
         // Check whether playerName is identical to the previous
@@ -73,6 +97,9 @@ void Game::initialisePlayers()
         }
 
         players.push_back(std::make_shared<Player>(playerName));
+        // If the player plays against wordBuilder
+        if (wordBuilder && wordBuilder->isPlaying)
+            players.push_back(wordBuilder);
 
         // Draw tiles from tileBag for each player's hand
         for (size_t j = 0; j < NUM_PLAYER_TILES; j++)
@@ -80,6 +107,11 @@ void Game::initialisePlayers()
             players[i]->drawOne(tileBag->dealOne());
         }
     }
+
+//    std::cout << (*(*wordBuilder->forwardMap)["A"])['C'] << std::endl;
+
+
+
 }
 
 // Read a valid player name until it is all in uppercase characters
@@ -287,8 +319,8 @@ void Game::executePlaceDoneCommand(size_t &numTilesPlaced)
     if (numTilesPlaced == NUM_PLAYER_TILES)
     {
         std::cout << "\nBINGO!!!" << std::endl;
-        currPlayer->addScore(BIGO_ADDITIONAL_SCORE);
-        std::cout << "Congrats!, have another " << BIGO_ADDITIONAL_SCORE
+        currPlayer->addScore(BINGO_ADDITIONAL_SCORE);
+        std::cout << "Congrats!, have another " << BINGO_ADDITIONAL_SCORE
                   << " points!" << std::endl;
     }
     // while the tile bag is not empty and the player's hand is not full
@@ -346,7 +378,7 @@ void Game::executeSaveCommand()
 
     try
     {
-        files::saveGame(players, board, tileBag, currPlayer, fileName);
+        files::saveGame(players, board, tileBag, currPlayer, configSetting, fileName);
         std::cout << "\nGame successfully saved\n"
                   << std::endl;
     }
