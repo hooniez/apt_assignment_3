@@ -16,28 +16,46 @@ using std::string;
 using std::vector;
 
 void printMenu();
-void mainMenu();
+void mainMenu(const validOptions&);
 void printCredits();
-void startNewGame();
+void startNewGame(const validOptions&);
 bool loadGame();
 
-int main(void)
+/*                          Milestone 1 & 2 Above
+ * -------------------------------------------------------------------
+ * -------------------------------------------------------------------
+ * -------------------------------------------------------------------
+ * -------------------------------------------------------------------
+ *                          Milestone 3 & 4 Below
+ */
+
+validOptions readOptions(int, const char *[]);
+validOptions readOptionsUntilValid();
+void printOptions();
+
+int main(int argc, const char *argv[])
 {
-    std::cout << "Welcome to Scrabble!" << std::endl;
+    validOptions optionsValid = readOptions(argc, argv);
+
+    // If the entered options are invalid, make the user type again until they are valid
+    if (!optionsValid)
+        optionsValid = readOptionsUntilValid();
+
+    std::cout << "\nWelcome to Scrabble!" << std::endl;
     std::cout << "-------------------" << std::endl;
 
-    mainMenu();
-    //    std::shared_ptr<Game> game = files::loadGame();
-    //    files::saveGame(game);
+    mainMenu(optionsValid);
 
     std::cout << "\nGoodbye" << std::endl;
+
+
     return EXIT_SUCCESS;
 }
 
-void mainMenu()
+void mainMenu(const validOptions &options)
 {
     bool terminate = false;
-    std::string input = "";
+    std::string input;
     int selection = 0;
     while (!terminate)
     {
@@ -57,11 +75,12 @@ void mainMenu()
 
         if (selection == NEW)
         {
-            startNewGame();
+            startNewGame(options);
             terminate = true;
         }
         else if (selection == LOAD)
         {
+            // TODO: implement options
             terminate = loadGame();
         }
         else if (selection == CREDIT)
@@ -101,11 +120,11 @@ void printCredits()
               << std::endl;
 }
 
-void startNewGame()
+void startNewGame(const validOptions &options)
 {
     std::cout << "\nStarting a New Game"
               << std::endl;
-    Game game;
+    Game game(options);
     // In case any of the players types in eof for the name
     if (game.isInSession())
         game.play();
@@ -146,4 +165,77 @@ void printMenu()
               << "3. Credits (Show student information)" << std::endl
               << "4. Quit\n"
               << std::endl;
+}
+
+/*                          Milestone 1 & 2 Above
+ * -------------------------------------------------------------------
+ * -------------------------------------------------------------------
+ * -------------------------------------------------------------------
+ * -------------------------------------------------------------------
+ *                          Milestone 3 & 4 Below
+ */
+
+// Read an option(s) and return a set of correctly formatted options
+// Otherwise, return nullptr.
+validOptions readOptions(int argc, const char *argv[]) {
+    validOptions options = nullptr;
+
+    // If no options are typed
+    if (argc == 1)
+        // Return an empty set rather than nullptr
+        options = std::make_shared<validOptionType>();
+
+    // Check if options specified are fewer than the total number of available options
+    // argc - 1 excludes the program name
+    if (argc - 1 <= OPTIONS.size()) {
+        for (int i = 1; i < argc; ++i) {
+            if (OPTIONS.count(argv[i]) == 1) {
+                if (!options)
+                    options = std::make_shared<validOptionType>();
+                options->insert(std::string(argv[i]));
+            } else { // If any one of the options is invalid
+                options = nullptr;
+            }
+        }
+    }
+    return options;
+}
+
+validOptions readOptionsUntilValid() {
+    validOptions optionsValid = nullptr;
+    printOptions();
+
+    std::string userOption;
+    bool done = false;
+    // While options are not valid OR the user is not done
+    while (!optionsValid || !done) {
+        std::cout << std::endl;
+        std::cout << "Please type in an option to enable (type --done when finished)" << std::endl;
+        utils::promptInput();
+        std::getline(std::cin, userOption);
+        // If the user correctly types in an option
+        if (OPTIONS.count(userOption) == 1) {
+            // If no valid option has been entered
+            if (!optionsValid)
+                optionsValid = std::make_shared<validOptionType>();
+            optionsValid->insert(userOption);
+
+            // Only if optionsValid has a valid option entered, enter the condition below
+            // If the user has typed "--done"", exit the loop
+        } else if (optionsValid && (userOption == "--done")) {
+            done = true;
+        } else {
+            printOptions();
+        }
+    }
+    return optionsValid;
+}
+
+// Give information on what command-line options are available
+void printOptions() {
+    std::cout << "Invalid Option(s)\n" << std::endl;
+    std::cout << "Available options are:" << std::endl;
+    std::cout << "To play against a computer: --ai" << std::endl;
+    std::cout << "To check whether the entered words are valid: --dictionary" << std::endl;
+    std::cout << "To get hints on where to place tiles: --hint" << std::endl;
 }

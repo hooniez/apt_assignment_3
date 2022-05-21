@@ -578,6 +578,9 @@ bool Board::isPlacementValid(){
         // Fill the data member currWords with all the words created by
         // the letters put on the board in the current turn.
         makeCurrWords();
+        // set the board as not empty
+        if (misEmpty)
+            misEmpty = false;
     } else {
         // Clear the board of invalid tiles and put them in tilesToReturn
         setTilesToReturn();
@@ -599,18 +602,18 @@ std::vector<std::string>& Board::getCurrWords() {
  *                          Milestone 3 & 4 Below
  */
 
-bool Board::isWordValid(WordBuilderPtr wordBuilder) {
+bool Board::isWordValid(DictionaryPtr dict) {
     bool isValid = false;
 
-    // User wordBuilder to check whether words are valid
-    isValid = wordBuilder->isInDict(currWords);
-    if (!isValid) {
-        setTilesToReturn();
-        currTilesLoc.clear();
-    } else {
+    // User dict to check whether words are valid
+    isValid = dict->isInDict(currWords);
+    if (isValid) {
         // set the board as not empty, as letters added successfully
         if (misEmpty)
             misEmpty = false;
+    } else {
+        setTilesToReturn();
+        currTilesLoc.clear();
     }
     return isValid;
 }
@@ -622,7 +625,7 @@ std::vector<TilePtr>& Board::getTilesToReturn() {
 void Board::setTilesToReturn() {
     for (auto it = currTilesLoc.cbegin(); it != currTilesLoc.cend(); ++it) {
         tilesToReturn.push_back(board[(*it)[0]][(*it)[1]]);
-        board[(*it)[0]][(*it)[1]] = nullptr;
+        board[(*it)[X]][(*it)[Y]] = nullptr;
     }
 }
 
@@ -636,11 +639,12 @@ void Board::pushPlacedTiles() {
     size_t y = 0;
     for (auto it = currTilesLoc.cbegin();
          it != currTilesLoc.cend(); ++it) {
-        tile = board[(*it)[0]][(*it)[1]];
-        x = (*it)[0];
-        y = (*it)[1];
-        placedTile = std::make_shared<PlacedTile>(tile,std::make_tuple(x,y));
-        placedTiles.push(placedTile);
+        tile = board[(*it)[X]][(*it)[Y]];
+        x = (*it)[X];
+        y = (*it)[Y];
+
+        placedTiles.insert(std::make_shared<PlacedTile>(tile,std::make_tuple(x,y)));
     }
+    std::cout << (*placedTiles.rbegin())->getValue();
     currTilesLoc.clear();
 }

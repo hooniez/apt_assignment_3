@@ -7,7 +7,6 @@ PlacedTile::PlacedTile(TilePtr tile, std::tuple<size_t, size_t> gridLoc): Tile(*
     this->gridLoc = gridLoc;
 }
 
-// A std priority queue uses the < operator to determine the positions of elements
-bool PlacedTile::operator<(const PlacedTile& other) {
+bool PlacedTile::operator<(const PlacedTile& other) const {
     return this->getValue() < other.getValue();
 }

@@ -19,10 +19,9 @@
 class PlacedTile: public Tile {
 public:
     PlacedTile(TilePtr, std::tuple<size_t, size_t> gridLoc);
-    bool operator<(const PlacedTile& other);
+    bool operator<(const PlacedTile& other) const;
 private:
     std::tuple<size_t, size_t> gridLoc;
-    TilePtr tile;
 };
 typedef std::shared_ptr<PlacedTile>
         placedTilePtr;

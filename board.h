@@ -7,12 +7,13 @@
 #include <memory>
 #include <tuple>
 #include <string>
-#include <queue>
+#include <set>
+
 
 #include "types.h"
 #include "tile.h"
 #include "player.h"
-#include "WordBuilder.h"
+#include "Dictionary.h"
 #include "PlacedTile.h"
 
 
@@ -112,8 +113,8 @@ public:
      *                          Milestone 3 & 4 Below
      */
 
-    // Check whether the placed tiles make up words found in a dictionary stored in wordBuilder
-    bool isWordValid(WordBuilderPtr wordBuilder);
+    // Check whether the placed tiles make up words found in a dict stored in wordBuilder
+    bool isWordValid(DictionaryPtr dict);
     std::vector<TilePtr>& getTilesToReturn();
     // Clear the board of invalid tiles and put them in tilesToReturn
     void setTilesToReturn();
@@ -138,7 +139,7 @@ private:
     // If tiles placed are deemed invalid, they are put back in tilesToReturn.
     std::vector<TilePtr> tilesToReturn;
     std::vector<std::string> currWords;
-    std::priority_queue<placedTilePtr> placedTiles;
+    std::set<placedTilePtr> placedTiles;
 
 
 };

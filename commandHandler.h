@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "player.h"
 #include "tilebag.h"
-#include "WordBuilder.h"
+#include "Dictionary.h"
 
 /* CommandHandler contains all the necessary and resultant data members
  * when and after reading a command
@@ -23,9 +23,9 @@ public:
     std::istream& getline(std::istream&, PlayerPtr);
     // Reset the re-used command object when reading the next command
     void reset();
-    bool isPlaceCommandValid(const BoardPtr board);
-    bool isPlaceDoneCommandValid(const BoardPtr board, const WordBuilderPtr wordBuilder);
-    bool isReplaceCommandValid(const TileBagPtr tileBag);
+    bool isPlaceCommandValid(BoardPtr board);
+    bool isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dictionary);
+    bool isReplaceCommandValid(TileBagPtr tileBag);
     bool isPassCommmandValid();
     bool isSaveCommandValid();
     bool isQuitCommandValid();

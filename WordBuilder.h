@@ -5,27 +5,17 @@
 #ifndef ASSIGNMENT3_WORDBUILDER_H
 #define ASSIGNMENT3_WORDBUILDER_H
 
-#include <unordered_set>
-#include <memory>
-#include "types.h"
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <string>
 
 /*
- * WordBuilder
+ * WordBuilder is initialised when --ai or --hint options are enabled
  */
-typedef std::unordered_set<std::string> dictType;
-typedef std::shared_ptr<dictType> dictPtr;
 
 class WordBuilder {
 public:
-    WordBuilder(const std::string& dictFileName);
-    bool isInDict(std::vector<std::string>& words);
-private:
-    dictPtr dict;
+    WordBuilder(const std::string& forwardSearchMap, const std::string & backwardSearchMap);
+
 };
-typedef std::shared_ptr<WordBuilder> WordBuilderPtr;
+
 
 #endif //ASSIGNMENT3_WORDBUILDER_H

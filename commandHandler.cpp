@@ -9,9 +9,7 @@ CommandHandler::CommandHandler() : isValid(false), numWords(0)
 {
 }
 
-CommandHandler::~CommandHandler()
-{
-}
+CommandHandler::~CommandHandler() = default;
 
 /*
  * CommandHandler's getline reads a line using: std::getline(std::cin,
@@ -132,7 +130,7 @@ bool CommandHandler::isPlaceCommandValid(const BoardPtr board)
     return isValid;
 }
 
-bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr board, const WordBuilderPtr wordBuilder)
+bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dictionary)
 {
     if (numWords == 2)
     {
@@ -180,7 +178,8 @@ bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr board, const WordBui
                     currPlayer->getHand()->append(placedTile);
                 }
             } else {
-                if (!board->isWordValid(wordBuilder)) {
+                // If dictionary is initialised (in all cases of the options)
+                if (dictionary && !board->isWordValid(dictionary)) {
                     std::cout << "Invalid Input: Make sure your words are valid words" << std::endl;
                     // Put the returned tiles back in the player's hand
                     for (const auto &placedTile : board->getTilesToReturn())

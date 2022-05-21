@@ -14,7 +14,8 @@
 #include "utils.h"
 #include "commandHandler.h"
 #include "player.h"
-#include "WordBuilder.h"
+#include "Dictionary.h"
+#include "types.h"
 
 /*
  * Game's role is to initialise every object that makes up Scrabble (e.g.
@@ -27,7 +28,7 @@
 class Game
 {
 public:
-    Game();
+    Game(const validOptions&);
     Game(
         std::vector<PlayerPtr> players,
         BoardPtr board,
@@ -105,7 +106,7 @@ private:
      * -------------------------------------------------------------------
      *                          Milestone 3 & 4 Below
      */
-    WordBuilderPtr wordBuilder;
+    DictionaryPtr dictionary;
 };
 
 #endif // ASSIGNMENT2_GAME_H

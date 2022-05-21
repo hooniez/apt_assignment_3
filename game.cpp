@@ -1,14 +1,30 @@
 #include "game.h"
 #include "filemanager.h"
 
-Game::Game() : inSession(true), numRounds(0),
+Game::Game(const validOptions& options) : inSession(true), numRounds(0),
                commandHandler(std::make_shared<CommandHandler>()),
-               wordBuilder(std::make_shared<WordBuilder>("words"))
+               dictionary(nullptr)
 {
     initialiseBoard();
     initialiseTileBag();
     initialisePlayers();
     currPlayer = players[0];
+    if (options->count("--ai")) {
+        dictionary = std::make_shared<Dictionary>("words");
+
+        // TODO Implement AI
+    }
+
+    if (options->count("--dictionary")) {
+        // wordBuilder is designed to have the dictionary as its data member
+        dictionary = std::make_shared<Dictionary>("words");
+    }
+
+    if (options->count("--hint")) {
+        // TODO Implement hint
+    }
+
+
 }
 
 Game::Game(
@@ -197,7 +213,7 @@ void Game::readCommand()
                         auto secondWord = commandHandler->playerCommand[1];
                         if (firstWord == "place" && secondWord == "Done")
                         {
-                            if (commandHandler->isPlaceDoneCommandValid(board, wordBuilder))
+                            if (commandHandler->isPlaceDoneCommandValid(board, dictionary))
                                 executePlaceDoneCommand(numTilesPlaced);
                             placeDoneTyped = true;
                         }
