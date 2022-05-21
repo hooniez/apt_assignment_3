@@ -32,6 +32,7 @@
 
 #include "types.h"
 #include "player.h"
+#include "board.h"
 typedef std::map<char, float> letterToScoreMapType;
 typedef std::shared_ptr<letterToScoreMapType> letterToScorePtr;
 typedef std::unordered_map<std::string, letterToScorePtr> aiMapType;
@@ -42,20 +43,27 @@ public:
     // This constructor is called when --hint is typed by itself
     WordBuilder(const std::string& forwardSearchMapFileName,
                 const std::string& backwardSearchMapFileName,
+                BoardPtr board,
                 bool canGiveHints);
     // This constructor is called when --ai is typed by itself OR with --hint
     WordBuilder(const std::string& forwardSearchMapFileName,
                 const std::string& backwardSearchMapFileName,
                 const std::string& name,
+                BoardPtr board,
                 bool canGiveHints);
     void readFileToMap(const std::string &, const aiMapPtr& map);
     void initialiseMaps();
+    void execute();
+
+
     bool canGiveHints;
     bool isPlaying;
-//private:
+
+private:
+
     aiMapPtr forwardMap;
     aiMapPtr backwardMap;
-
+    BoardPtr board;
 };
 typedef std::shared_ptr<WordBuilder> WordBuilderPtr;
 

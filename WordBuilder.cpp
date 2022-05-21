@@ -7,7 +7,9 @@
 #include "WordBuilder.h"
 WordBuilder::WordBuilder(const std::string &forwardSearchMapFileName,
                          const std::string &backwardSearchMapFileName,
-                         bool canGiveHints): canGiveHints(canGiveHints), isPlaying(false)
+                         BoardPtr board,
+                         bool canGiveHints):
+                         canGiveHints(canGiveHints), isPlaying(false), board(board)
 //                         :Player() {
 {
     std::cout << "Setting Up AI (it takes an average of 10 seconds)" << std::endl;
@@ -18,7 +20,9 @@ WordBuilder::WordBuilder(const std::string &forwardSearchMapFileName,
 WordBuilder::WordBuilder(const std::string &forwardSearchMapFileName,
                          const std::string &backwardSearchMapFileName,
                          const std::string &name,
-                         bool canGiveHints): Player(name), canGiveHints(canGiveHints), isPlaying(true) {
+                         BoardPtr board,
+                         bool canGiveHints):
+                         Player(name), canGiveHints(canGiveHints), isPlaying(true), board(board) {
 //    std::cout << "Setting Up AI (it takes an average of 10 seconds)" << std::endl;
 //    auto start = std::chrono::high_resolution_clock::now();
     initialiseMaps();
@@ -61,4 +65,8 @@ void WordBuilder::initialiseMaps() {
     backwardMap = std::make_shared<aiMapType>();
     backwardMap->reserve(NUM_ELEMENTS_IN_AI_MAP);
     readFileToMap("backwardAiMap", backwardMap);
+}
+
+void WordBuilder::execute() {
+
 }

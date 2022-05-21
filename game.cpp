@@ -7,9 +7,9 @@ Game::Game(const configSettingPtr& configSetting) : inSession(true), numRounds(0
                                                     configSetting(configSetting)
 
 {
-    processConfigSetting(configSetting);
     initialiseBoard();
     initialiseTileBag();
+    processConfigSetting(configSetting);
     initialisePlayers();
     currPlayer = players[0];
 }
@@ -48,18 +48,24 @@ void Game::processConfigSetting(const configSettingPtr& options) {
             if (options->count("--hint")) {
                 wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
                                                             "backwardAiMap",
-                                                            "AI", true);
+                                                            "AI",
+                                                            board,
+                                                            true);
             } else
                 // If options doesnt include --hint, do not allow wordBuilder to give hints
                 wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
                                                             "backwardAiMap",
-                                                            "AI", false);
+                                                            "AI",
+                                                            board,
+                                                            false);
         }
         // If options includes just --hint, do not create wordBuilder as a player
         // but allow it to give hints
     } else if (options->count("--hint")) {
         wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
-                                                    "backwardAiMap", true);
+                                                    "backwardAiMap",
+                                                    board,
+                                                    true);
     }
 }
 
@@ -171,7 +177,12 @@ void Game::play()
     while (inSession && !isGameOver)
     {
         printCurrTurn();
-        readCommand();
+        if (wordBuilder && wordBuilder->isPlaying) {
+            wordBuilder->execute();
+        } else {
+            readCommand();
+        }
+
         // The game ends when the tile bag is empty AND One player has no
         // more tiles in his/her hand OR passes his turn twice
         if (tileBag->isEmpty())
@@ -197,11 +208,6 @@ void Game::play()
         ++numRounds;
         nextPlayer = players[numRounds % NUM_PLAYERS];
 
-        if (nextPlayer->getName() == currPlayer->getName())
-        {
-            ++numRounds;
-            nextPlayer = players[numRounds % NUM_PLAYERS];
-        }
         currPlayer = nextPlayer;
     }
 }
