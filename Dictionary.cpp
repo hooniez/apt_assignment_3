@@ -3,7 +3,9 @@
 //
 
 #include "Dictionary.h"
-Dictionary::Dictionary(const std::string& dictFileName): dict(std::make_shared<dictType>()) {
+Dictionary::Dictionary(const std::string& dictFileName, bool isCheckingValidity):
+                                                        isCheckingValidity(isCheckingValidity),
+                                                        dict(std::make_shared<dictType>()) {
     // Make sure dict can hold the total number of words in the provided file
     // so that no rehash slows down the loading process
     dict->reserve(TOTAL_WORDS_IN_DIC);

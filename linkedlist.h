@@ -3,6 +3,7 @@
 
 #include "node.h"
 #include <vector>
+#include <sstream>
 
 /*
  * This is the template of a generic linked list containing only basic
@@ -55,6 +56,9 @@ public:
     bool hasLetter(Letter letter);
     // Return a pointer to a tile with a given letter
     T getTile(Letter letter);
+
+    // Return all the letters in the hand in a string
+    std::string getLetters();
 
     int getLength();
 

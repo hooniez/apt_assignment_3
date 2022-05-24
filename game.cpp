@@ -27,12 +27,12 @@ Game::Game(
                             inSession(true),
                             numRounds(0),
                             commandHandler(std::make_shared<CommandHandler>()),
+                            dictionary(nullptr),
+                            wordBuilder(nullptr),
                             configSetting(configSetting)
 
 {
-    for (const auto &option : *configSetting) {
-        std::cout << option << std::endl;
-    }
+    processConfigSetting(configSetting);
 }
 
 Game::~Game() = default;
@@ -40,32 +40,42 @@ Game::~Game() = default;
 void Game::processConfigSetting(const configSettingPtr& options) {
     // If options is not empty
     if (!options->empty()) {
-        // Create a dictionary as all the options require it.
-        dictionary = std::make_shared<Dictionary>("words");
+        // Create a dictionary as all the options make use of it.
+        // Pass true as the second argument if the validity check is required
+        if (options->count("--dictionary")) {
+            dictionary = std::make_shared<Dictionary>("words", true);
+        } else {
+            dictionary = std::make_shared<Dictionary>("words", false);
+        }
         // If options includes --ai, create wordBuilder as a player
         if (options->count("--ai")) {
             // If options includes --hint, allow wordBuilder to give hints
             if (options->count("--hint")) {
                 wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
                                                             "backwardAiMap",
+                                                            "sortedMap"
                                                             "AI",
                                                             board,
                                                             true);
-            } else
+            } else {
                 // If options doesnt include --hint, do not allow wordBuilder to give hints
                 wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
                                                             "backwardAiMap",
+                                                            "sortedMap",
                                                             "AI",
                                                             board,
                                                             false);
+            }
+        } else if (options->count("--hint")) {
+            // If options includes just --hint, do not create wordBuilder as a player
+            // but allow it to give hints
+            wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
+                                                        "backwardAiMap",
+                                                        "sortedMap",
+                                                        board,
+                                                        true);
+
         }
-        // If options includes just --hint, do not create wordBuilder as a player
-        // but allow it to give hints
-    } else if (options->count("--hint")) {
-        wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
-                                                    "backwardAiMap",
-                                                    board,
-                                                    true);
     }
 }
 
@@ -90,29 +100,36 @@ void Game::initialisePlayers()
         numHumanPlayers = 1;
 
     // Read in the players' names
-    for (size_t i = 0; i < numHumanPlayers; ++i)
-    {
+    for (size_t i = 0; i < numHumanPlayers; ++i) {
         std::string playerName = readPlayerName(i);
         // Check whether playerName is identical to the previous
         // playerName(s).
-        while (playerNameExists(playerName) && inSession)
-        {
+        while (playerNameExists(playerName) && inSession) {
             std::cout << "\nPlease enter a non-existing player name."
                       << std::endl;
+            if (wordBuilder && wordBuilder->isPlaying) {
+                std::cout << "\nIf you are playing against AI, please name yourself other than AI"
+                          << std::endl;
+            }
             playerName = readPlayerName(i);
         }
 
         players.push_back(std::make_shared<Player>(playerName));
-        // If the player plays against wordBuilder
-        if (wordBuilder && wordBuilder->isPlaying)
-            players.push_back(wordBuilder);
+    }
 
-        // Draw tiles from tileBag for each player's hand
+    // If the player plays against wordBuilder
+    if (wordBuilder && wordBuilder->isPlaying)
+        players.push_back(wordBuilder);
+
+    // Draw tiles from tileBag for each player's hand
+    for (auto player : players) {
         for (size_t j = 0; j < NUM_PLAYER_TILES; j++)
         {
-            players[i]->drawOne(tileBag->dealOne());
+            player->drawOne(tileBag->dealOne());
         }
     }
+
+
 
 //    std::cout << (*(*wordBuilder->forwardMap)["A"])['C'] << std::endl;
 
@@ -163,6 +180,13 @@ bool Game::playerNameExists(const std::string &playerName)
         if (currPlayerName == playerName)
             nameExists = true;
     }
+
+    // If a player plays against AI
+    if (wordBuilder && wordBuilder->isPlaying) {
+        if (playerName == "AI") {
+            nameExists = true;
+        }
+    }
     return nameExists;
 }
 
@@ -177,7 +201,8 @@ void Game::play()
     while (inSession && !isGameOver)
     {
         printCurrTurn();
-        if (wordBuilder && wordBuilder->isPlaying) {
+        if (wordBuilder && wordBuilder->isPlaying &&
+            currPlayer->getName() == wordBuilder->getName()) {
             wordBuilder->execute();
         } else {
             readCommand();

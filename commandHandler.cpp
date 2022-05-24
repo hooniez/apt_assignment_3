@@ -179,7 +179,7 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
                 }
             } else {
                 // If dictionary is initialised (in all cases of the options)
-                if (dictionary && !board->isWordValid(dictionary)) {
+                if (dictionary && dictionary->isCheckingValidity && !board->isWordValid(dictionary)) {
                     std::cout << "Invalid Input: Make sure your words are valid words" << std::endl;
                     // Put the returned tiles back in the player's hand
                     for (const auto &placedTile : board->getTilesToReturn())

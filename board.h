@@ -7,15 +7,17 @@
 #include <memory>
 #include <tuple>
 #include <string>
-#include <set>
+#include <queue>
 
 
 #include "types.h"
 #include "tile.h"
 #include "player.h"
 #include "Dictionary.h"
-#include "PlacedTile.h"
 
+// The min-heap syntax
+typedef std::priority_queue<int, std::vector<int>, std::greater<>> placedIndicesType;
+typedef std::shared_ptr<placedIndicesType> placedIndicesPtr;
 
 class Board {
 
@@ -118,15 +120,21 @@ public:
     std::vector<TilePtr>& getTilesToReturn();
     // Clear the board of invalid tiles and put them in tilesToReturn
     void setTilesToReturn();
-    // Store all the tiles placed in placedTiles
-    void pushPlacedTiles();
+    placedIndicesPtr getPlacedIndices();
+    Direction getPlacedDir();
+    // Reduce the dimensionality
+    void trackPlacedTiles();
+    Value getValue(int idx);
+    std::string getLetters(int idx);
+    Letter getLetter(int idx);
+    bool hasPlacedTile(int idx);
 
 private:
     std::vector<std::vector<TilePtr> > board;
     unsigned int width;
     unsigned int height;
     bool misEmpty;
-    std::vector<std::vector<int> > currTilesLoc;
+    std::vector<std::vector<int> > gridLocs;
 
     /*                          Milestone 1 & 2 Above
      * -------------------------------------------------------------------
@@ -139,7 +147,11 @@ private:
     // If tiles placed are deemed invalid, they are put back in tilesToReturn.
     std::vector<TilePtr> tilesToReturn;
     std::vector<std::string> currWords;
-    std::set<placedTilePtr> placedTiles;
+    Direction placedDir;
+    // placedIndices is cleared at the beginning of the turn and filled with the
+    // placedIndices converted from gridLocs belonging to the tiles placed
+    placedIndicesPtr placedIndices;
+    bool placedBoard[BOARD_LENGTH * BOARD_LENGTH];
 
 
 };

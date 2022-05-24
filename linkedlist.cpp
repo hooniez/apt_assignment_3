@@ -210,6 +210,19 @@ T LinkedList<T>::getTile(Letter letter)
 }
 
 template <class T>
+std::string LinkedList<T>::getLetters() {
+    std::ostringstream os;
+    NodePtr<T> currNode = head;
+    while (currNode) {
+        os << currNode->getContent()->getLetter();
+        currNode = currNode->getNext();
+    }
+    return os.str();
+}
+
+
+
+template <class T>
 LinkedList<T>::LinkedList(const LinkedList<T> &other) : head(other.head),
                                                         tail(other.tail), length(other.length)
 {}

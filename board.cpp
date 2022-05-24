@@ -2,7 +2,8 @@
 #include <fstream>
 
 Board::Board(unsigned int width, unsigned int height, bool misEmpty)
-    :width(width), height(height), misEmpty(misEmpty)
+    :width(width), height(height), misEmpty(misEmpty),
+    placedDir(NONE), placedIndices(std::make_shared<placedIndicesType>())
 {
     /*
      * Create a vector for each row, then for each column push a null ptr.
@@ -17,6 +18,8 @@ Board::Board(unsigned int width, unsigned int height, bool misEmpty)
         }
         this->board.push_back(row);
     }
+    // Set all the elements in placedBoard to false as there are no tiles placed
+    std::fill_n(placedBoard, BOARD_LENGTH * BOARD_LENGTH, false);
 }
 // Checks if the gridLoc is valid and within the bounds to place a tile
 bool Board::checkIfValid(const std::string &gridLoc)
@@ -100,10 +103,10 @@ bool Board::checkAdjacentTiles()
          */
         int midRow = BOARD_LENGTH / 2;
         int midCol = BOARD_LENGTH / 2;
-        for (long unsigned int k = 0; k < currTilesLoc.size(); ++k)
+        for (long unsigned int k = 0; k < gridLocs.size(); ++k)
         {
-            int row = currTilesLoc[k][0];
-            int col = currTilesLoc[k][1];
+            int row = gridLocs[k][0];
+            int col = gridLocs[k][1];
             if (row == midRow && col == midCol)
             {
                 insert = true;
@@ -132,10 +135,10 @@ bool Board::checkAdjacentTiles()
         std::vector<std::tuple<int, int>> directions =
             {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
 
-        for (long unsigned int k = 0; k < this->currTilesLoc.size(); ++k)
+        for (long unsigned int k = 0; k < this->gridLocs.size(); ++k)
         {
-            int row = this->currTilesLoc[k][0];
-            int col = this->currTilesLoc[k][1];
+            int row = this->gridLocs[k][0];
+            int col = this->gridLocs[k][1];
             // for all the directions
             for (long unsigned int j = 0; j < TOTALDIRECTIONS; ++j)
             {
@@ -149,11 +152,11 @@ bool Board::checkAdjacentTiles()
                     {
                         adjacentCount += 1;
                         for (long unsigned int i = 0; i <
-                                                      this->currTilesLoc.size();
+                                                      this->gridLocs.size();
                              ++i)
                         {
-                            if ((this->currTilesLoc[i][0] == rowLooking) &&
-                                (this->currTilesLoc[i][1] == colLooking))
+                            if ((this->gridLocs[i][0] == rowLooking) &&
+                                (this->gridLocs[i][1] == colLooking))
                             {
                                 disallowedCount += 1;
                             }
@@ -187,7 +190,7 @@ void Board::makeCurrWords()
      * Need to check if its a one letter wordBuilder first.
      */
 
-    unsigned int length = this->currTilesLoc.size();
+    unsigned int length = this->gridLocs.size();
     Direction dir = NONE;
     std::string wordString;
     std::vector<std::string> wordsArray;
@@ -200,13 +203,13 @@ void Board::makeCurrWords()
          * first add all the words in a right direction,
          * then add all the words in a left direction
          */
-        wordString = addWordInDirection(this->currTilesLoc[0],
+        wordString = addWordInDirection(this->gridLocs[0],
                                         HORIZONTAL);
         if (wordString.length() > 1)
         {
             wordsArray.push_back(wordString);
         }
-        wordString = addWordInDirection(this->currTilesLoc[0],
+        wordString = addWordInDirection(this->gridLocs[0],
                                         VERTICAL);
         if (wordString.length() > 1)
         {
@@ -220,11 +223,11 @@ void Board::makeCurrWords()
     else
     {
         // first two elements to get the direction
-        dir = getWordDirection(this->currTilesLoc[0],
-                               this->currTilesLoc[1]);
+        dir = getWordDirection(this->gridLocs[0],
+                               this->gridLocs[1]);
 
         // add all the letters from null to null;
-        wordString = addWordInDirection(this->currTilesLoc[0], dir);
+        wordString = addWordInDirection(this->gridLocs[0], dir);
         wordsArray.push_back(wordString);
 
         /*
@@ -237,7 +240,7 @@ void Board::makeCurrWords()
             if (dir == HORIZONTAL)
             {
                 // if look at words running parallel so check the opposite
-                wordString = addWordInDirection(this->currTilesLoc[i],
+                wordString = addWordInDirection(this->gridLocs[i],
                                                 VERTICAL);
                 /*
                  * check if the wordBuilder is of length 1,
@@ -247,7 +250,7 @@ void Board::makeCurrWords()
             else
             {
                 // if look at words running parallel so check the opposite
-                wordString = addWordInDirection(this->currTilesLoc[i],
+                wordString = addWordInDirection(this->gridLocs[i],
                                                 HORIZONTAL);
             }
             //
@@ -320,32 +323,32 @@ std::string Board::addWordInDirection(std::vector<int> &startingLetterCoords,
 Direction Board::getWordDirection(std::vector<int> &location1,
                                   std::vector<int> &location2)
 {
-    Direction dir = NONE;
+
     if (location1[0] == location2[0])
     {
         // Same row;
-        dir = HORIZONTAL;
+        placedDir = HORIZONTAL;
     }
     else if (location1[1] == location2[1])
     {
-        dir = VERTICAL;
+        placedDir = VERTICAL;
     }
     else
     {
         // Something went wrong
     }
-    return dir;
+    return placedDir;
 }
 bool Board::checkAllOnTheSameLine() {
     unsigned int count = 0;
     bool allOnTheSameLine = true;
-    if (this->currTilesLoc.size() != 1) {
-        Direction dir = this->getWordDirection(this->currTilesLoc[0],
-                                               this->currTilesLoc[1]);
+    if (this->gridLocs.size() != 1) {
+        Direction dir = this->getWordDirection(this->gridLocs[0],
+                                               this->gridLocs[1]);
         /* The word has a up down direction,
          * check that all letters are on the updown
          */
-        std::vector<int> firstCoord = this->currTilesLoc[0];
+        std::vector<int> firstCoord = this->gridLocs[0];
         if (dir == HORIZONTAL)
         {
             /*
@@ -354,29 +357,29 @@ bool Board::checkAllOnTheSameLine() {
              */
 
             for (unsigned int k = 0;
-                 k < this->currTilesLoc.size(); ++k)
+                 k < this->gridLocs.size(); ++k)
             {
                 // saving the smallest element
-                if (firstCoord[1] > this->currTilesLoc[k][1])
+                if (firstCoord[1] > this->gridLocs[k][1])
                 {
-                    firstCoord = this->currTilesLoc[k];
+                    firstCoord = this->gridLocs[k];
                 }
             }
             /*
              * step through each item in the row starting from this one,
              * and tick off each of the values
              */
-            int row = this->currTilesLoc[0][0];
+            int row = this->gridLocs[0][0];
             int col = firstCoord[1];
             while ((this->checkIfInBoard(row, col)) &&
                    (this->board[row][col] != nullptr) &&
-                   count < this->currTilesLoc.size())
+                   count < this->gridLocs.size())
             {
                 for (long unsigned int j = 0;
-                     j < this->currTilesLoc.size(); ++j)
+                     j < this->gridLocs.size(); ++j)
                 {
-                    if ((row == this->currTilesLoc[j][0]) &&
-                        (col == this->currTilesLoc[j][1]))
+                    if ((row == this->gridLocs[j][0]) &&
+                        (col == this->gridLocs[j][1]))
                     {
                         count++;
                     }
@@ -390,28 +393,28 @@ bool Board::checkAllOnTheSameLine() {
         else if (dir == VERTICAL)
         {
             for (unsigned int k = 0;
-                 k < this->currTilesLoc.size(); ++k)
+                 k < this->gridLocs.size(); ++k)
             {
                 // saving the smallest element
-                if (firstCoord[0] > this->currTilesLoc[k][0])
+                if (firstCoord[0] > this->gridLocs[k][0])
                 {
-                    firstCoord = this->currTilesLoc[k];
+                    firstCoord = this->gridLocs[k];
                 }
             }
             /* step through each item in the row starting from this one,
              * and tick off each of the values
              */
-            int col = this->currTilesLoc[0][1];
+            int col = this->gridLocs[0][1];
             int row = firstCoord[0];
             while (checkIfInBoard(row, col) &&
                    (this->board[row][col] != nullptr) &&
-                   (count < this->currTilesLoc.size()))
+                   (count < this->gridLocs.size()))
             {
                 for (long unsigned int j = 0;
-                     j < this->currTilesLoc.size(); ++j)
+                     j < this->gridLocs.size(); ++j)
                 {
-                    if ((row == this->currTilesLoc[j][0]) &&
-                        (col == this->currTilesLoc[j][1]))
+                    if ((row == this->gridLocs[j][0]) &&
+                        (col == this->gridLocs[j][1]))
                     {
                         count++;
                     }
@@ -431,7 +434,7 @@ bool Board::checkAllOnTheSameLine() {
          * We exited because of a space.
          * So that means our letters are invalid
          */
-        if (count != this->currTilesLoc.size())
+        if (count != this->gridLocs.size())
         {
             allOnTheSameLine = false;
         }
@@ -439,23 +442,23 @@ bool Board::checkAllOnTheSameLine() {
 
     return allOnTheSameLine;
 }
-bool Board::checkTheFirstPlacement() {
-    bool placedValid = false;
-    /*
-     * go through each added letter, check that one of them
-     * is in the center
-     */
-    for (long unsigned int i = 0;
-         i < this->currTilesLoc.size(); ++i)
-    {
-        if ((currTilesLoc[i][0] == int(this->height / 2)) &&
-            (currTilesLoc[i][1] == int(this->width / 2)))
-        {
-            placedValid = true;
-        }
-    }
-    return placedValid;
-}
+//bool Board::checkTheFirstPlacement() {
+//    bool placedValid = false;
+//    /*
+//     * go through each added letter, check that one of them
+//     * is in the center
+//     */
+//    for (long unsigned int i = 0;
+//         i < this->gridLocs.size(); ++i)
+//    {
+//        if ((gridLocs[i][0] == int(this->height / 2)) &&
+//            (gridLocs[i][1] == int(this->width / 2)))
+//        {
+//            placedValid = true;
+//        }
+//    }
+//    return placedValid;
+//}
 /*
  * pre-condition: the
  */
@@ -490,7 +493,7 @@ bool Board::setTile(std::string position, TilePtr tile)
     if (this->board[lettersAsInt[0]][lettersAsInt[1]] == nullptr)
     {
         this->board[lettersAsInt[0]][lettersAsInt[1]] = tile;
-        this->currTilesLoc.push_back(lettersAsInt);
+        this->gridLocs.push_back(lettersAsInt);
     }
     else
     {
@@ -505,11 +508,11 @@ bool Board::setTile(std::string position, TilePtr tile)
 }
 void Board::clearCoords()
 {
-    for (long unsigned int i = 0; i < this->currTilesLoc.size(); ++i)
+    for (long unsigned int i = 0; i < this->gridLocs.size(); ++i)
     {
-        this->currTilesLoc[i].clear();
+        this->gridLocs[i].clear();
     }
-    this->currTilesLoc.clear();
+    this->gridLocs.clear();
 }
 Board::~Board()
 {
@@ -570,8 +573,8 @@ bool Board::isPlacementValid(){
     bool lettersValid = checkAdjacentTiles();
     if (lettersValid)
         lettersValid = checkAllOnTheSameLine();
-    if (misEmpty)
-        lettersValid = checkTheFirstPlacement();
+//    if (misEmpty)
+//        lettersValid = checkTheFirstPlacement();
 
     // Return a nullptr in the returnVector if the letters are valid
     if (lettersValid) {
@@ -581,7 +584,7 @@ bool Board::isPlacementValid(){
     } else {
         // Clear the board of invalid tiles and put them in tilesToReturn
         setTilesToReturn();
-        currTilesLoc.clear();
+        gridLocs.clear();
     }
     return lettersValid;
 }
@@ -589,7 +592,7 @@ bool Board::isPlacementValid(){
 std::vector<std::string>& Board::getCurrWords() {
     if (misEmpty)
         misEmpty = false;
-    pushPlacedTiles();
+    trackPlacedTiles();
     return currWords;
 }
 
@@ -608,7 +611,7 @@ bool Board::isWordValid(DictionaryPtr dict) {
     isValid = dict->isInDict(currWords);
     if (!isValid) {
         setTilesToReturn();
-        currTilesLoc.clear();
+        gridLocs.clear();
     }
     return isValid;
 }
@@ -618,28 +621,56 @@ std::vector<TilePtr>& Board::getTilesToReturn() {
 }
 
 void Board::setTilesToReturn() {
-    for (auto it = currTilesLoc.cbegin(); it != currTilesLoc.cend(); ++it) {
+    for (auto it = gridLocs.cbegin(); it != gridLocs.cend(); ++it) {
         tilesToReturn.push_back(board[(*it)[0]][(*it)[1]]);
         board[(*it)[X]][(*it)[Y]] = nullptr;
     }
 }
 
-void Board::pushPlacedTiles() {
-    // Iterate currTilesLoc and find the corresponding TilePtr
-    // and create PlacedTilePtr with it and its coordinates.
-    // then push it in placedTiles
-    placedTilePtr placedTile;
-    TilePtr tile;
-    size_t x = 0;
-    size_t y = 0;
-    for (auto it = currTilesLoc.cbegin();
-         it != currTilesLoc.cend(); ++it) {
-        tile = board[(*it)[X]][(*it)[Y]];
+placedIndicesPtr Board::getPlacedIndices() {
+    return placedIndices;
+}
+
+Direction Board::getPlacedDir() {
+    return placedDir;
+}
+
+// The repeated use of std::tuple to refer to a certain tile on the board can be inefficient.
+// Especially it can be when looking up EmptyTilePtr stored in two different set containers
+// namely singleWordTiles and multipleWordTiles.
+// Without reducing the dimensionality, another vector of a vector of EmptyTilePtr is needed
+// to find a particular EmptyTilePtr, or a tuple of coordinates or a string (C14) needs to be
+// used a key. Rather than these solutions, each coordinate will be translated to single number
+// (e.g. A0 -> 0, A7 -> 7, A14 -> 14, B0 -> 15, B7 -> 22 -> B14 -> 29).
+//
+// Keep track of all the tiles placed using placedBoard array.
+void Board::trackPlacedTiles() {
+    // Iterate gridLocs and convert them to placedIndices
+    int x = 0;
+    int y = 0;
+    int index;
+    for (auto it = gridLocs.cbegin(); it != gridLocs.cend(); ++it) {
         x = (*it)[X];
         y = (*it)[Y];
-
-        placedTiles.insert(std::make_shared<PlacedTile>(tile,std::make_tuple(x,y)));
+        index = (BOARD_LENGTH * x) + y;
+        placedIndices->push(index);
+        placedBoard[index] = true;
     }
-    std::cout << (*placedTiles.rbegin())->getValue();
-    currTilesLoc.clear();
+    gridLocs.clear();
+}
+
+Value Board::getValue(int idx) {
+    return board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getValue();
+}
+
+std::string Board::getLetters(int idx) {
+    return std::string(1, board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getLetter());
+}
+
+Letter Board::getLetter(int idx) {
+    return board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getLetter();
+}
+
+bool Board::hasPlacedTile(int idx) {
+    return placedBoard[idx];
 }
