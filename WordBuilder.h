@@ -72,7 +72,7 @@
 #include "board.h"
 #include "SortedMapBuilder.h"
 #include "GreedyMapBuilder.h"
-#include "EmptyAdjacentTile.h"
+#include "AdjacentTile.h"
 
 class WordBuilder : public Player {
 public:
@@ -94,17 +94,23 @@ public:
     void initialiseMaps();
     // WordBuilder executes the next move
     void execute();
-    // WordBuilder reasons out the //TODO ...
-    void think();
 
     void updateAdjacentTiles();
 
     // Check if the index is within the board and on the same line as the baseLine
     bool isOnBaseLine(int idx, int baseLine, Direction dir);
 
-    void createOrUpdateEmptyAdjacencyTiles(Direction searchingDir, int currIdx, int currLine);
+    void createOrUpdateEmptyAdjacencyTiles(Direction searchingDir,
+                                           int currIdx,
+                                           int currLine,
+                                           Direction placedDirection);
 
     int getCurrLine(int idx, Direction dir);
+
+
+    void beAwareOfTiles();
+
+    void placeTiles();
 
 
 
@@ -118,15 +124,18 @@ private:
     BoardPtr board;
 //    std::set<EmptyTilePtr> singleWordTiles;
 //    std::set<EmptyTilePtr> multiWordTiles;
-//    std::array<DirectionFromPlacedTile, TOTALDIRECTIONS> direction =
-//            {UP, RIGHT, BOTTOM, LEFT};;
+    std::array<DirectionFromPlacedTile, TOTALDIRECTIONS> verticaldDirs =
+            {TOP, BOTTOM};
+
+    std::array<DirectionFromPlacedTile, TOTALDIRECTIONS> horizontalDirs =
+            {RIGHT, LEFT};
 
 
     // emptyAdjacnetTiles keep track of instances of EmptyAdjancetTile
-    EmptyAdjacentTilePtr emptyAdjacentTiles[BOARD_LENGTH * BOARD_LENGTH];
-    // tilesToStartFrom stores the same instances of EmptyAdjacentTile stored
-    // in emptyAdjacentTiles sorted by its potential scores
-    EmptyAdjacentTilesPtr tilesToStartFrom;
+    AdjacentTilePtr adjacentTiles[BOARD_LENGTH * BOARD_LENGTH];
+    // tilesToStartFrom stores the same instances of AdjacentTile stored
+    // in adjacentTiles sorted by its potential scores
+    AdjacentTilesPtr tilesToStartFrom;
 
 
 //    std::shared_ptr<std::map<int, std::tuple<int, int>>> testMap;

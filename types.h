@@ -44,7 +44,7 @@ enum Coordinate {
 };
 
 enum DirectionFromPlacedTile {
-    UP = -BOARD_LENGTH,
+    TOP = -BOARD_LENGTH,
     LEFT = -1,
     RIGHT = 1,
     BOTTOM = BOARD_LENGTH
@@ -76,6 +76,6 @@ enum Direction
     HORIZONTAL = 1
 };
 
-//const int Directions[TOTALDIRECTIONS] = {UP, RIGHT, BOTTOM,LEFT};
+//const int Directions[TOTALDIRECTIONS] = {TOP, RIGHT, BOTTOM,LEFT};
 
 #endif // ASSIGN2_TYPES_H

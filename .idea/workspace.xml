@@ -16,51 +16,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="45861f05-9093-4a50-b324-3019e47426f0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/EmptyAdjacentTile.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/EmptyAdjacentTile.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GreedyMapBuilder.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GreedyMapBuilder.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MapBuilder.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SortedMapBuilder.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SortedMapBuilder.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backwardGreedyMap" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/forwardGreedyMap" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.input" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test2.input" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AiMapBuilder.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/AiMapBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/MapBuilder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dictionary.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dictionary.h" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dictionary.o" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EmptyAdjacentTile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/AdjacentTile.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EmptyAdjacentTile.h" beforeDir="false" afterPath="$PROJECT_DIR$/AdjacentTile.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PlacedTile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/CoordinatedTile.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PlacedTile.h" beforeDir="false" afterPath="$PROJECT_DIR$/CoordinatedTile.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PlacedTile.o" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.o" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/board.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/board.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/board.h" beforeDir="false" afterPath="$PROJECT_DIR$/board.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/board.o" beforeDir="false" afterPath="$PROJECT_DIR$/board.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commandHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/commandHandler.o" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/filemanager.o" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/game.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.o" beforeDir="false" afterPath="$PROJECT_DIR$/game.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linkedlist.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/linkedlist.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linkedlist.h" beforeDir="false" afterPath="$PROJECT_DIR$/linkedlist.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linkedlist.o" beforeDir="false" afterPath="$PROJECT_DIR$/linkedlist.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node.o" beforeDir="false" afterPath="$PROJECT_DIR$/node.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/player.o" beforeDir="false" afterPath="$PROJECT_DIR$/player.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scrabble" beforeDir="false" afterPath="$PROJECT_DIR$/scrabble" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.save" beforeDir="false" afterPath="$PROJECT_DIR$/test.save" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test2.save" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test3.save" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test4.save" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tile.o" beforeDir="false" afterPath="$PROJECT_DIR$/tile.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tilebag.o" beforeDir="false" afterPath="$PROJECT_DIR$/tilebag.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.input" beforeDir="false" afterPath="$PROJECT_DIR$/test.input" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test2.input" beforeDir="false" afterPath="$PROJECT_DIR$/test2.input" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/types.h" beforeDir="false" afterPath="$PROJECT_DIR$/types.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/utils.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/words" beforeDir="false" afterPath="$PROJECT_DIR$/words" afterDir="false" />
@@ -191,7 +162,7 @@
       <workItem from="1653161936261" duration="17809000" />
       <workItem from="1653189152197" duration="19775000" />
       <workItem from="1653255195099" duration="531000" />
-      <workItem from="1653255866090" duration="60571000" />
+      <workItem from="1653255866090" duration="86174000" />
     </task>
     <servers />
   </component>
@@ -215,6 +186,11 @@
         <watch expression="mainMap-&gt;size()" language="ObjectiveC" />
         <watch expression="this" />
         <watch expression="placedTiles" language="ObjectiveC" />
+        <watch expression="this-&gt;tilesToStartFrom.__ptr_[0]" />
+        <watch expression="this-&gt;tilesToStartFrom.__ptr_[16].__ptr_" />
+        <watch expression="this-&gt;tilesToStartFrom.__ptr_[2]" />
+        <watch expression="this-&gt;tilesToStartFrom.__ptr_[0].__ptr_" />
+        <watch expression="this-&gt;tilesToStartFrom.__ptr_[8]" />
       </configuration>
     </watches-manager>
   </component>

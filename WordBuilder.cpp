@@ -19,7 +19,7 @@ WordBuilder::WordBuilder(const std::string &forwardSearchMapFileName,
     std::cout << "Setting Up AI (it takes an average of 10 seconds)" << std::endl;
     initialiseMaps();
     std::cout << "Set-up Completed" << std::endl;
-    std::fill_n(emptyAdjacentTiles, BOARD_LENGTH * BOARD_LENGTH, nullptr);
+    std::fill_n(adjacentTiles, BOARD_LENGTH * BOARD_LENGTH, nullptr);
 }
 
 WordBuilder::WordBuilder(const std::string &forwardSearchMapFileName,
@@ -103,6 +103,14 @@ void WordBuilder::initialiseMaps() {
 }
 
 void WordBuilder::execute() {
+    beAwareOfTiles();
+    placeTiles();
+
+
+}
+
+
+void WordBuilder::beAwareOfTiles() {
     auto placedDir = board->getPlacedDir();
     Direction singleSearchDir;
     Direction multipleSearchDir;
@@ -119,13 +127,81 @@ void WordBuilder::execute() {
     int currIdx = placedIndices->top();
     int currLine = getCurrLine(currIdx, placedDir);
 
-    createOrUpdateEmptyAdjacencyTiles(singleSearchDir, currIdx, currLine);
+    // First, build letters in the same direction as placedDir
+    createOrUpdateEmptyAdjacencyTiles(singleSearchDir, currIdx, currLine, placedDir);
+
+    // Next, build letters in the perpendicular direction as placedDir
+    // Process the placed indices in a priority queue
+    while (!placedIndices->empty()) {
+        // Access the most leftmost or uppermost index among those of the placed tiles
+        currIdx = placedIndices->top();
+        currLine = getCurrLine(currIdx, multipleSearchDir);
+        placedIndices->pop();
+        // Destroy the emptyAdjacent Tile if found on the placed indices
+        if (adjacentTiles[currIdx] != nullptr) {
+            createOrUpdateEmptyAdjacencyTiles(multipleSearchDir, currIdx, currLine, placedDir);
+            adjacentTiles[currIdx]->hasPlacedTile();
+        } else {
+            createOrUpdateEmptyAdjacencyTiles(multipleSearchDir, currIdx, currLine, placedDir);
+        }
+    }
+}
+
+/*
+ * There are two algorithms used to place tiles.
+ *
+ * First, if a given row or column has only one letter in the center, sortedMap can be used to increase the chances of
+ * hitting a bingo, as no ordering needs to be factored in when placing the entire tiles in the hand.
+ *
+ * In order to check whether a given AdjacentTile is solvable by sortedMap, first its data member adjacentLetters
+ * is checked to see how many placed tile is connected to it. If there is only one, the presumably adjacent tile
+ * on the opposite side of it and its data member adjacentLetters is also checked. If this check passes,
+ * the rows or columns next to the one the original AdjacentTile is on are checked in its entirety.
+ *
+ * If there are no placed tiles found other than the ones on the centre, the sortedMap can be used to quickly
+ * find 7 or 8 letter-long words.
+ *
+ * Second, if the check above does not turn up any valid word, the greedy algorithm is used.
+ * As all the AdjacentTiles are stored in a priority queue with the potentialScore data member as a key,
+ * the one with the highest potential score can be looked at first.
+ *
+ * If the AdjacentTile has only one placed tile connected to it, the algorithm is first made to go in
+ * the perpendicular direction to generate a long word.
+ *
+ * The algorithm first looks up connected letters in forwardGreedyMap if they are placed to the right or bottom
+ * of an AdjacentTile and iterates each letter in the hand to see a word can be made with any of the letters in the hand
+ * in front of the existing connected letters. If they are placed to the left or top of an AdjacentTile, backwardGreedyMap
+ * is accessed to find whether the existing connected letters can be extended by any of the letters in the hand.
+ *
+ * If not, its data member misExtendible is set to false and its potentialScores is also set to 0.
+ * Otherwise, the aggregate number of words that can be made with any of the letters in the hand is stored.
+ * The number of words is then compared to that of an AdjacentTile on its opposite end to see which presents
+ * higher chances of being made into a word
+ * (in each turn, built letters are searched in a dictionary and put into a priority queue with its score).
+ *
+ * Once one of the AdjacentTiles is selected, the most frequent letter is placed (since the starting letter(s) that was
+ * already placed was deemed the highest, the most frequent letter is chosen from the hand).
+ *
+ * In the next round, the same step is repeated. If the current tile on the board being enquired is an AdjacentTile,
+ * its data member adjacentLetters is accessed to check whether the trailing letters can be connected to all the letters
+ * found in adjacentLetters. If not, the algorithm no longer goes forward
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+void WordBuilder::placeTiles() {
 
 }
 
-void WordBuilder::think() {
-
-}
+//void WordBuilder::think() {
+//
+//}
 
 // Iterate placedTiles to update a vector of a vector of adjacent tiles
 // and place the updated adjacent tiles into singleWordTiles or multiWordTiles
@@ -185,13 +261,13 @@ void WordBuilder::updateAdjacentTiles() {
 //                    currIdx += direction;
 //                }
 //                // If adjacentTile does not exist in the given index
-//                if (!emptyAdjacentTiles[currIdx]) {
+//                if (!adjacentTiles[currIdx]) {
 //                    // the cell in question has been never adjacent to any placed tile
 //                    // TODO find a way to store a score made of more than one letter
-//                    EmptyAdjacentTilePtr currEat = std::make_shared<EmptyAdjacentTile>(
+//                    EmptyAdjacentTileWeakPtr currEat = std::make_shared<AdjacentTile>(
 //                            board->getValue(placedIdx), board->getLetters(placedIdx),
 //                            direction, currIdx);
-//                    emptyAdjacentTiles[currIdx] = currEat;
+//                    adjacentTiles[currIdx] = currEat;
 //                    tilesToStartFrom->insert(currEat);
 //                }
 //
@@ -222,7 +298,7 @@ void WordBuilder::updateAdjacentTiles() {
 //                    if (!hasAdjacentTiles[currIdx]) {
 //                        // the cell in question has been never adjacent to any placed tile
 //                        singleWordTiles.insert(
-//                                std::make_shared<EmptyAdjacentTile>(
+//                                std::make_shared<AdjacentTile>(
 //                                        board->getValue(placedIdx),
 //                                        placedIdx,
 //                                        direction
@@ -294,7 +370,8 @@ bool WordBuilder::isOnBaseLine(int idx, int baseLine , Direction dir) {
 
 void WordBuilder::createOrUpdateEmptyAdjacencyTiles(Direction searchingDir,
                                                     int currIdx,
-                                                    int currLine) {
+                                                    int currLine,
+                                                    Direction placedDirection) {
     // First, build letters in the same direction as placedDir
     // TODO: implement the one word scenario (no direction)
     std::ostringstream oss;
@@ -304,9 +381,11 @@ void WordBuilder::createOrUpdateEmptyAdjacencyTiles(Direction searchingDir,
         backwardDir = LEFT;
         forwardDir = RIGHT;
     } else {
-        backwardDir = UP;
+        backwardDir = TOP;
         forwardDir = BOTTOM;
     }
+
+
 
     // Traverse to the uppermost or leftmost, depending on the placedDir,
     // index of a placed tile
@@ -320,7 +399,6 @@ void WordBuilder::createOrUpdateEmptyAdjacencyTiles(Direction searchingDir,
 
     // Build a string while traversing to the bottommost or rightmost index
     // of a placed tile and then create or update emptyAdjacentTile
-
     int totalLetterScores = 0;
     currIdx = mostForwardIdx;
     while (isOnBaseLine(currIdx, currLine, searchingDir) && board->hasPlacedTile(currIdx)) {
@@ -329,76 +407,64 @@ void WordBuilder::createOrUpdateEmptyAdjacencyTiles(Direction searchingDir,
         currIdx += forwardDir;
     }
 
-    // Create or update the bottommost or rightmost emptyAdjacencyTile
-    if (isOnBaseLine(currIdx, currLine, searchingDir)) {
-        // If the next following tile from the bottommost or rightmost has no emptyAdjacencyTile
-        if (!emptyAdjacentTiles[currIdx]) {
-            EmptyAdjacentTilePtr currEat = std::make_shared<EmptyAdjacentTile>(
-                    totalLetterScores, oss.str(),
-                    forwardDir, currIdx);
-            emptyAdjacentTiles[currIdx] = currEat;
-            tilesToStartFrom->insert(currEat);
+    // Check whether the current index can produce AdjacentTiles that can be solvable by sortedMap
+    // Condition 1. the Adjacent tiles to be created should be around the placed tile on the centre line
+    bool isSolvableBySortedMap = false;
+    if (mostForwardIdx == currIdx) {
+        if (placedDirection == HORIZONTAL) {
+            if (currIdx / BOARD_LENGTH == BOARD_LENGTH / 2)
+                isSolvableBySortedMap = true;
         } else {
-            emptyAdjacentTiles[currIdx]->update(totalLetterScores, oss.str(), forwardDir);
+            if (currIdx % BOARD_LENGTH == BOARD_LENGTH / 2)
+                isSolvableBySortedMap = true;
         }
     }
+
+    // Create or update the bottommost or rightmost AdjacentTile
+    if (isOnBaseLine(currIdx, currLine, searchingDir)) {
+        // If the next following tile from the bottommost or rightmost has no emptyAdjacencyTile
+        if (!adjacentTiles[currIdx]) {
+            // Check further whether the AdjacentTile to be created can be solvable by sortedMap
+            // Condition 2. the Adjacent tiles to be created should have no placed tiles other than the one they are adjacent to
+            int nextIdx = currIdx + forwardDir;
+            while (isOnBaseLine(nextIdx, currLine, searchingDir)) {
+                if (board->hasPlacedTile(nextIdx)) {
+                    isSolvableBySortedMap = false;
+                }
+                nextIdx = currIdx + forwardDir;
+            }
+
+            AdjacentTilePtr currAt = std::make_shared<AdjacentTile>(
+                    totalLetterScores, oss.str(),
+                    forwardDir, isSolvableBySortedMap, currIdx);
+            adjacentTiles[currIdx] = currAt;
+            tilesToStartFrom->insert(currAt);
+        } else {
+            adjacentTiles[currIdx]->update(totalLetterScores, oss.str(), forwardDir);
+        }
+    }
+
+
+
 
     // Create or update the uppermost or leftmost emptyAdjacencyTile
     // TODO refactor the repeated code below as above
     currIdx = mostForwardIdx + backwardDir;
     if (isOnBaseLine(currIdx, currLine, searchingDir)) {
-        if (!emptyAdjacentTiles[currIdx]) {
-            EmptyAdjacentTilePtr currEat = std::make_shared<EmptyAdjacentTile>(
+        if (!adjacentTiles[currIdx]) {
+            AdjacentTilePtr currEat = std::make_shared<AdjacentTile>(
                     totalLetterScores, oss.str(),
                     backwardDir, currIdx);
-            emptyAdjacentTiles[currIdx] = currEat;
+            adjacentTiles[currIdx] = currEat;
             tilesToStartFrom->insert(currEat);
         } else {
-            emptyAdjacentTiles[currIdx]->update(totalLetterScores, oss.str(), backwardDir);
+            adjacentTiles[currIdx]->update(totalLetterScores, oss.str(), backwardDir);
         }
     }
 
-//    // Next, build letters in the perpendicular direction as placedDir
-//    oss.str(std::string());
-//    if (placedDir == HORIZONTAL) {
-//        backwardDir = UP;
-//        forwardDir = BOTTOM;
-//    } else {
-//        backwardDir = LEFT;
-//        forwardDir = RIGHT;
-//    }
-//
-//    // Process the placed indices in a priority queue
-//    while (!placedIndices->empty()) {
-//        //TODO destroy the emptyAdjacnet Tile if found on the placed indices
-//
-//        // Access the most leftmost or uppermost index among those of the placed tiles
-//        int currIdx = placedIndices->top();
-//        placedIndices->pop();
-//
-//        for (DirectionFromPlacedTile direction: directions) {
-//            currIdx = placedIdx + direction;
-//            if (isOnBaseLine(currIdx)) {
-//                // While there is no placedTile in the direction
-//                std::istringstream iss;
-//                while (!board->hasPlacedTile(currIdx)) {
-//                    // Collect letters
-//                    currIdx += direction;
-//                }
-//                // If adjacentTile does not exist in the given index
-//                if (!emptyAdjacentTiles[currIdx]) {
-//                    // the cell in question has been never adjacent to any placed tile
-//                    // TODO find a way to store a score made of more than one letter
-//                    EmptyAdjacentTilePtr currEat = std::make_shared<EmptyAdjacentTile>(
-//                            board->getValue(placedIdx), board->getLetters(placedIdx),
-//                            direction, currIdx);
-//                    emptyAdjacentTiles[currIdx] = currEat;
-//                    tilesToStartFrom->insert(currEat);
-//                }
-//
-//            }
-//        }
-//    }
+
+
+
 
 
 

@@ -196,17 +196,44 @@ void Game::play()
     std::cout << "\nLet's play!"
               << std::endl;
 
-    PlayerPtr nextPlayer;
+    /*
+     * if played with the --ai configuration on,
+     * the human player always plays first, stored in the first
+     * element of the vector called players
+     */
+    bool isWordBuildersTurn;
+
     bool isGameOver = false;
     while (inSession && !isGameOver)
     {
         printCurrTurn();
-        if (wordBuilder && wordBuilder->isPlaying &&
-            currPlayer->getName() == wordBuilder->getName()) {
-            wordBuilder->execute();
+        // If wordBuilder plays, use the isWordBuildersTurn variable to mark her turn
+        if (wordBuilder && wordBuilder->isPlaying)
+            isWordBuildersTurn = numRounds % NUM_PLAYERS == 1;
+
+        if (wordBuilder) {
+
+            if (wordBuilder->isPlaying) {
+                readCommand();
+//                if (!isWordBuildersTurn) {
+//                    readCommand();
+//                }
+                wordBuilder->execute();
+            } else {
+                // when --hint is enabled but not --ai, wordBuilder still keeps track
+                readCommand();
+                wordBuilder->execute();
+            }
         } else {
+            //
             readCommand();
         }
+
+
+//        if (wordBuilder && wordBuilder->isPlaying &&
+//            currPlayer->getName() == wordBuilder->getName()) {
+//            wordBuilder->execute();
+
 
         // The game ends when the tile bag is empty AND One player has no
         // more tiles in his/her hand OR passes his turn twice
@@ -231,9 +258,8 @@ void Game::play()
             }
         }
         ++numRounds;
-        nextPlayer = players[numRounds % NUM_PLAYERS];
 
-        currPlayer = nextPlayer;
+        currPlayer = players[numRounds % NUM_PLAYERS];
     }
 }
 
