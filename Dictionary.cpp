@@ -30,3 +30,13 @@ bool Dictionary::isInDict(std::vector<std::string>& words) {
     }
     return isAllInDict;
 }
+
+bool Dictionary::isInDict(std::string& word) {
+    bool isInDict = false;
+    if (dict->count(word))
+        isInDict = true;
+    else
+        isInDict = false;
+
+    return isInDict;
+}

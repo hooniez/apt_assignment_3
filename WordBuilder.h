@@ -169,14 +169,13 @@ private:
     const std::vector<AdjacentTileDir> adjacentTileDirection =
             {DOWNWARD, LEFTWARD, UPWARD, RIGHTWARD};
 
-    void recursivelyBuildWord(int backwardIdx,
-                                 int forwardIdx,
-                                 int currLine,
-                                 Angle angle,
-                                 std::string& tempLetters,
-                                 std::string& lettersInHand,
-                                 bool noLetterPlaceable,
-                                 std::map<int, char>& tilesIndices);
+    void buildWord(int backwardIdx,
+                   int forwardIdx,
+                   int currLine,
+                   Angle angle,
+                   std::string& tempLetters,
+                   std::string& lettersInHand,
+                   std::map<int, char>& tilesIndices);
 
 //    bool isExtensionable(const AdjacentTilePtr&, std::string letters)
 

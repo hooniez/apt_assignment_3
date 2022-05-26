@@ -24,6 +24,7 @@ class Dictionary {
 public:
     Dictionary(const std::string& dictFileName, bool isCheckingValidity);
     bool isInDict(std::vector<std::string>& words);
+    bool isInDict(std::string& word);
     bool isCheckingValidity;
 private:
     dictPtr dict;
