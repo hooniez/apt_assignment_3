@@ -236,6 +236,6 @@ void printConfigOptions() {
     std::cout << "Invalid Option(s)\n" << std::endl;
     std::cout << "Available options are:" << std::endl;
     std::cout << "To play against a computer: --ai" << std::endl;
-    std::cout << "To check whether the entered words are valid: --dictionary" << std::endl;
+    std::cout << "To check whether the entered wordsInQueue are valid: --dictionary" << std::endl;
     std::cout << "To get hints on where to place tiles: --hint" << std::endl;
 }

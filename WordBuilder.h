@@ -36,7 +36,7 @@
  *                         Y
  *
  * The cells marked by Z are considered hard as more than one check is needed
- * to find out the placement results in valid words.
+ * to find out the placement results in valid wordsInQueue.
  *
  * The algorithm will keep track of available placements (all the X, Y, Z tiles)
  * in two sets, used as priority queues, namely singleWordTiles and multiWordTiles.
@@ -73,6 +73,7 @@
 #include "SortedMapBuilder.h"
 #include "GreedyMapBuilder.h"
 #include "AdjacentTile.h"
+#include "Word.h"
 
 class WordBuilder : public Player {
 public:
@@ -80,15 +81,28 @@ public:
     WordBuilder(const std::string& forwardSearchMapFileName,
                 const std::string& backwardSearchMapFileName,
                 const std::string& sortedMapFileName,
+                const DictionaryPtr& dictionary,
                 BoardPtr board,
                 bool canGiveHints);
     // This constructor is called when --ai is typed by itself OR with --hint
     WordBuilder(const std::string& forwardSearchMapFileName,
                 const std::string& backwardSearchMapFileName,
                 const std::string& sortedMapFileName,
+                const DictionaryPtr& dictionary,
+                const std::string& name,
+                size_t score,
+                LinkedListPtr<TilePtr> hand,
+                BoardPtr board,
+                bool canGiveHints);
+
+    WordBuilder(const std::string& forwardSearchMapFileName,
+                const std::string& backwardSearchMapFileName,
+                const std::string& sortedMapFileName,
+                const DictionaryPtr& dictionary,
                 const std::string& name,
                 BoardPtr board,
                 bool canGiveHints);
+
     void readFileToMap(const std::string &, greedyMapPtr& map);
     void readFileToMap(const std::string &, sortedMapPtr& map);
     void initialiseMaps();
@@ -96,21 +110,32 @@ public:
     void execute();
 
     void updateAdjacentTiles();
+    void suggestTiles();
 
     // Check if the index is within the board and on the same line as the baseLine
-    bool isOnBaseLine(int idx, int baseLine, Direction dir);
+    bool isOnBaseLine(int idx, int baseLine, Angle dir);
 
-    void createOrUpdateEmptyAdjacencyTiles(Direction searchingDir,
+    void createOrUpdateEmptyAdjacencyTiles(Angle searchingDir,
                                            int currIdx,
                                            int currLine,
-                                           Direction placedDirection);
+                                           Angle placedDirection);
 
-    int getCurrLine(int idx, Direction dir);
+    int getCurrLine(int idx, Angle dir);
 
 
     void beAwareOfTiles();
 
     void placeTiles();
+
+    bool isLineOnBoard(int line);
+    // Convert the processed tiles into a priority queue
+    void convertTilesIntoPQ();
+
+    void updateSortedMappableAdjacentTile();
+
+    void setBoard(BoardPtr board);
+
+    void setDictionary(DictionaryPtr dictionary);
 
 
 
@@ -118,24 +143,42 @@ public:
     bool canGiveHints;
     bool isPlaying;
 private:
-    greedyMapPtr forwardMap;
-    greedyMapPtr backwardMap;
+    greedyMapPtr greedyForwardMap;
+    greedyMapPtr greedyBackwardMap;
     sortedMapPtr sortedMap;
     BoardPtr board;
+    DictionaryPtr dictionary;
+    std::shared_ptr<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>> wordsInQueue;
 //    std::set<EmptyTilePtr> singleWordTiles;
 //    std::set<EmptyTilePtr> multiWordTiles;
-    std::array<DirectionFromPlacedTile, TOTALDIRECTIONS> verticaldDirs =
-            {TOP, BOTTOM};
-
-    std::array<DirectionFromPlacedTile, TOTALDIRECTIONS> horizontalDirs =
-            {RIGHT, LEFT};
+//    std::array<BoardDir, TOTALDIRECTIONS> verticaldDirs =
+//            {TOP, BOTTOM};
+//
+//    std::array<BoardDir, TOTALDIRECTIONS> horizontalDirs =
+//            {RIGHT, LEFT};
 
 
     // emptyAdjacnetTiles keep track of instances of EmptyAdjancetTile
-    AdjacentTilePtr adjacentTiles[BOARD_LENGTH * BOARD_LENGTH];
+    AdjacentTiles adjacentTiles;
     // tilesToStartFrom stores the same instances of AdjacentTile stored
     // in adjacentTiles sorted by its potential scores
-    AdjacentTilesPtr tilesToStartFrom;
+//    AdjacentTilesPtr tilesToStartFrom;
+    TilesToStartFrom tilesToStartFrom;
+
+    const std::vector<BoardDir> boardDirections = {TOP, RIGHT, BOTTOM, LEFT};
+    const std::vector<AdjacentTileDir> adjacentTileDirection =
+            {DOWNWARD, LEFTWARD, UPWARD, RIGHTWARD};
+
+    void recursivelyBuildWord(int backwardIdx,
+                                 int forwardIdx,
+                                 int currLine,
+                                 Angle angle,
+                                 std::string& tempLetters,
+                                 std::string& lettersInHand,
+                                 bool noLetterPlaceable,
+                                 std::map<int, char>& tilesIndices);
+
+//    bool isExtensionable(const AdjacentTilePtr&, std::string letters)
 
 
 //    std::shared_ptr<std::map<int, std::tuple<int, int>>> testMap;

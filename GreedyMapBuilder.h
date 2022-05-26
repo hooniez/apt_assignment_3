@@ -28,7 +28,7 @@
  * }
  * where the sub key '|' denotes the main key has no more letter following.
  *
- * After all the words are converted to such records as above,
+ * After all the wordsInQueue are converted to such records as above,
  * Looking up "GOOD" will initially return
  * {'|': 10, 'S': 3, 'E': 4, 'H': 3, 'I': 3,
  *  'L': 6, 'M': 2, 'N': 2, 'W': 4, 'Y': 7}.
@@ -77,7 +77,7 @@ public:
     void saveMap() override;
 
     greedyMapPtr greedyMap;
-//    std::vector<std::string> words;
+//    std::vector<std::string> wordsInQueue;
     bool forward;
     std::string inFile;
     std::string outFile;

@@ -7,47 +7,43 @@
 
 AdjacentTile::AdjacentTile(int potentialScore,
                            const std::string & lettersToStore,
-                           DirectionFromPlacedTile fromPlacedTile,
+                           BoardDir fromPlacedTile,
                            bool isSolvableBySortedMap,
                            int idx):
                                      idx(idx),
                                      potentialScores(potentialScore),
-                                     misEmpty(true),
-                                     misExtendiable(isSolvableBySortedMap) {
+                                     misExtendiable(true),
+                                     misSolvableBySortedMap(isSolvableBySortedMap){
 
     // Depending on the direction from the placedTile (the reference point) to AdjacentTile,
     // store the letters of the adjacent tiles.
     // (e.g. if fromPlacedTile is TOP, AdjacentTile is created above it. Therefore, the letters
-    // of the placedTile should be stored in its BOTTOMIDX).
+    // of the placedTile should be stored in its DOWNWARD).
     if (fromPlacedTile == TOP) {
-        adjacentLetters[BOTTOMIDX] = lettersToStore;
+        adjacentLetters[DOWNWARD] = lettersToStore;
     } else if (fromPlacedTile == RIGHT) {
-        adjacentLetters[LEFTIDX] = lettersToStore;
+        adjacentLetters[LEFTWARD] = lettersToStore;
     } else if (fromPlacedTile == BOTTOM) {
-        adjacentLetters[TOPIDX] = lettersToStore;
+        adjacentLetters[UPWARD] = lettersToStore;
     } else if (fromPlacedTile == LEFT) {
-        adjacentLetters[RIGHTIDX] = lettersToStore;
+        adjacentLetters[RIGHTWARD] = lettersToStore;
     }
 
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist6(0,1);
-    misSolvableBySortedMap = dist6(rng);
 }
 
 void AdjacentTile::update(int potentialScore,
                           const std::string & lettersToStore,
-                          DirectionFromPlacedTile fromPlacedTile) {
-    AdjacentTileIdx idx;
+                          BoardDir fromPlacedTile) {
+    AdjacentTileDir idx;
     if (fromPlacedTile == TOP) {
-        idx = BOTTOMIDX;
+        idx = DOWNWARD;
     } else if (fromPlacedTile == RIGHT) {
-        idx = LEFTIDX;
+        idx = LEFTWARD;
     } else if (fromPlacedTile == BOTTOM) {
-        idx = TOPIDX;
+        idx = UPWARD;
     } else {
         // if fromPlacedTile == LEFT
-        idx = RIGHTIDX;
+        idx = RIGHTWARD;
     }
 
     // First calculate an existing letter(s)' score and then subtract it from the total potentialScores
@@ -60,10 +56,12 @@ void AdjacentTile::update(int potentialScore,
     // Update the letters and add the corresponding score
     adjacentLetters[idx] = lettersToStore;
     potentialScores += potentialScore;
+
+    // Since the updated AdjacentTile is next to another placed tile, misSolvableBySortedMap to false
+    misSolvableBySortedMap = false;
 }
 
 void AdjacentTile::hasPlacedTile() {
     misSolvableBySortedMap = false;
     potentialScores = 0;
-    misEmpty = false;
 }

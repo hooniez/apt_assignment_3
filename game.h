@@ -34,7 +34,9 @@ public:
         std::vector<PlayerPtr> players,
         BoardPtr board,
         std::shared_ptr<TileBag> tileBag,
-        PlayerPtr playerTurn);
+        PlayerPtr playerTurn,
+        WordBuilderPtr wordBuilder,
+        DictionaryPtr dictionary);
     ~Game();
     // Process options read from the command-line and accordingly initialise data members
     void processConfigSetting(const configSettingPtr& options);
@@ -70,7 +72,7 @@ public:
      * command is validated)
      */
     void executePlaceDoneCommand(size_t &numTilesPlaced);
-    // Calculate scores from the generated words after "place Done"
+    // Calculate scores from the generated wordsInQueue after "place Done"
     int calculateScores();
     /*
      * Execute a replace command (This function can only be invoked once the
@@ -114,6 +116,7 @@ private:
     DictionaryPtr dictionary;
     WordBuilderPtr wordBuilder;
     configSettingPtr configSetting;
+
 };
 
 #endif // ASSIGNMENT2_GAME_H

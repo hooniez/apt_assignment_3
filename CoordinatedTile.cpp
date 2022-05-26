@@ -5,7 +5,7 @@
 //#include "CoordinatedTile.h"
 //CoordinatedTile::CoordinatedTile(TilePtr tile,
 //                                 gridLocPtr gridLoc,
-//                                 Direction dir):
+//                                 Angle dir):
 //                                 Tile(*tile),
 //                                 placedDir(dir),
 //                                 gridLoc(gridLoc){}

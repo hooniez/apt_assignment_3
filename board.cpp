@@ -179,19 +179,19 @@ bool Board::checkAdjacentTiles()
 /*
  * Give it a list of all the letters the player just added,
  * and the length of this letter list,
- * will return all the words that can be created
+ * will return all the wordsInQueue that can be created
  */
 void Board::makeCurrWords()
 {
     currWords.clear();
     /*
      * Work out the direction that the wordBuilder is going.
-     * Make sure not to check words in this direction
+     * Make sure not to check wordsInQueue in this direction
      * Need to check if its a one letter wordBuilder first.
      */
 
     unsigned int length = this->gridLocs.size();
-    Direction dir = NONE;
+    Angle dir = NONE;
     std::string wordString;
     std::vector<std::string> wordsArray;
     /* a single letter, convert it to an int array
@@ -200,8 +200,8 @@ void Board::makeCurrWords()
     if (length == 1)
     {
         /*
-         * first add all the words in a right direction,
-         * then add all the words in a left direction
+         * first add all the wordsInQueue in a right direction,
+         * then add all the wordsInQueue in a left direction
          */
         wordString = addWordInDirection(this->gridLocs[0],
                                         HORIZONTAL);
@@ -239,7 +239,7 @@ void Board::makeCurrWords()
         {
             if (dir == HORIZONTAL)
             {
-                // if look at words running parallel so check the opposite
+                // if look at wordsInQueue running parallel so check the opposite
                 wordString = addWordInDirection(this->gridLocs[i],
                                                 VERTICAL);
                 /*
@@ -249,7 +249,7 @@ void Board::makeCurrWords()
             }
             else
             {
-                // if look at words running parallel so check the opposite
+                // if look at wordsInQueue running parallel so check the opposite
                 wordString = addWordInDirection(this->gridLocs[i],
                                                 HORIZONTAL);
             }
@@ -265,14 +265,14 @@ void Board::makeCurrWords()
 }
 
 std::string Board::addWordInDirection(std::vector<int> &startingLetterCoords,
-                                      Direction dir)
+                                      Angle dir)
 {
     // move as far as possible left, then move right as far as possible
     std::string wordString;
 
     /*
      * if the first call is false,
-     * then we don't want to count words of length 1
+     * then we don't want to count wordsInQueue of length 1
      */
 
     // move left
@@ -320,8 +320,8 @@ std::string Board::addWordInDirection(std::vector<int> &startingLetterCoords,
     // add the main wordBuilder.
     return wordString;
 }
-Direction Board::getWordDirection(std::vector<int> &location1,
-                                  std::vector<int> &location2)
+Angle Board::getWordDirection(std::vector<int> &location1,
+                              std::vector<int> &location2)
 {
 
     if (location1[0] == location2[0])
@@ -343,8 +343,8 @@ bool Board::checkAllOnTheSameLine() {
     unsigned int count = 0;
     bool allOnTheSameLine = true;
     if (this->gridLocs.size() != 1) {
-        Direction dir = this->getWordDirection(this->gridLocs[0],
-                                               this->gridLocs[1]);
+        Angle dir = this->getWordDirection(this->gridLocs[0],
+                                           this->gridLocs[1]);
         /* The word has a up down direction,
          * check that all letters are on the updown
          */
@@ -578,7 +578,7 @@ bool Board::isPlacementValid(){
 
     // Return a nullptr in the returnVector if the letters are valid
     if (lettersValid) {
-        // Fill the data member currWords with all the words created by
+        // Fill the data member currWords with all the wordsInQueue created by
         // the letters put on the board in the current turn.
         makeCurrWords();
     } else {
@@ -607,7 +607,7 @@ std::vector<std::string>& Board::getCurrWords() {
 bool Board::isWordValid(DictionaryPtr dict) {
     bool isValid = false;
 
-    // User dict to check whether words are valid
+    // User dict to check whether wordsInQueue are valid
     isValid = dict->isInDict(currWords);
     if (!isValid) {
         setTilesToReturn();
@@ -631,7 +631,7 @@ placedIndicesPtr Board::getPlacedIndices() {
     return placedIndices;
 }
 
-Direction Board::getPlacedDir() {
+Angle Board::getPlacedDir() {
     return placedDir;
 }
 

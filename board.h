@@ -82,7 +82,7 @@ public:
      * pre-condition: the starting coordinations are valid board coordinates
      */
     std::string addWordInDirection(std::vector<int>
-                                   &startingLetterCoords, Direction dir);
+                                   &startingLetterCoords, Angle dir);
     /*
      * Converts a specified string to a coordinate
      * pre-condition: The string be in the form "letterintegerinteger"
@@ -94,14 +94,14 @@ public:
      * if they are not on same row or column
      * pre-condition: the location vectors are valid board coordinates
      */
-    Direction getWordDirection(std::vector<int> &location1,
-                               std::vector<int> &location2);
+    Angle getWordDirection(std::vector<int> &location1,
+                           std::vector<int> &location2);
 
-    // Get all the words created by the letters put on the board in the current turn &
+    // Get all the wordsInQueue created by the letters put on the board in the current turn &
     // store them in the data member currWords if all are valid.
     void makeCurrWords();
 
-    // Return the vector currWords that contains all the valid words
+    // Return the vector currWords that contains all the valid wordsInQueue
     std::vector<std::string>& getCurrWords();
 
     // Check whether the placement is legal according to the game rules
@@ -115,13 +115,13 @@ public:
      *                          Milestone 3 & 4 Below
      */
 
-    // Check whether the placed tiles make up words found in a dict stored in wordBuilder
+    // Check whether the placed tiles make up wordsInQueue found in a dict stored in wordBuilder
     bool isWordValid(DictionaryPtr dict);
     std::vector<TilePtr>& getTilesToReturn();
     // Clear the board of invalid tiles and put them in tilesToReturn
     void setTilesToReturn();
     placedIndicesPtr getPlacedIndices();
-    Direction getPlacedDir();
+    Angle getPlacedDir();
     // Reduce the dimensionality
     void trackPlacedTiles();
     Value getValue(int idx);
@@ -147,7 +147,7 @@ private:
     // If tiles placed are deemed invalid, they are put back in tilesToReturn.
     std::vector<TilePtr> tilesToReturn;
     std::vector<std::string> currWords;
-    Direction placedDir;
+    Angle placedDir;
     // placedIndices is cleared at the beginning of the turn and filled with the
     // placedIndices converted from gridLocs belonging to the tiles placed
     placedIndicesPtr placedIndices;

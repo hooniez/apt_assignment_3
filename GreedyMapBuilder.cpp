@@ -18,7 +18,7 @@ void GreedyMapBuilder::build() {
 }
 
 void GreedyMapBuilder::convertToMap() {
-    // Read in words from the file
+    // Read in wordsInQueue from the file
     std::ifstream in(inFile);
     std::string word;
     while (std::getline(in, word)) {

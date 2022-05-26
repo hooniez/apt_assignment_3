@@ -19,11 +19,11 @@ void SortedMapBuilder::build() {
 }
 
 // Sort the letters of each word in the dictionary
-// Use each of the sorted words as a key mapped to its original value
+// Use each of the sorted wordsInQueue as a key mapped to its original value
 // (e.g. AELPP is a key mapped to APPLE)
 void SortedMapBuilder::convertToMap() {
     std::ifstream in(inFile);
-    // Read in words from the file
+    // Read in wordsInQueue from the file
     std::string word;
     while (std::getline(in, word)) {
         std::string sortedString(word);

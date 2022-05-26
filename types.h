@@ -43,21 +43,21 @@ enum Coordinate {
     Y
 };
 
-enum DirectionFromPlacedTile {
+enum BoardDir {
     TOP = -BOARD_LENGTH,
     LEFT = -1,
     RIGHT = 1,
     BOTTOM = BOARD_LENGTH
 };
 
-enum AdjacentTileIdx {
-    TOPIDX = 0,
-    RIGHTIDX = 1,
-    BOTTOMIDX = 2,
-    LEFTIDX = 3,
+enum AdjacentTileDir {
+    UPWARD = 0,
+    RIGHTWARD = 1,
+    DOWNWARD = 2,
+    LEFTWARD = 3,
 };
 
-//const std::map<DirectionFromPlacedTile, AdjacentTileIdx> = {
+//const std::map<BoardDir, AdjacentTileDir> = {
 //        {'A', 1}, {'B', 3}, {'C', 3},
 //        {'D', 2}, {'E', 1}, {'F', 4},
 //        {'G', 2}, {'H', 4}, {'I', 1},
@@ -69,7 +69,7 @@ enum AdjacentTileIdx {
 //        {'Y', 4}, {'Z', 10}, {'|', 0.5}};
 
 #define TOTALDIRECTIONS 4
-enum Direction
+enum Angle
 {   
     NONE = -1,
     VERTICAL = 0,

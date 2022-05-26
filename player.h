@@ -23,7 +23,7 @@ public:
     Player(std::string);
     Player(std::string name, int score, LinkedListPtr<TilePtr> hand);
     // Player(std::string, LinkedListPtr<TilePtr>);
-    ~Player();
+    virtual ~Player();
     std::string &getName();
 
     // add one tile to player's hand

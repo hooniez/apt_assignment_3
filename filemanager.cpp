@@ -58,13 +58,22 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
         invalid = true;
     }
 
+    // Read configuration settings first
     configSettingPtr configSetting;
     configSetting = files::parseConfigSetting(inFile);
 
     std::vector<PlayerPtr> players;
     PlayerPtr player;
-    for (int i = 0; i < NUM_PLAYERS; ++i)
+    size_t numHumanPlayers = NUM_PLAYERS;
+    if (configSetting->count("--ai")) {
+        numHumanPlayers = 1;
+    }
+
+    // Since the human player will always play first if playing against AI
+    // read him first.
+    for (int i = 0; i < numHumanPlayers; ++i)
     {
+
         player = files::parsePlayer(inFile);
         if (player != nullptr)
         {
@@ -76,8 +85,55 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
         }
     }
 
+    WordBuilderPtr wordBuilder = nullptr;
+    // Read AI if --ai is configured
+    if (configSetting->count("--ai")) {
+        if (configSetting->count("--hint")) {
+            wordBuilder = files::parseWordBuilder(inFile, true);
+        } else {
+            wordBuilder = files::parseWordBuilder(inFile, false);
+        }
+
+        if (wordBuilder != nullptr)
+        {
+            players.push_back(wordBuilder);
+        }
+        else
+        {
+            invalid = true;
+        }
+    } else if (configSetting->count("--hint")) {
+        // If Ai is not a player, but should give a hint,
+        // Create wordBuilder with board set to nullptr since board is read after
+        // the players are parsed. Set board once it is parsed below.
+        wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
+                                                    "backwardGreedyMap",
+                                                    "sortedMap",
+                                                    nullptr,
+                                                    nullptr,
+                                                    false);
+
+    }
+
     BoardPtr board = files::parseBoard(inFile);
+    // Now that board is parsed, allow wordBuilder, if it exists, to store board as its data member
+    if (wordBuilder)
+        wordBuilder->setBoard(board);
+
+    DictionaryPtr dictionary = nullptr;
+    if (configSetting->count("--dictionary")) {
+        dictionary = std::make_shared<Dictionary>("wordsInQueue", true);
+    } else {
+        if (wordBuilder) {
+            dictionary = std::make_shared<Dictionary>("wordsInQueue", false);
+        }
+    }
+
+    if (wordBuilder)
+        wordBuilder->setDictionary(dictionary);
+
     std::shared_ptr<TileBag> tileBag = parseTileBag(inFile);
+
     PlayerPtr playerTurn = parsePlayerTurn(inFile, players);
 
     std::shared_ptr<Game> game = nullptr;
@@ -91,7 +147,12 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
         tileBag != nullptr &&
         playerTurn != nullptr)
     {
-        game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn);
+        if (configSetting->empty()) {
+            game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn, nullptr, nullptr);
+        } else {
+            game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn, wordBuilder, dictionary);
+        }
+
     }
 
     return game;
@@ -213,6 +274,45 @@ PlayerPtr files::parsePlayer(std::ifstream &in)
 
     // returns nullptr if one of the attributes is invalid
     return player;
+}
+
+WordBuilderPtr files::parseWordBuilder(std::ifstream &in, bool canGiveHints) {
+    // parse the WordBuilder's name
+    string name;
+    std::getline(in, name);
+
+    // parse the score
+    string scoreStr;
+    std::getline(in, scoreStr);
+    int score = 0;
+
+    // parse the tiles
+    string tileStr;
+    std::getline(in, tileStr);
+    LinkedListPtr<TilePtr> hand = parseTiles(tileStr);
+
+    WordBuilderPtr wordBuilder = nullptr;
+
+    // check if the parsed player attributes are valid
+    if (name.length() > 0 &&
+        scoreStr.length() > 0 &&
+        isNumber(scoreStr) &&
+        hand != nullptr)
+    {
+        score = std::stoi(scoreStr);
+        wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
+                                                    "backwardGreedyMap",
+                                                    "sortedMap",
+                                                    nullptr,
+                                                    name,
+                                                    score,
+                                                    hand,
+                                                    nullptr,
+                                                    canGiveHints);
+    }
+
+    // returns nullptr if one of the attributes is invalid
+    return wordBuilder;
 }
 
 BoardPtr files::parseBoard(std::ifstream &in)

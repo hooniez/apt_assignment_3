@@ -19,6 +19,7 @@ namespace files
                               std::vector<PlayerPtr> players);
     LinkedListPtr<TilePtr> parseTiles(std::string tileStr);
     PlayerPtr parsePlayer(std::ifstream &in);
+    WordBuilderPtr parseWordBuilder(std::ifstream &in, bool canGiveHints);
     BoardPtr parseBoard(std::ifstream &in);
     std::shared_ptr<TileBag> parseTileBag(std::ifstream &in);
     int createSubString(std::string &parentStr,

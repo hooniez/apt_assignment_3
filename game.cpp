@@ -16,10 +16,12 @@ Game::Game(const configSettingPtr& configSetting) : inSession(true), numRounds(0
 
 Game::Game(
         configSettingPtr configSetting,
-    std::vector<PlayerPtr> players,
-    BoardPtr board,
-    std::shared_ptr<TileBag> tileBag,
-    PlayerPtr playerTurn):
+        std::vector<PlayerPtr> players,
+        BoardPtr board,
+        std::shared_ptr<TileBag> tileBag,
+        PlayerPtr playerTurn,
+        WordBuilderPtr wordBuilder,
+        DictionaryPtr dictionary):
                             currPlayer(playerTurn),
                             players(players),
                             board(board),
@@ -27,13 +29,12 @@ Game::Game(
                             inSession(true),
                             numRounds(0),
                             commandHandler(std::make_shared<CommandHandler>()),
-                            dictionary(nullptr),
-                            wordBuilder(nullptr),
-                            configSetting(configSetting)
+                            dictionary(dictionary),
+                            wordBuilder(wordBuilder),
+                            configSetting(configSetting) {}
 
-{
-    processConfigSetting(configSetting);
-}
+
+
 
 Game::~Game() = default;
 
@@ -43,9 +44,9 @@ void Game::processConfigSetting(const configSettingPtr& options) {
         // Create a dictionary as all the options make use of it.
         // Pass true as the second argument if the validity check is required
         if (options->count("--dictionary")) {
-            dictionary = std::make_shared<Dictionary>("words", true);
+            dictionary = std::make_shared<Dictionary>("wordsInQueue", true);
         } else {
-            dictionary = std::make_shared<Dictionary>("words", false);
+            dictionary = std::make_shared<Dictionary>("wordsInQueue", false);
         }
         // If options includes --ai, create wordBuilder as a player
         if (options->count("--ai")) {
@@ -55,6 +56,7 @@ void Game::processConfigSetting(const configSettingPtr& options) {
                                                             "backwardAiMap",
                                                             "sortedMap"
                                                             "AI",
+                                                            dictionary,
                                                             board,
                                                             true);
             } else {
@@ -62,6 +64,7 @@ void Game::processConfigSetting(const configSettingPtr& options) {
                 wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
                                                             "backwardAiMap",
                                                             "sortedMap",
+                                                            dictionary,
                                                             "AI",
                                                             board,
                                                             false);
@@ -72,6 +75,7 @@ void Game::processConfigSetting(const configSettingPtr& options) {
             wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
                                                         "backwardAiMap",
                                                         "sortedMap",
+                                                        dictionary,
                                                         board,
                                                         true);
 
@@ -131,7 +135,7 @@ void Game::initialisePlayers()
 
 
 
-//    std::cout << (*(*wordBuilder->forwardMap)["A"])['C'] << std::endl;
+//    std::cout << (*(*wordBuilder->greedyForwardMap)["A"])['C'] << std::endl;
 
 
 
@@ -208,11 +212,10 @@ void Game::play()
     {
         printCurrTurn();
         // If wordBuilder plays, use the isWordBuildersTurn variable to mark her turn
-        if (wordBuilder && wordBuilder->isPlaying)
+        if (configSetting->count("--ai"))
             isWordBuildersTurn = numRounds % NUM_PLAYERS == 1;
 
         if (wordBuilder) {
-
             if (wordBuilder->isPlaying) {
                 readCommand();
 //                if (!isWordBuildersTurn) {
@@ -388,12 +391,12 @@ void Game::executePlaceDoneCommand(size_t &numTilesPlaced)
     }
 }
 
-// Calculate scores from the generated words after "place Done"
+// Calculate scores from the generated wordsInQueue after "place Done"
 int Game::calculateScores()
 {
     auto words = board->getCurrWords();
     int score = 0;
-    std::cout << currPlayer->getName() << " made the words: " << std::endl;
+    std::cout << currPlayer->getName() << " made the wordsInQueue: " << std::endl;
     for (auto it = words.cbegin(); it != words.cend(); ++it)
     {
         // Iterate characters in a word

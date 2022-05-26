@@ -6,11 +6,11 @@
 Dictionary::Dictionary(const std::string& dictFileName, bool isCheckingValidity):
                                                         isCheckingValidity(isCheckingValidity),
                                                         dict(std::make_shared<dictType>()) {
-    // Make sure dict can hold the total number of words in the provided file
+    // Make sure dict can hold the total number of wordsInQueue in the provided file
     // so that no rehash slows down the loading process
     dict->reserve(TOTAL_WORDS_IN_DIC);
 
-    // Read words in the file into dict
+    // Read wordsInQueue in the file into dict
     std::string word;
     std::ifstream in(dictFileName);
     while (std::getline(in, word)) {
@@ -20,10 +20,12 @@ Dictionary::Dictionary(const std::string& dictFileName, bool isCheckingValidity)
 }
 
 bool Dictionary::isInDict(std::vector<std::string>& words) {
-    bool isAllInDict = true;
+    bool isAllInDict = false;
     for (auto it = words.cbegin();
          it != words.cend() && isAllInDict; ++it) {
-        if (dict->count(*it) == 0)
+        if (dict->count(*it))
+            isAllInDict = true;
+        else
             isAllInDict = false;
     }
     return isAllInDict;

@@ -31,7 +31,7 @@ std::istream &CommandHandler::getline(std::istream &in,
     std::istringstream iss(userLine);
     std::string userWord;
 
-    // Store all the words delimited by whitespace in userLine
+    // Store all the wordsInQueue delimited by whitespace in userLine
     while (iss >> userWord)
     {
         playerCommand.push_back(userWord);
@@ -135,7 +135,7 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
     if (numWords == 2)
     {
         std::string secondWord = playerCommand[1];
-        // Check whether the words are "place Done"
+        // Check whether the wordsInQueue are "place Done"
         if (secondWord != "Done")
         {
             std::cout << "Invalid Input: To end your turn use: place Done"
@@ -180,7 +180,7 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
             } else {
                 // If dictionary is initialised (in all cases of the options)
                 if (dictionary && dictionary->isCheckingValidity && !board->isWordValid(dictionary)) {
-                    std::cout << "Invalid Input: Make sure your words are valid words" << std::endl;
+                    std::cout << "Invalid Input: Make sure your wordsInQueue are valid wordsInQueue" << std::endl;
                     // Put the returned tiles back in the player's hand
                     for (const auto &placedTile : board->getTilesToReturn())
                     {

@@ -14,52 +14,49 @@
 #include "types.h"
 
 #include <tuple>
-#include <set>
+#include <queue>
 
 // TODO: get rid of idx after testing
 class AdjacentTile {
 public:
     AdjacentTile(int potentialScore,
                  const std::string & lettersToStore,
-                 DirectionFromPlacedTile fromPlacedTile,
+                 BoardDir fromPlacedTile,
                  bool isSolvableBySortedMap,
                  int idx);
 //    std::set<CoordinatedTilePtr> adjacentPlacedTiles;
     int idx;
     size_t potentialScores;
     std::string adjacentLetters[TOTALDIRECTIONS];
-    bool misEmpty;
     bool misExtendiable;
     bool misSolvableBySortedMap;
     void update(int potentialScore,
                 const std::string & lettersToStore,
-                DirectionFromPlacedTile fromPlacedTile);
+                BoardDir fromPlacedTile);
     void hasPlacedTile();
 
 
 
 };
 
-typedef std::shared_ptr<AdjacentTile>
-        AdjacentTilePtr;
+typedef std::shared_ptr<AdjacentTile> AdjacentTilePtr;
+typedef std::vector<AdjacentTilePtr> AdjacentTiles;
 
-struct CompareEmptyAdjacentTile {
+struct CompareAdjacentTile {
 public:
-    // Return true if eat1's potential score is less than
-    // eat2's potential score
-    bool operator()(const AdjacentTilePtr & eat1, const AdjacentTilePtr & eat2) const {
+    // Return true if at1's potential score is less than
+    // at2's potential score
+    bool operator()(const AdjacentTilePtr & at1, const AdjacentTilePtr & at2) const {
         bool res;
-        if (eat1->misSolvableBySortedMap == eat2->misSolvableBySortedMap) {
-            res = eat1->potentialScores < eat2->potentialScores;
+        if (at1->misSolvableBySortedMap == at2->misSolvableBySortedMap) {
+            res = at1->potentialScores < at2->potentialScores;
         } else {
-            res = eat1->misSolvableBySortedMap < eat2->misSolvableBySortedMap;
+            res = at1->misSolvableBySortedMap < at2->misSolvableBySortedMap;
         }
-
         return res;
     }
 };
 
-typedef std::multiset<AdjacentTilePtr, CompareEmptyAdjacentTile> EmptyAdjacentTilesType;
-typedef std::shared_ptr<EmptyAdjacentTilesType> AdjacentTilesPtr;
+typedef std::priority_queue<AdjacentTilePtr, std::vector<AdjacentTilePtr>, CompareAdjacentTile> TilesToStartFrom;
 
 #endif //ASSIGNMENT3_ADJACENTTILE_H
