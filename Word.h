@@ -13,29 +13,34 @@
 
 class Word {
 public:
-    std::vector<std::string> words;
+    std::string word;
+    std::string lettersInHand;
     size_t score;
     std::map<int, char> tileIndices;
 
-    Word(std::vector<std::string>& words, std::map<int, char> tileIndices);
+    Word(std::string word, std::string letttersInHand, std::map<int, char> tileIndices);
+
+    Word(const Word& word);
+
+    void erase(char ch);
+    void prepend(char ch, int idx);
+    void append(char ch, int idx);
+
 };
 typedef std::shared_ptr<Word> WordPtr;
 
 struct CompareWord {
 public:
-    bool operator()(const WordPtr& w1, const WordPtr& w2) const {
+    bool operator()(Word &w1, Word& w2) const {
         int w1Score = 0;
         int w2Score = 0;
-        for (auto& word: w1->words) {
-            for (auto ch: word)
-                w1Score += letterScoreMap.at(ch);
-        }
-        w1->score = w1Score;
-        for (auto& word: w2->words) {
-            for (auto ch: word)
-                w2Score += letterScoreMap.at(ch);
-        }
-        w2->score = w2Score;
+        for (auto ch: w1.word)
+            w1Score += letterScoreMap.at(ch);
+        w1.score = w1Score;
+        for (auto ch: w2.word)
+            w2Score += letterScoreMap.at(ch);
+
+        w2.score = w2Score;
         return w1Score < w2Score;
     }
 };

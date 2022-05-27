@@ -4,7 +4,6 @@
 
 #ifndef ASSIGNMENT3_WORDBUILDER_H
 #define ASSIGNMENT3_WORDBUILDER_H
-
 #include <string>
 
 /*
@@ -148,7 +147,7 @@ private:
     sortedMapPtr sortedMap;
     BoardPtr board;
     DictionaryPtr dictionary;
-    std::shared_ptr<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>> wordsInQueue;
+    std::shared_ptr<std::priority_queue<Word, std::vector<Word>, CompareWord>> wordsInQueue;
 //    std::set<EmptyTilePtr> singleWordTiles;
 //    std::set<EmptyTilePtr> multiWordTiles;
 //    std::array<BoardDir, TOTALDIRECTIONS> verticaldDirs =
@@ -169,13 +168,20 @@ private:
     const std::vector<AdjacentTileDir> adjacentTileDirection =
             {DOWNWARD, LEFTWARD, UPWARD, RIGHTWARD};
 
-    void buildWord(int backwardIdx,
-                   int forwardIdx,
-                   int currLine,
-                   Angle angle,
-                   std::string& tempLetters,
-                   std::string& lettersInHand,
-                   std::map<int, char>& tilesIndices);
+    void buildWordForwards(int forwardIdx,
+                           int backwardIdx,
+                           int currLine,
+                           Angle angle,
+                           Word& word);
+
+    void buildWordBackwards(int forwardIdx,
+                            int backwardIdx,
+                           int currLine,
+                           Angle angle,
+                           Word& word);
+
+    bool wordCanEnd(const std::string& lettersToSearch);
+    bool wordCanStart(const std::string& lettersToSearch);
 
 //    bool isExtensionable(const AdjacentTilePtr&, std::string letters)
 
