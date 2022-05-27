@@ -44,16 +44,16 @@ void Game::processConfigSetting(const configSettingPtr& options) {
         // Create a dictionary as all the options make use of it.
         // Pass true as the second argument if the validity check is required
         if (options->count("--dictionary")) {
-            dictionary = std::make_shared<Dictionary>("wordsInQueue", true);
+            dictionary = std::make_shared<Dictionary>("words", true);
         } else {
-            dictionary = std::make_shared<Dictionary>("wordsInQueue", false);
+            dictionary = std::make_shared<Dictionary>("words", false);
         }
         // If options includes --ai, create wordBuilder as a player
         if (options->count("--ai")) {
             // If options includes --hint, allow wordBuilder to give hints
             if (options->count("--hint")) {
-                wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
-                                                            "backwardAiMap",
+                wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
+                                                            "backwardGreedyMap",
                                                             "sortedMap"
                                                             "AI",
                                                             dictionary,
@@ -61,8 +61,8 @@ void Game::processConfigSetting(const configSettingPtr& options) {
                                                             true);
             } else {
                 // If options doesnt include --hint, do not allow wordBuilder to give hints
-                wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
-                                                            "backwardAiMap",
+                wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
+                                                            "backwardGreedyMap",
                                                             "sortedMap",
                                                             dictionary,
                                                             "AI",
@@ -72,8 +72,8 @@ void Game::processConfigSetting(const configSettingPtr& options) {
         } else if (options->count("--hint")) {
             // If options includes just --hint, do not create wordBuilder as a player
             // but allow it to give hints
-            wordBuilder = std::make_shared<WordBuilder>("forwardAiMap",
-                                                        "backwardAiMap",
+            wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
+                                                        "backwardGreedyMap",
                                                         "sortedMap",
                                                         dictionary,
                                                         board,

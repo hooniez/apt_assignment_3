@@ -64,8 +64,11 @@
 
 typedef std::map<char, size_t> letterToScoreMapType;
 typedef std::shared_ptr<letterToScoreMapType> letterToScorePtr;
+
 typedef std::unordered_map<std::string, letterToScorePtr> greedyMapType;
 typedef std::shared_ptr<greedyMapType> greedyMapPtr;
+
+typedef std::map<std::string, letterToScoreMapType> greedyMapBuilder;
 
 class GreedyMapBuilder: public MapBuilder {
 public:
@@ -76,7 +79,7 @@ public:
     void convertToMap() override;
     void saveMap() override;
 
-    greedyMapPtr greedyMap;
+    greedyMapBuilder greedyMap;
 //    std::vector<std::string> wordsInQueue;
     bool forward;
     std::string inFile;

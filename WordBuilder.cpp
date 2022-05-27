@@ -471,9 +471,301 @@ void WordBuilder::buildWord(
     std::map<int, char> forwardMap;
     std::map<int, char> backwardMap;
     std::vector<std::string> tempWords;
+    bool isLetterFound;
     while (isForwardable && isBackwardable && !lettersInHand.empty()) {
-        bool isLetterFound = false;
+        isLetterFound = false;
+        forwardMap.empty();
+        backwardMap.empty();
         // Check the lettersInHand
+        for (const auto letter: lettersInHand) {
+            // Check whether backwardIdx is on the same line as the original start index
+            if (isOnBaseLine(backwardIdx, currLine, angle)) {
+                // Check whether letter can be found in the map
+                if ((*greedyBackwardMap)[tempLetters]->count(letter)) {
+                    size_t letterCount = (*(*greedyBackwardMap)[tempLetters])[letter];
+                    auto at = adjacentTiles[backwardIdx];
+                    // If on an AdjacentTile
+                    if (at != nullptr) {
+                        std::string verticalLetters (1, letter);
+                        std::string horizontalLetters (1, letter);
+                        if (angle == VERTICAL) {
+                            // If going vertical, the backward direction is top
+                            if (!at->adjacentLetters[UPWARD].empty())
+                                verticalLetters = at->adjacentLetters[UPWARD] + letter + tempLetters;
+                            if (!at->adjacentLetters[LEFTWARD].empty())
+                                horizontalLetters = at->adjacentLetters[LEFTWARD] + letter;
+                            if (!at->adjacentLetters[RIGHTWARD].empty())
+                                horizontalLetters += at->adjacentLetters[RIGHTWARD];
+                        } else { // If HORIZONTAL
+                            // If going horizontal, the backward direction is left
+                            if (!at->adjacentLetters[UPWARD].empty())
+                                verticalLetters = at->adjacentLetters[UPWARD];
+                            if (!at->adjacentLetters[DOWNWARD].empty())
+                                verticalLetters += letter +
+                                                   at->adjacentLetters[DOWNWARD];
+                            if (!at->adjacentLetters[LEFTWARD].empty())
+                                horizontalLetters = at->adjacentLetters[LEFTWARD] + letter + tempLetters;
+                        }
+
+                        if (verticalLetters.size() > 1 && horizontalLetters.size() > 1) {
+                            if (dictionary->isInDict(verticalLetters) &&
+                                dictionary->isInDict(horizontalLetters)) {
+                                // If both are words found in dictionary, add a word in the perpendicular direction
+                                if (angle == VERTICAL) {
+                                    if (horizontalLetters.size() > 1)
+                                        tempWords.push_back(horizontalLetters);
+                                    tempLetters = verticalLetters;
+                                } else {
+                                    if (verticalLetters.size() > 1)
+                                        tempWords.push_back(verticalLetters);
+                                    tempLetters = horizontalLetters;
+                                }
+                                tilesIndices.insert(std::make_pair(backwardIdx, letter));
+
+                                // Erase the letter from the lettersInHand
+                                auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
+                                lettersInHand.erase(it);
+
+                                // Set isLetterFound to true so that isBackwardable is not set to true
+                                isLetterFound = true;
+
+                                // Traverse backwards until either an empty cell is encountered or out of the current line
+                                backwardIdx += backwardDir;
+                                while (isOnBaseLine(backwardIdx, currLine, angle) && board->hasPlacedTile(backwardIdx))
+                                    backwardIdx += backwardDir;
+                            }
+                        } else {
+                            backwardMap.insert(std::make_pair(letterCount, letter));
+                        }
+                    } else { // If Adjacent Tile is a nullptr, which means the cell at backwardIdx is an empty cell
+                        backwardMap.insert(std::make_pair(letterCount, letter));
+                    }
+                }
+            } else {
+                isBackwardable = false;
+            }
+        }
+
+        if (backwardMap.empty() && !isLetterFound)
+            isBackwardable = false;
+
+        for (const auto letter: lettersInHand) {
+            // Check whether forwardIdx is on the same line as the original start index
+            if (isOnBaseLine(forwardIdx, currLine, angle)) {
+                // Check whether letter can be found in the map
+                if ((*greedyForwardMap)[tempLetters]->count(letter) && !isLetterFound) {
+                    size_t letterCount = (*(*greedyForwardMap)[tempLetters])[letter];
+                    auto at = adjacentTiles[forwardIdx];
+                    // If on an AdjacentTile
+                    if (at != nullptr) {
+                        std::string verticalLetters(1, letter);
+                        std::string horizontalLetters(1, letter);
+                        if (angle == VERTICAL) {
+                            // If going vertical, the forward direction is bottom, which means the adjacentTile can have at most three elements
+                            if (!at->adjacentLetters[DOWNWARD].empty())
+                                verticalLetters = tempLetters + letter + at->adjacentLetters[DOWNWARD];
+                            if (!at->adjacentLetters[LEFTWARD].empty())
+                                horizontalLetters = at->adjacentLetters[LEFTWARD] + letter;
+                            if (!at->adjacentLetters[RIGHTWARD].empty())
+                                horizontalLetters += at->adjacentLetters[RIGHTWARD];
+                        } else {
+                            // If going horizontal, the forward direction is right, which means the adjacentTile can have at most three elements
+                            if (!at->adjacentLetters[UPWARD].empty())
+                                verticalLetters = at->adjacentLetters[UPWARD];
+                            if (!at->adjacentLetters[DOWNWARD].empty())
+                                verticalLetters += letter + at->adjacentLetters[DOWNWARD];
+                            if (!at->adjacentLetters[RIGHTWARD].empty())
+                                horizontalLetters = tempLetters + letter + at->adjacentLetters[RIGHTWARD];
+                        }
+
+                        if (verticalLetters.size() > 1 && horizontalLetters.size() > 1) {
+                            if (dictionary->isInDict(verticalLetters) &&
+                                dictionary->isInDict(horizontalLetters)) {
+                                // If both are words found in dictionary, add a word in the perpendicular direction
+                                if (angle == VERTICAL) {
+                                    if (horizontalLetters.size() > 1)
+                                        tempWords.push_back(horizontalLetters);
+                                    tempLetters = verticalLetters;
+                                } else {
+                                    if (verticalLetters.size() > 1)
+                                        tempWords.push_back(verticalLetters);
+                                    tempLetters = horizontalLetters;
+                                }
+                                tilesIndices.insert(std::make_pair(backwardIdx, letter));
+
+                                // Erase the letter from the lettersInHand
+                                auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
+                                lettersInHand.erase(it);
+
+                                // Set isLetterFound to true so that isForwardable is set to false
+                                isLetterFound = true;
+
+                                // Traverse forwards until either an empty cell is encountered or out of the current line
+                                forwardIdx += forwardDir;
+                                while (isOnBaseLine(forwardIdx, currLine, angle) && board->hasPlacedTile(forwardIdx))
+                                    forwardIdx += forwardDir;
+                            }
+                        } else {
+                            forwardMap.insert(std::make_pair(letterCount, letter));
+                        }
+                    } else {
+                        forwardMap.insert(std::make_pair(letterCount, letter));
+                    }
+                }
+            } else {
+                isForwardable = false;
+            }
+        }
+
+        if (forwardMap.empty() && !isLetterFound)
+            isForwardable = false;
+
+        // Compare two of the generated maps, namely forwardMap and backwardMap and find the letter with the highest count
+        if (isBackwardable && isForwardable) {
+            auto forwardIt = forwardMap.rbegin();
+            auto backwardIt = backwardMap.rbegin();
+
+            decltype(forwardIt) chosenIt = forwardIt;
+            if (chosenIt->first < backwardIt->first) {
+                chosenIt = backwardIt;
+            }
+
+            // Add the chosen character to tempLetters and the corresponding index to tileIndices
+            int chosenIdx;
+            if (chosenIt == backwardIt) {
+                chosenIdx = backwardIdx;
+                tempLetters.insert(0, 1, chosenIt->second);
+            } else {
+                chosenIdx = forwardIdx;
+                tempLetters += chosenIt->second;
+            }
+            tilesIndices.insert(std::make_pair(chosenIt->first, chosenIt->second));
+
+            // Erase the letter from the lettersInHand
+            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), chosenIt->second);
+            lettersInHand.erase(it);
+
+            // Traverse in whichever chosen direction until either an empty cell is encountered or out of the current line
+            int chosenDir;
+            if (chosenIt == backwardIt) {
+                chosenDir = backwardDir;
+            } else {
+                chosenDir = forwardDir;
+            }
+
+            chosenIdx += chosenDir;
+            while (isOnBaseLine(chosenIdx, currLine, angle) && board->hasPlacedTile(chosenIdx))
+                chosenIdx += chosenDir;
+
+        } else if (isForwardable) {
+            auto forwardIt = forwardMap.rbegin();
+            tempLetters += forwardIt->second;
+            tilesIndices.insert(std::make_pair(forwardIt->first, forwardIt->second));
+            // Erase the letter from the lettersInHand
+            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), forwardIt->second);
+            lettersInHand.erase(it);
+            // Traverse forward until either an empty cell is encountered or out of the current line
+            forwardIdx += forwardDir;
+            while (isOnBaseLine(forwardIdx, currLine, angle) && board->hasPlacedTile(forwardIdx))
+                forwardIdx += forwardDir;
+        } else if (isBackwardable) {
+            auto backwardIt = backwardMap.rbegin();
+            tempLetters += backwardIt->second;
+            tilesIndices.insert(std::make_pair(backwardIt->first, backwardIt->second));
+            // Erase the letter from the lettersInHand
+            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), backwardIt->second);
+            lettersInHand.erase(it);
+            // Traverse forward until either an empty cell is encountered or out of the current line
+            backwardIdx += backwardDir;
+            while (isOnBaseLine(backwardIdx, currLine, angle) && board->hasPlacedTile(backwardIdx))
+                backwardIdx += backwardDir;
+        }
+    }
+
+    while (isForwardable && !lettersInHand.empty()) {
+        for (const auto letter: lettersInHand) {
+            // Check whether forwardIdx is on the same line as the original start index
+            if (isOnBaseLine(forwardIdx, currLine, angle)) {
+                // Check whether letter can be found in the map
+                if ((*greedyForwardMap)[tempLetters]->count(letter) && !isLetterFound) {
+                    size_t letterCount = (*(*greedyForwardMap)[tempLetters])[letter];
+                    auto at = adjacentTiles[forwardIdx];
+                    // If on an AdjacentTile
+                    if (at != nullptr) {
+                        std::string verticalLetters(1, letter);
+                        std::string horizontalLetters(1, letter);
+                        if (angle == VERTICAL) {
+                            // If going vertical, the forward direction is bottom, which means the adjacentTile can have at most three elements
+                            if (!at->adjacentLetters[DOWNWARD].empty())
+                                verticalLetters = tempLetters + letter + at->adjacentLetters[DOWNWARD];
+                            if (!at->adjacentLetters[LEFTWARD].empty())
+                                horizontalLetters = at->adjacentLetters[LEFTWARD] + letter;
+                            if (!at->adjacentLetters[RIGHTWARD].empty())
+                                horizontalLetters += at->adjacentLetters[RIGHTWARD];
+                        } else {
+                            // If going horizontal, the forward direction is right, which means the adjacentTile can have at most three elements
+                            if (!at->adjacentLetters[UPWARD].empty())
+                                verticalLetters = at->adjacentLetters[UPWARD];
+                            if (!at->adjacentLetters[DOWNWARD].empty())
+                                verticalLetters += letter + at->adjacentLetters[DOWNWARD];
+                            if (!at->adjacentLetters[RIGHTWARD].empty())
+                                horizontalLetters = tempLetters + letter + at->adjacentLetters[RIGHTWARD];
+                        }
+
+                        if (dictionary->isInDict(verticalLetters) &&
+                            dictionary->isInDict(horizontalLetters)) {
+                            // If both are words found in dictionary, add a word in the perpendicular direction
+                            if (angle == VERTICAL) {
+                                if (horizontalLetters.size() > 1)
+                                    tempWords.push_back(horizontalLetters);
+                                tempLetters = verticalLetters;
+                            } else {
+                                if (verticalLetters.size() > 1)
+                                    tempWords.push_back(verticalLetters);
+                                tempLetters = horizontalLetters;
+                            }
+                            tilesIndices.insert(std::make_pair(backwardIdx, letter));
+
+                            // Erase the letter from the lettersInHand
+                            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
+                            lettersInHand.erase(it);
+
+                            // Set isLetterFound to true so that isForwardable is set to false
+                            isLetterFound = true;
+
+                            // Traverse forwards until either an empty cell is encountered or out of the current line
+                            forwardIdx += forwardDir;
+                            while (isOnBaseLine(forwardIdx, currLine, angle) && board->hasPlacedTile(forwardIdx))
+                                forwardIdx += forwardDir;
+                        }
+                    } else {
+                        forwardMap.insert(std::make_pair(letterCount, letter));
+                    }
+                }
+            } else {
+                isForwardable = false;
+            }
+        }
+
+        if (forwardMap.empty() && !isLetterFound)
+            isForwardable = false;
+
+        if (isForwardable) {
+            auto forwardIt = forwardMap.rbegin();
+            tempLetters += forwardIt->second;
+            tilesIndices.insert(std::make_pair(forwardIt->first, forwardIt->second));
+            // Erase the letter from the lettersInHand
+            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), forwardIt->second);
+            lettersInHand.erase(it);
+            // Traverse forward until either an empty cell is encountered or out of the current line
+            forwardIdx += forwardDir;
+            while (isOnBaseLine(forwardIdx, currLine, angle) && board->hasPlacedTile(forwardIdx))
+                forwardIdx += forwardDir;
+        }
+    }
+
+    while (isBackwardable && !lettersInHand.empty()) {
+        isLetterFound = false;
         for (const auto letter: lettersInHand) {
             // Check whether backwardIdx is on the same line as the original start index
             if (isOnBaseLine(backwardIdx, currLine, angle)) {
@@ -532,10 +824,6 @@ void WordBuilder::buildWord(
                         }
                     } else { // If Adjacent Tile is a nullptr, which means the cell at backwardIdx is an empty cell
                         backwardMap.insert(std::make_pair(letterCount, letter));
-                        // Traverse backwards until either an empty cell is encountered or out of the current line
-                        backwardIdx += backwardDir;
-                        while (isOnBaseLine(backwardIdx, currLine, angle) && board->hasPlacedTile(backwardIdx))
-                            backwardIdx += backwardDir;
                     }
                 }
             } else {
@@ -546,362 +834,24 @@ void WordBuilder::buildWord(
         if (backwardMap.empty() && !isLetterFound)
             isBackwardable = false;
 
-        if (isOnBaseLine(forwardIdx, currLine, angle)) {
-            for (const auto letter: lettersInHand) {
-                if ((*greedyForwardMap)[tempLetters]->count(letter)) {
-                    // If run into an AdjacentTile
-                    if (adjacentTiles[forwardIdx]) {
-                        std::string verticalLetters = "";
-                        std::string horizontalLetters = "";
-                        if (angle == VERTICAL) {
-                            // If going vertical, the forward direction is bottom, which means the adjacentTile can have at most three elements
-                            if (!adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD].empty())
-                                verticalLetters =
-                                        tempLetters + letter + adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD];
-                            if (!adjacentTiles[forwardIdx]->adjacentLetters[LEFTWARD].empty())
-                                horizontalLetters = adjacentTiles[forwardIdx]->adjacentLetters[LEFTWARD] + letter;
-                            if (!adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD].empty())
-                                horizontalLetters =
-                                        horizontalLetters + adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD];
-                            // Check if word(s) can be made
-                            if (!horizontalLetters.empty() || !verticalLetters.empty()) {
-                                tempWords.push_back(verticalLetters);
-                                tempWords.push_back(horizontalLetters);
-                                if (dictionary->isInDict(tempWords)) {
-                                    if (tempWords.size() == 2) {
-                                        // Delete VerticalLetters
-                                        tempWords.erase(tempWords.begin());
-                                    }
-                                    tilesIndices.insert(std::make_pair(forwardIdx, letter));
-                                    wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
-                                    tempLetters = verticalLetters;
-                                    // Erase the letter from the lettersInHand
-                                    auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
-                                    lettersInHand.erase(it);
-                                    isWordAdded = true;
-                                } else {
-                                    tempWords.clear();
-                                }
-                            } else {
-                                forwardMap.insert(std::make_pair((*(*greedyForwardMap)[tempLetters])[letter], letter));
-                            }
-
-                        } else {
-                            // If going horizontal, the forward direction is right, which means the adjacentTile can have at most three elements
-                            if (!adjacentTiles[forwardIdx]->adjacentLetters[UPWARD].empty())
-                                verticalLetters = adjacentTiles[forwardIdx]->adjacentLetters[UPWARD];
-                            if (!adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD].empty())
-                                verticalLetters += letter + adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD];
-                            if (!adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD].empty())
-                                horizontalLetters =
-                                        tempLetters + letter + adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD];
-                            // Check if word(s) can be made
-                            if (!horizontalLetters.empty() || !verticalLetters.empty()) {
-                                tempWords.push_back(verticalLetters);
-                                tempWords.push_back(horizontalLetters);
-                                if (dictionary->isInDict(tempWords)) {
-                                    if (tempWords.size() == 2) {
-                                        // Delete HorizontalLetters
-                                        tempWords.erase(std::next(tempWords.begin()));
-                                    }
-                                    tilesIndices.insert(std::make_pair(forwardIdx, letter));
-                                    wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
-                                    tempLetters = horizontalLetters;
-                                    // Erase the letter from the lettersInHand
-                                    auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
-                                    lettersInHand.erase(it);
-                                    isWordAdded = true;
-                                } else {
-                                    tempWords.clear();
-                                }
-                            } else {
-                                forwardMap.insert(std::make_pair((*(*greedyForwardMap)[tempLetters])[letter], letter));
-                            }
-
-                        }
-                    } else {
-                        // Compare each of the letters in the backward greedy Dictionary
-                        if (!board->hasPlacedTile(forwardIdx)) {
-                            // If a letter is found,
-                            forwardMap.insert(std::make_pair((*(*greedyForwardMap)[tempLetters])[letter], letter));
-                        } else {
-                            // Go as forward as possible regardless of the tiles placed
-                            forwardIdx += forwardDir;
-                            while (isOnBaseLine(forwardIdx, currLine, angle) && board->hasPlacedTile(forwardIdx)) {
-                                forwardIdx += forwardDir;
-                            }
-                            // Pull back so that its index is on top of the tile
-                            forwardIdx += backwardDir;
-                        }
-                    }
-                }
-            }
-            if (forwardMap.empty() && !isWordAdded)
-                isForwardable = false;
-            else
-                forwardIdx += forwardDir;
-        } else {
-            isForwardable = false;
-        }
-
-
-        // TODO empty forwardMap and backwardMap
-
-        // Compare two of the generated maps, namely forwardMap and backwardMap and find the letter with the highest count
-        if (isBackwardable && isForwardable && !isWordAdded) {
-            auto forwardIt = forwardMap.rbegin();
+        if (isBackwardable) {
             auto backwardIt = backwardMap.rbegin();
-
-            decltype(forwardIt) chosenIt = forwardIt;
-            if (chosenIt->first < backwardIt->first) {
-                chosenIt = backwardIt;
-            }
-
-            // Add the chosen character to tempLetters and the corresponding index to tileIndices
-            int chosenIdx;
-            if (chosenIt == backwardIt) {
-                chosenIdx = backwardIdx;
-                tempLetters.insert(0, 1, chosenIt->second);
-            } else {
-                chosenIdx = forwardIdx;
-                tempLetters += chosenIt->second;
-            }
-            tilesIndices.insert(std::make_pair(chosenIt->first, chosenIt->second));
-
+            tempLetters += backwardIt->second;
+            tilesIndices.insert(std::make_pair(backwardIt->first, backwardIt->second));
             // Erase the letter from the lettersInHand
-            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), chosenIt->second);
+            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), backwardIt->second);
             lettersInHand.erase(it);
-
-            // Check if tempLetters count as a word. If so, add it to the priority queue
-            tempWords.push_back(tempLetters);
-            if (dictionary->isInDict(tempWords)) {
-                wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
-            }
-
-            forwardMap.empty();
-            backwardMap.empty();
-
-        } else if (isForwardable) {
-            auto forwardIt = forwardMap.rbegin();
-            tempLetters += forwardIt->second;
-            tilesIndices.insert(std::make_pair(forwardIt->first, forwardIt->second));
-            // Erase the letter from the lettersInHand
-            auto it = std::find(lettersInHand.begin(), lettersInHand.end(), forwardIt->second);
-            lettersInHand.erase(it);
-        } else if (isBackwardable) {
-
+            // Traverse forward until either an empty cell is encountered or out of the current line
+            backwardIdx += backwardDir;
+            while (isOnBaseLine(backwardIdx, currLine, angle) && board->hasPlacedTile(backwardIdx))
+                backwardIdx += backwardDir;
         }
-
     }
 
-    if (!lettersInHand.empty()) {
-        while (isForwardable && !lettersInHand.empty()) {
-            bool isWordAdded = false;
-            if (isOnBaseLine(forwardIdx, currLine, angle)) {
-                for (const auto letter: lettersInHand) {
-                    if ((*greedyForwardMap)[tempLetters]->count(letter)) {
-                        // If run into an AdjacentTile
-                        if (adjacentTiles[forwardIdx]) {
-                            std::string verticalLetters = "";
-                            std::string horizontalLetters = "";
-                            if (angle == VERTICAL) {
-                                // If going vertical, the forward direction is bottom, which means the adjacentTile can have at most three elements
-                                if (!adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD].empty())
-                                    verticalLetters =
-                                            tempLetters + letter + adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD];
-                                if (!adjacentTiles[forwardIdx]->adjacentLetters[LEFTWARD].empty())
-                                    horizontalLetters = adjacentTiles[forwardIdx]->adjacentLetters[LEFTWARD] + letter;
-                                if (!adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD].empty())
-                                    horizontalLetters =
-                                            horizontalLetters + adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD];
-                                // Check if word(s) can be made
-                                if (!horizontalLetters.empty() || !verticalLetters.empty()) {
-                                    tempWords.push_back(verticalLetters);
-                                    tempWords.push_back(horizontalLetters);
-                                    if (dictionary->isInDict(tempWords)) {
-                                        if (tempWords.size() == 2) {
-                                            // Delete VerticalLetters
-                                            tempWords.erase(tempWords.begin());
-                                        }
-                                        tilesIndices.insert(std::make_pair(forwardIdx, letter));
-                                        wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
-                                        tempLetters = verticalLetters;
-                                        // Erase the letter from the lettersInHand
-                                        auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
-                                        lettersInHand.erase(it);
-                                        isWordAdded = true;
-                                    } else {
-                                        tempWords.clear();
-                                    }
-                                } else {
-                                    forwardMap.insert(std::make_pair((*(*greedyForwardMap)[tempLetters])[letter], letter));
-                                }
-
-                            } else {
-                                // If going horizontal, the forward direction is right, which means the adjacentTile can have at most three elements
-                                if (!adjacentTiles[forwardIdx]->adjacentLetters[UPWARD].empty())
-                                    verticalLetters = adjacentTiles[forwardIdx]->adjacentLetters[UPWARD];
-                                if (!adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD].empty())
-                                    verticalLetters += letter + adjacentTiles[forwardIdx]->adjacentLetters[DOWNWARD];
-                                if (!adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD].empty())
-                                    horizontalLetters =
-                                            tempLetters + letter + adjacentTiles[forwardIdx]->adjacentLetters[RIGHTWARD];
-                                // Check if word(s) can be made
-                                if (!horizontalLetters.empty() || !verticalLetters.empty()) {
-                                    tempWords.push_back(verticalLetters);
-                                    tempWords.push_back(horizontalLetters);
-                                    if (dictionary->isInDict(tempWords)) {
-                                        if (tempWords.size() == 2) {
-                                            // Delete HorizontalLetters
-                                            tempWords.erase(std::next(tempWords.begin()));
-                                        }
-                                        tilesIndices.insert(std::make_pair(forwardIdx, letter));
-                                        wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
-                                        tempLetters = horizontalLetters;
-                                        // Erase the letter from the lettersInHand
-                                        auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
-                                        lettersInHand.erase(it);
-                                        isWordAdded = true;
-                                    } else {
-                                        tempWords.clear();
-                                    }
-                                } else {
-                                    forwardMap.insert(std::make_pair((*(*greedyForwardMap)[tempLetters])[letter], letter));
-                                }
-
-                            }
-                        } else {
-                            // Compare each of the letters in the backward greedy Dictionary
-                            if (!board->hasPlacedTile(forwardIdx)) {
-                                // If a letter is found,
-                                forwardMap.insert(std::make_pair((*(*greedyForwardMap)[tempLetters])[letter], letter));
-                            } else {
-                                // Go as forward as possible regardless of the tiles placed
-                                forwardIdx += forwardDir;
-                                while (isOnBaseLine(forwardIdx, currLine, angle) && board->hasPlacedTile(forwardIdx)) {
-                                    forwardIdx += forwardDir;
-                                }
-                                // Pull back so that its index is on top of the tile
-                                forwardIdx += backwardDir;
-                            }
-                        }
-                    }
-                }
-                if (forwardMap.empty() && !isWordAdded)
-                    isForwardable = false;
-                else
-                    forwardIdx += forwardDir;
-            } else {
-                isForwardable = false;
-            }
-
-        }
-
-        while (isBackwardable && !lettersInHand.empty()) {
-            bool isWordAdded = false;
-            // Check the lettersInHand
-            if (isOnBaseLine(backwardIdx, currLine, angle)) {
-                for (const auto letter: lettersInHand) {
-                    if ((*greedyBackwardMap)[tempLetters]->count(letter)) {
-                        // If run into an AdjacentTile
-                        if (adjacentTiles[backwardIdx]) {
-                            std::string verticalLetters = "";
-                            std::string horizontalLetters = "";
-                            if (angle == VERTICAL) {
-                                // If going vertical, the backward direction is top, which means the adjacentTile can have at most three elements
-                                if (!adjacentTiles[backwardIdx]->adjacentLetters[UPWARD].empty())
-                                    verticalLetters =
-                                            adjacentTiles[backwardIdx]->adjacentLetters[UPWARD] + letter + tempLetters;
-                                if (!adjacentTiles[backwardIdx]->adjacentLetters[LEFTWARD].empty())
-                                    horizontalLetters = adjacentTiles[backwardIdx]->adjacentLetters[LEFTWARD] + letter;
-                                if (!adjacentTiles[backwardIdx]->adjacentLetters[RIGHTWARD].empty())
-                                    horizontalLetters =
-                                            horizontalLetters + adjacentTiles[backwardIdx]->adjacentLetters[RIGHTWARD];
-                                // Check if word(s) can be made
-
-                                // Push both of the letters to see they make words
-                                if (!horizontalLetters.empty() || !verticalLetters.empty()) {
-                                    tempWords.push_back(verticalLetters);
-                                    tempWords.push_back(horizontalLetters);
-                                    if (dictionary->isInDict(tempWords)) {
-                                        // If tempWords hav two elements, words have been made before. Delete the word
-                                        // in the same direction so that a new one can be added instead
-                                        if (tempWords.size() == 2) {
-                                            // Delete VerticalLetters
-                                            tempWords.erase(tempWords.begin());
-                                        }
-                                        tilesIndices.insert(std::make_pair(backwardIdx, letter));
-                                        wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
-                                        tempLetters = verticalLetters;
-                                        // Erase the letter from the lettersInHand
-                                        auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
-                                        lettersInHand.erase(it);
-                                        isWordAdded = true;
-                                    } else {
-                                        tempWords.clear();
-                                    }
-                                } else {
-                                    backwardMap.insert(std::make_pair((*(*greedyBackwardMap)[tempLetters])[letter], letter));
-                                }
-
-                            } else {
-                                // If going horizontal, the backward direction is left, which means the adjacentTile can have at most three elements
-                                if (!adjacentTiles[backwardIdx]->adjacentLetters[UPWARD].empty())
-                                    verticalLetters = adjacentTiles[backwardIdx]->adjacentLetters[UPWARD];
-                                if (!adjacentTiles[backwardIdx]->adjacentLetters[DOWNWARD].empty())
-                                    verticalLetters = verticalLetters + letter + adjacentTiles[backwardIdx]->adjacentLetters[DOWNWARD];
-                                if (!adjacentTiles[backwardIdx]->adjacentLetters[LEFTWARD].empty())
-                                    horizontalLetters = tempLetters + letter + adjacentTiles[backwardIdx]->adjacentLetters[LEFTWARD];
-                                // Check if word(s) can be made
-                                if (!horizontalLetters.empty() || !verticalLetters.empty()) {
-                                    tempWords.push_back(verticalLetters);
-                                    tempWords.push_back(horizontalLetters);
-                                    if (dictionary->isInDict(tempWords)) {
-                                        if (tempWords.size() == 2) {
-                                            // Delete HorizontalLetters
-                                            tempWords.erase(std::next(tempWords.begin()));
-                                        }
-                                        tilesIndices.insert(std::make_pair(backwardIdx, letter));
-                                        wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
-                                        tempLetters = horizontalLetters;
-                                        // Erase the letter from the lettersInHand
-                                        auto it = std::find(lettersInHand.begin(), lettersInHand.end(), letter);
-                                        lettersInHand.erase(it);
-                                        isWordAdded = true;
-                                    } else {
-                                        tempWords.clear();
-                                    }
-                                } else {
-                                    backwardMap.insert(std::make_pair((*(*greedyBackwardMap)[tempLetters])[letter], letter));
-                                }
-
-                            }
-                        } else {
-                            // Compare each of the letters in the backward greedy Dictionary
-                            if (!board->hasPlacedTile(backwardIdx)) {
-                                // If a letter is found,
-                                backwardMap.insert(std::make_pair((*(*greedyBackwardMap)[tempLetters])[letter], letter));
-                            } else {
-                                // Go as backward as possible regardless of the tiles placed
-                                backwardIdx += backwardDir;
-                                while (isOnBaseLine(backwardIdx, currLine, angle) && board->hasPlacedTile(backwardIdx)) {
-                                    backwardIdx += backwardDir;
-                                }
-                                // Pull back so that its index is on top of the tile
-                                backwardIdx += forwardDir;
-                            }
-                        }
-                    }
-                }
-                // Logical error here; because backwardMap can be empty if adjacentTile is added
-                if (backwardMap.empty() && !isWordAdded)
-                    isBackwardable = false;
-                else
-                    backwardIdx += backwardDir;
-            } else {
-                isBackwardable = false;
-            }
-        }
+                // Check if tempLetters count as a word. If so, add it to the priority queue
+    tempWords.push_back(tempLetters);
+    if (dictionary->isInDict(tempWords)) {
+        wordsInQueue->push(std::make_shared<Word>(tempWords, tilesIndices));
     }
 
 

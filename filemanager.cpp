@@ -122,10 +122,10 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
 
     DictionaryPtr dictionary = nullptr;
     if (configSetting->count("--dictionary")) {
-        dictionary = std::make_shared<Dictionary>("wordsInQueue", true);
+        dictionary = std::make_shared<Dictionary>("words", true);
     } else {
         if (wordBuilder) {
-            dictionary = std::make_shared<Dictionary>("wordsInQueue", false);
+            dictionary = std::make_shared<Dictionary>("words", false);
         }
     }
 

@@ -17,12 +17,19 @@
   <component name="ChangeListManager">
     <list default="true" id="45861f05-9093-4a50-b324-3019e47426f0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dictionary.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dictionary.h" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dictionary.o" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GreedyMapBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GreedyMapBuilder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GreedyMapBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/GreedyMapBuilder.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.o" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backwardAiMap" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backwardGreedyMap" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/filemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forwardAiMap" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/game.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.o" beforeDir="false" afterPath="$PROJECT_DIR$/game.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scrabble" beforeDir="false" afterPath="$PROJECT_DIR$/scrabble" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -151,7 +158,7 @@
       <workItem from="1653161936261" duration="17809000" />
       <workItem from="1653189152197" duration="19775000" />
       <workItem from="1653255195099" duration="531000" />
-      <workItem from="1653255866090" duration="202226000" />
+      <workItem from="1653255866090" duration="213821000" />
     </task>
     <servers />
   </component>
@@ -174,13 +181,14 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/WordBuilder.cpp</url>
-          <line>546</line>
-          <option name="timeStamp" value="151" />
+          <line>484</line>
+          <option name="timeStamp" value="162" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CLionNativeAppRunConfigurationType">
+        <watch expression="this" />
         <watch expression="this" />
       </configuration>
     </watches-manager>

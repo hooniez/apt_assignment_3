@@ -7,7 +7,7 @@
 GreedyMapBuilder::GreedyMapBuilder(bool forward,
                                    const std::string& inFile,
                                    const std::string& outFile):
-                                   greedyMap(std::make_shared<greedyMapType>()),
+                                   greedyMap(),
                                    forward(forward),
                                    inFile(inFile),
                                    outFile(outFile) {}
@@ -36,6 +36,9 @@ void GreedyMapBuilder::convertToMap() {
                 if (idx <= lastIdxToProcess) {
                     // If the current letter(s) is not in sortedWordMap as a key
                     mainKey = word.substr(idx, numLetters);
+                    if (!forward) {
+                        std::reverse(mainKey.begin(), mainKey.end());
+                    }
 
                     // If there is the next letter(s) to process
                     if (idx < lastIdxToProcess) {
@@ -44,13 +47,18 @@ void GreedyMapBuilder::convertToMap() {
                         subKey = '|';
                     }
 
+//                    // If greedyMap does not contain mainKey already
+//                    if (!greedyMap->count(mainKey)) {
+//                        (*greedyMap)[mainKey];
+//                    }
+
                     // If the next letter (subKey) is not associated with mainKey
-                    if ((*greedyMap)[mainKey]->count(subKey) == 0) {
+                    if (greedyMap[mainKey].count(subKey) == 0) {
                         // Associate the next letter (subKey) with mainKey and give it the value 1
-                        (*(*greedyMap)[mainKey])[subKey] = 1;
+                        greedyMap[mainKey][subKey] = 1;
                     } else {
                         // Increment the value associated with subKey by 1
-                        (*(*greedyMap)[mainKey])[subKey] += 1;
+                        greedyMap[mainKey][subKey] += 1;
                     }
                 }
             }
@@ -83,9 +91,9 @@ void GreedyMapBuilder::saveMap() {
     std::ofstream out;
     out.open(outFile);
 
-    for (auto beg = greedyMap->begin(), end = greedyMap->end(); beg != end; ++beg) {
+    for (auto beg = greedyMap.begin(), end = greedyMap.end(); beg != end; ++beg) {
         out << beg->first << " ";
-        for (auto el: *beg->second) {
+        for (auto el: beg->second) {
             out << el.first << " " << el.second << " ";
         }
         out << std::endl;

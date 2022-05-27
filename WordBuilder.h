@@ -51,7 +51,7 @@
  * or given continuous tiles without a gap.
  *
  * Each of the tiles placeable is searched by its letter in both
- * forwardAiMap and backwardAiMap, by which one with the highest value
+ * forwardGreedyMap and backwardGreedyMap, by which one with the highest value
  * (the probability of a letter among valid letters * the score of a letter)
  * can be found.
  *
