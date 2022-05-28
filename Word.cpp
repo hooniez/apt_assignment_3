@@ -11,7 +11,7 @@ Word::Word(std::string word, std::string lettersInHand, std::map<int, char> tile
 
 }
 
-Word::Word(const Word& other): wordBeingBuilt(other.wordBeingBuilt), lettersInHand(other.lettersInHand), score(other.score), tileIndices(other.tileIndices) {
+Word::Word(const Word& other): wordBeingBuilt(other.wordBeingBuilt), builtWords(other.builtWords), lettersInHand(other.lettersInHand), score(other.score), tileIndices(other.tileIndices) {
 
 }
 

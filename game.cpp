@@ -215,11 +215,16 @@ void Game::play()
                 auto tileIndices = wordBuilder->getTheBestMove();
                 executePlaceCommand(*tileIndices);
                 size_t numTilesPlaced = tileIndices->size();
+                board->makeCurrWords();
                 executePlaceDoneCommand(numTilesPlaced);
+            } else {
+                readCommand();
             }
+            wordBuilder->scanTheBoard();
         }
 
-        readCommand();
+//        readCommand();
+
 
 
 

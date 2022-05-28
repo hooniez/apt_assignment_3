@@ -15,10 +15,11 @@ class Word {
 public:
     std::string wordBeingBuilt;
     // Store the word made across the perpendicular direction to the direction in which the word is being built
-    std::string builtWord;
+    std::vector<std::string> builtWords;
     std::string lettersInHand;
     size_t score;
     std::map<int, char> tileIndices;
+
 
     Word(std::string word, std::string letttersInHand, std::map<int, char> tileIndices);
 
@@ -38,6 +39,9 @@ public:
         int w2Score = 0;
         for (auto ch: w1->wordBeingBuilt)
             w1Score += letterScoreMap.at(ch);
+        for (auto &word: w1->builtWords)
+            for (auto ch: word)
+            w1Score += letterScoreMap.at(ch);
         if (w1->lettersInHand.empty()) {
             w1Score += BINGO_ADDITIONAL_SCORE;
         }
@@ -45,6 +49,9 @@ public:
 
         for (auto ch: w2->wordBeingBuilt)
             w2Score += letterScoreMap.at(ch);
+        for (auto &word: w2->builtWords)
+            for (auto ch: word)
+                w2Score += letterScoreMap.at(ch);
         if (w2->lettersInHand.empty()) {
             w2Score += BINGO_ADDITIONAL_SCORE;
         }

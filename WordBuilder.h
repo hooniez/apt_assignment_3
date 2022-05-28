@@ -148,6 +148,9 @@ public:
 
     bool canGiveHints;
     bool isPlaying;
+
+    void scanTheBoard();
+
 private:
     greedyMapPtr greedyForwardMap;
     greedyMapPtr greedyBackwardMap;
@@ -190,7 +193,7 @@ private:
     bool wordCanEnd(const std::string& lettersToSearch);
     bool wordCanStart(const std::string& lettersToSearch);
 
-//    bool isExtensionable(const AdjacentTilePtr&, std::string letters)
+    //    bool isExtensionable(const AdjacentTilePtr&, std::string letters)
 
 
 //    std::shared_ptr<std::map<int, std::tuple<int, int>>> testMap;
