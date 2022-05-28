@@ -10,19 +10,41 @@ place A at K3
 place I at L3
 place L at M3
 place Done
-place A at K1
-place P at L1
+place D at M0
+place E at M1
+place A at M2
 place Done
-place V at F8
-place I at G8
+place D at E8
+place I at F8
+place S at G8
 place Done
-place A at K10
-place Y at L10
+place I at E9
+place M at E10
 place Done
-place R at F6
-place E at F7
+place O at N0
+place T at O0
 place Done
-place R at L8
-place G at N8
+place I at O1
+place N at O2
 place Done
+place T at O3
+place Done
+place I at G9
+place Done
+place R at C10
+place I at D10
+place Done
+place O at M5
+place Done
+place C at L14
+place G at N14
+place Done
+place N at A7
+place Done
+pass
+place A at C11
+place Done
+place D at C12
+place Done
+
 

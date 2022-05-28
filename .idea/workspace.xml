@@ -17,18 +17,12 @@
   <component name="ChangeListManager">
     <list default="true" id="45861f05-9093-4a50-b324-3019e47426f0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Word.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Word.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Word.h" beforeDir="false" afterPath="$PROJECT_DIR$/Word.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WordBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.o" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/filemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/filemanager.o" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/game.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game.o" beforeDir="false" afterPath="$PROJECT_DIR$/game.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scrabble" beforeDir="false" afterPath="$PROJECT_DIR$/scrabble" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.input" beforeDir="false" afterPath="$PROJECT_DIR$/test.input" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/utils.o" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,6 +111,7 @@
     <property name="cidr.known.project.marker" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="structure.view.defaults.are.configured" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -129,7 +124,7 @@
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="all" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="--ai" REDIRECT_INPUT="true" REDIRECT_INPUT_PATH="test.input" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="assignment3" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="scrabble">
+    <configuration name="all" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="--hint" REDIRECT_INPUT="false" REDIRECT_INPUT_PATH="test.input" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="assignment3" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="scrabble">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
@@ -156,7 +151,7 @@
       <workItem from="1653161936261" duration="17809000" />
       <workItem from="1653189152197" duration="19775000" />
       <workItem from="1653255195099" duration="531000" />
-      <workItem from="1653255866090" duration="297435000" />
+      <workItem from="1653255866090" duration="313326000" />
     </task>
     <servers />
   </component>
@@ -179,19 +174,24 @@
       <breakpoints>
         <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/WordBuilder.cpp</url>
-          <line>614</line>
+          <line>611</line>
           <option name="timeStamp" value="187" />
+        </line-breakpoint>
+        <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/filemanager.cpp</url>
+          <line>416</line>
+          <option name="timeStamp" value="334" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/WordBuilder.cpp</url>
           <line>137</line>
-          <option name="timeStamp" value="322" />
+          <option name="timeStamp" value="362" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CLionNativeAppRunConfigurationType">
-        <watch expression="horizontalValidLetters[1]" />
+        <watch expression="this-&gt;wordsInQueue.__ptr_" />
       </configuration>
     </watches-manager>
   </component>

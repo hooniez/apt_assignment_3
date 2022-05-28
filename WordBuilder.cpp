@@ -249,19 +249,16 @@ void WordBuilder::findWords() {
                         WordPtr newWord = std::make_shared<Word>(verticalLetters, lettersCopy, tileIndices);
                         // If the word in the perpendicular direction was more than one letter, add it to buiitWords
                         if (horizontalLetters.size() > 1) {
-                            auto it = std::find(horizontalLetters.begin(), horizontalLetters.end(), letter);
-                            horizontalLetters.erase(it);
                             newWord->builtWords.push_back(horizontalLetters);
                         }
                         verticalValidLetters.insert(std::make_pair(newWord,wordAvailability));
                     } else {
                         WordPtr newWord = std::make_shared<Word>(horizontalLetters, lettersCopy, tileIndices);
                         if (verticalLetters.size() > 1) {
-                            auto it = std::find(verticalLetters.begin(), verticalLetters.end(), letter);
-                            verticalLetters.erase(it);
                             newWord->builtWords.push_back(verticalLetters);
                         }
                         horizontalValidLetters.insert(std::make_pair(newWord,wordAvailability));
+
 
                     }
 
@@ -767,10 +764,8 @@ void WordBuilder::buildWordForwards(int forwardIdx,
                                 newWord = std::make_shared<Word>(*word);
                                 newWord->wordBeingBuilt = verticalLetters;
 
-                                // Erase the letter in the letters found in the perpendicular direction
-                                auto it = std::find(horizontalLetters.begin(), horizontalLetters.end(), letter);
-                                horizontalLetters.erase(it);
-                                newWord->builtWords.push_back(horizontalLetters);
+                                if (horizontalLetters.size() > 1)
+                                    newWord->builtWords.push_back(horizontalLetters);
 
                                 if (greedyForwardMap->count(verticalLetters))
                                     isForwardable = true;
@@ -785,9 +780,8 @@ void WordBuilder::buildWordForwards(int forwardIdx,
                                 newWord = std::make_shared<Word>(*word);
                                 newWord->wordBeingBuilt = horizontalLetters;
 
-                                auto it = std::find(verticalLetters.begin(), verticalLetters.end(), letter);
-                                verticalLetters.erase(it);
-                                newWord->builtWords.push_back(verticalLetters);
+                                if (verticalLetters.size() > 1)
+                                    newWord->builtWords.push_back(verticalLetters);
 
                                 if (greedyForwardMap->count(horizontalLetters))
                                     isForwardable = true;
@@ -824,7 +818,7 @@ void WordBuilder::buildWordForwards(int forwardIdx,
                     }
 
                     // Debugging
-                    if (newWord->wordBeingBuilt == "FOREST") {
+                    if (newWord->wordBeingBuilt == "SINUS") {
                         std::cout << "here";
                     }
 
@@ -904,10 +898,8 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
                                 newWord = std::make_shared<Word>(*word);
                                 newWord->wordBeingBuilt = verticalLetters;
 
-                                // Erase the letter in the letters found in the perpendicular direction
-                                auto it = std::find(horizontalLetters.begin(), horizontalLetters.end(), letter);
-                                horizontalLetters.erase(it);
-                                newWord->builtWords.push_back(horizontalLetters);
+                                if (horizontalLetters.size() > 1)
+                                    newWord->builtWords.push_back(horizontalLetters);
 
                                 if (greedyForwardMap->count(verticalLetters))
                                     isForwardable = true;
@@ -922,9 +914,8 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
                                 newWord = std::make_shared<Word>(*word);
                                 newWord->wordBeingBuilt = horizontalLetters;
 
-                                auto it = std::find(verticalLetters.begin(), verticalLetters.end(), letter);
-                                verticalLetters.erase(it);
-                                newWord->builtWords.push_back(verticalLetters);
+                                if (verticalLetters.size() > 1)
+                                    newWord->builtWords.push_back(verticalLetters);
 
                                 if (greedyForwardMap->count(horizontalLetters))
                                     isForwardable = true;
@@ -962,7 +953,7 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
                     }
 
                     // Debugging
-                    if (newWord->wordBeingBuilt == "FOREST") {
+                    if (newWord->wordBeingBuilt == "SINUS") {
                         std::cout << "here";
                     }
 

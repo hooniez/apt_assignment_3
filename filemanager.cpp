@@ -134,6 +134,14 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
 
     std::shared_ptr<TileBag> tileBag = parseTileBag(inFile);
 
+//    // Debugging
+//    while (!tileBag->isEmpty()) {
+//        auto something = tileBag->getBag()->dequeue();
+//        std::cout << something->getLetter() << std::endl;
+//        std::cout << something->getValue() << std::endl;
+//    }
+
+
     PlayerPtr playerTurn = parsePlayerTurn(inFile, players);
 
     std::shared_ptr<Game> game = nullptr;
@@ -421,26 +429,11 @@ LinkedListPtr<TilePtr> files::parseTiles(std::string tileStr)
             tileStr[1] == '-' &&
             std::isdigit(tileStr[2]))
     {
-        for (unsigned int i = 0; i < tileStr.length(); ++i)
-        {
-            if (isalpha(tileStr[i]))
-            {
-                files::createSubString(tileStr, letter, i);
-            }
-
-            if (isdigit(tileStr[i]))
-            {
-                files::createSubString(tileStr, val, i);
-            }
-
-            if (letter.length() > 0 && val.length() > 0)
-            {
-
-                tiles->append(std::make_shared<Tile>(
-                        letter[0], std::stoi(val)));
-                letter = "";
-                val = "";
-            }
+        std::istringstream iss(tileStr);
+        std::string whitespaceDiscarded;
+        while (std::getline(iss, letter, '-') && std::getline(iss, val, ',') && std::getline(iss, whitespaceDiscarded, ' ')) {
+            tiles->append(std::make_shared<Tile>(
+                    letter[0], std::stoi(val)));
         }
     }
 
@@ -460,7 +453,13 @@ LinkedListPtr<TilePtr> files::parseTiles(std::string tileStr)
 int files::createSubString(string &parentStr,
                            string &outputStr, unsigned int i)
 {
+
     char c = parentStr[i];
+
+    // debugging
+//    if (c == 'Z')
+//        std::cout << "here";
+
     while (std::iswalnum(c) && i < parentStr.length())
     {
         outputStr.push_back(c);

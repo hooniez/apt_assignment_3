@@ -60,7 +60,7 @@ void Game::processConfigSetting(const configSettingPtr& options) {
                                                             board,
                                                             true);
             } else {
-                // If options doesnt include --hint, do not allow wordBuilder to give hints
+                // If options doesn't include --hint, do not allow wordBuilder to give hints
                 wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
                                                             "backwardGreedyMap",
                                                             "sortedMap",
