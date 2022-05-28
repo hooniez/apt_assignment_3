@@ -179,13 +179,13 @@ private:
                            int backwardIdx,
                            int currLine,
                            Angle angle,
-                           WordPtr& word);
+                           const WordPtr& word);
 
     void buildWordBackwards(int forwardIdx,
                             int backwardIdx,
                            int currLine,
                            Angle angle,
-                            WordPtr& word);
+                            const WordPtr& word);
 
     bool wordCanEnd(const std::string& lettersToSearch);
     bool wordCanStart(const std::string& lettersToSearch);
