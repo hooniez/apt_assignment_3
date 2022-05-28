@@ -13,7 +13,9 @@
 
 class Word {
 public:
-    std::string word;
+    std::string wordBeingBuilt;
+    // Store the word made across the perpendicular direction to the direction in which the word is being built
+    std::string builtWord;
     std::string lettersInHand;
     size_t score;
     std::map<int, char> tileIndices;
@@ -31,16 +33,25 @@ typedef std::shared_ptr<Word> WordPtr;
 
 struct CompareWord {
 public:
-    bool operator()(Word &w1, Word& w2) const {
+    bool operator()(WordPtr &w1, WordPtr& w2) const {
         int w1Score = 0;
         int w2Score = 0;
-        for (auto ch: w1.word)
+        for (auto ch: w1->wordBeingBuilt)
             w1Score += letterScoreMap.at(ch);
-        w1.score = w1Score;
-        for (auto ch: w2.word)
-            w2Score += letterScoreMap.at(ch);
+        if (w1->lettersInHand.empty()) {
+            w1Score += BINGO_ADDITIONAL_SCORE;
+        }
+        w1->score = w1Score;
 
-        w2.score = w2Score;
+        for (auto ch: w2->wordBeingBuilt)
+            w2Score += letterScoreMap.at(ch);
+        if (w2->lettersInHand.empty()) {
+            w2Score += BINGO_ADDITIONAL_SCORE;
+        }
+
+        w2->score = w2Score;
+
+
         return w1Score < w2Score;
     }
 };

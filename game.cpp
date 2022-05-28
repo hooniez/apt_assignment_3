@@ -205,37 +205,28 @@ void Game::play()
      * the human player always plays first, stored in the first
      * element of the vector called players
      */
-    bool isWordBuildersTurn;
 
     bool isGameOver = false;
     while (inSession && !isGameOver)
     {
         printCurrTurn();
-        // If wordBuilder plays, use the isWordBuildersTurn variable to mark her turn
-        if (configSetting->count("--ai"))
-            isWordBuildersTurn = numRounds % NUM_PLAYERS == 1;
-
-        if (wordBuilder) {
-            if (wordBuilder->isPlaying) {
-                readCommand();
-//                if (!isWordBuildersTurn) {
-//                    readCommand();
-//                }
-                wordBuilder->execute();
-            } else {
-                // when --hint is enabled but not --ai, wordBuilder still keeps track
-                readCommand();
-                wordBuilder->execute();
+        if (configSetting->count("--ai")) {
+            if (currPlayer == wordBuilder) {
+                auto tileIndices = wordBuilder->getTheBestMove();
+                executePlaceCommand(*tileIndices);
+                size_t numTilesPlaced = tileIndices->size();
+                executePlaceDoneCommand(numTilesPlaced);
             }
-        } else {
-            //
-            readCommand();
         }
+
+        readCommand();
+
+
 
 
 //        if (wordBuilder && wordBuilder->isPlaying &&
 //            currPlayer->getName() == wordBuilder->getName()) {
-//            wordBuilder->execute();
+//            wordBuilder->getTheBestMove();
 
 
         // The game ends when the tile bag is empty AND One player has no
@@ -370,6 +361,17 @@ void Game::executePlaceCommand(size_t &numTilesPlaced)
     ++numTilesPlaced;
 }
 
+void Game::executePlaceCommand(const std::map<std::string, char>& tileIndices) {
+    std::string gridLoc;
+    Letter letter;
+    for (auto it = tileIndices.begin(); it != tileIndices.end(); ++it) {
+        gridLoc = it->first;
+        letter = it->second;
+        board->setTile(gridLoc, currPlayer->getHand()->getTile(letter));
+        currPlayer->discardTile(letter);
+    }
+}
+
 // Execute "place Done" (This function can only be invoked once the command
 // is validated)
 void Game::executePlaceDoneCommand(size_t &numTilesPlaced)
@@ -399,7 +401,7 @@ int Game::calculateScores()
     std::cout << currPlayer->getName() << " made the wordsInQueue: " << std::endl;
     for (auto it = words.cbegin(); it != words.cend(); ++it)
     {
-        // Iterate characters in a word
+        // Iterate characters in a wordBeingBuilt
         int currWordScore = 0;
         for (auto const &ch : *it)
         {

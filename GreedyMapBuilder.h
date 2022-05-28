@@ -17,9 +17,9 @@
  * are easy to read in case of a bug.
  *
  * Step 1)
- * Each word in the provided dictionary is iterated in one character increments
+ * Each wordBeingBuilt in the provided dictionary is iterated in one character increments
  * and the corresponding frequencies are recorded.
- * For example, if the word "GOOD" is processed, forwardGreedyMap generates
+ * For example, if the wordBeingBuilt "GOOD" is processed, forwardGreedyMap generates
  * {
  *  "G":{'O':1}, "O":{'O':1}, "O":{'D':1}, "D":{'|':1},
  *  "GO":{'O':1}, "OO":{'d':1}, "OD":{'|':1}
@@ -51,7 +51,7 @@
  *
  * The use of graph has been considered, but using two maps is deemed more of
  * a straightforward approach. For example, say there are two vertices whose
- * associated letters are both "O". Given the word "GOOD" has been processed,
+ * associated letters are both "O". Given the wordBeingBuilt "GOOD" has been processed,
  * it will be convoluted to determine the directionality of each of the edges
  * connecting two of the vertices. Also, the useful algorithms associated with graph
  * are not applicable in solving the problem at hand. Therefore, two hash maps for

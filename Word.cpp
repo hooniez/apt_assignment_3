@@ -4,14 +4,14 @@
 
 #include "Word.h"
 Word::Word(std::string word, std::string lettersInHand, std::map<int, char> tileIndices):
-word(word),
-lettersInHand(lettersInHand),
-score(0),
-tileIndices(tileIndices) {
+        wordBeingBuilt(word),
+        lettersInHand(lettersInHand),
+        score(0),
+        tileIndices(tileIndices) {
 
 }
 
-Word::Word(const Word& other): word(other.word), lettersInHand(other.lettersInHand), score(other.score), tileIndices(other.tileIndices) {
+Word::Word(const Word& other): wordBeingBuilt(other.wordBeingBuilt), lettersInHand(other.lettersInHand), score(other.score), tileIndices(other.tileIndices) {
 
 }
 
@@ -22,14 +22,14 @@ void Word::erase(char ch) {
 
 void Word::prepend(char ch, int idx) {
     tileIndices.insert(std::make_pair(idx, ch));
-    word.insert(0, 1, ch);
+    wordBeingBuilt.insert(0, 1, ch);
     auto it = std::find(lettersInHand.begin(), lettersInHand.end(), ch);
     lettersInHand.erase(it);
 }
 
 void Word::append(char ch, int idx) {
     tileIndices.insert(std::make_pair(idx, ch));
-    word += ch;
+    wordBeingBuilt += ch;
     auto it = std::find(lettersInHand.begin(), lettersInHand.end(), ch);
     lettersInHand.erase(it);
 }

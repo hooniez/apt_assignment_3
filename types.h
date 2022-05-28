@@ -57,6 +57,11 @@ enum AdjacentTileDir {
     LEFTWARD = 3,
 };
 
+enum WordAvailability {
+    FORWARDWORDEXISTS,
+    BACKWARDWORDEXISTS
+};
+
 //const std::map<BoardDir, AdjacentTileDir> = {
 //        {'A', 1}, {'B', 3}, {'C', 3},
 //        {'D', 2}, {'E', 1}, {'F', 4},

@@ -345,7 +345,7 @@ bool Board::checkAllOnTheSameLine() {
     if (this->gridLocs.size() != 1) {
         Angle dir = this->getWordDirection(this->gridLocs[0],
                                            this->gridLocs[1]);
-        /* The word has a up down direction,
+        /* The wordBeingBuilt has a up down direction,
          * check that all letters are on the updown
          */
         std::vector<int> firstCoord = this->gridLocs[0];
@@ -386,7 +386,7 @@ bool Board::checkAllOnTheSameLine() {
                 }
                 col++;
             }
-            /* The word has a up down direction, check that all letters are on
+            /* The wordBeingBuilt has a up down direction, check that all letters are on
              * the updown
              */
         }
@@ -674,3 +674,30 @@ Letter Board::getLetter(int idx) {
 bool Board::hasPlacedTile(int idx) {
     return placedBoard[idx];
 }
+
+bool Board::setTile(std::tuple<int, int> coords, TilePtr tile) {
+    bool returnVal = true;
+
+    // Coverts string input to the required row,col index
+    /*
+     * first check if the space is avaliable.
+     */
+    // TODO get rid of the test when it is confirmed wordBuilder works without error
+    if (this->board[std::get<X>(coords)][std::get<Y>(coords)] == nullptr)
+    {
+        this->board[std::get<X>(coords)][std::get<Y>(coords)] = tile;
+        // TODO if a bug is thrown, look into this line more closely
+//        this->gridLocs.push_back(lettersAsInt);
+    }
+    else
+    {
+        std::cout
+                << "Board: Received a already used tile space"
+                << " as new tile location."
+                << std::endl;
+        returnVal = false;
+    }
+
+    return returnVal;
+}
+

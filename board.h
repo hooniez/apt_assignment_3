@@ -46,6 +46,7 @@ public:
      * pre-condition: is a valid position format, [A-O1-14]
      */
     bool setTile(std::string position, TilePtr tile);
+    bool setTile(std::tuple<int, int> coords, TilePtr tile);
 
     // Ends the turn clears the list of letters added this turn
     void clearCoords();
@@ -77,7 +78,7 @@ public:
     // Checks whether the first placement was made through the center cell
     bool checkTheFirstPlacement();
     /*
-     * Adds a single word, starting from a single coord,
+     * Adds a single wordBeingBuilt, starting from a single coord,
      * in a specified direction
      * pre-condition: the starting coordinations are valid board coordinates
      */
@@ -90,7 +91,7 @@ public:
      */
     std::vector<int> convertPosToInt(const std::string &position);
     /*
-     * gets the direction of a word, returns none direction
+     * gets the direction of a wordBeingBuilt, returns none direction
      * if they are not on same row or column
      * pre-condition: the location vectors are valid board coordinates
      */

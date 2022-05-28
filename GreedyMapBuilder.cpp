@@ -22,7 +22,7 @@ void GreedyMapBuilder::convertToMap() {
     std::ifstream in(inFile);
     std::string word;
     while (std::getline(in, word)) {
-        // If backward, process word backwards
+        // If backward, process wordBeingBuilt backwards
         if (!forward)
             std::reverse(word.begin(), word.end());
         // Execute the process described in Step 1 in the header file

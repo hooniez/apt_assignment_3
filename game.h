@@ -117,6 +117,8 @@ private:
     WordBuilderPtr wordBuilder;
     configSettingPtr configSetting;
 
+    void executePlaceCommand(const std::map<std::string, char>& tileIndices);
+
 };
 
 #endif // ASSIGNMENT2_GAME_H

@@ -36,7 +36,7 @@ std::istream &CommandHandler::getline(std::istream &in,
     {
         playerCommand.push_back(userWord);
     }
-    // Store the first word in a variable called commandWord
+    // Store the first wordBeingBuilt in a variable called commandWord
     if (playerCommand.size() > 0)
         firstWord = playerCommand[0];
     numWords = playerCommand.size();
@@ -55,7 +55,7 @@ void CommandHandler::reset()
 bool CommandHandler::isPlaceCommandValid(const BoardPtr board)
 {
     /*
-     * Checking whether the first word is "place" is necessary as multiple
+     * Checking whether the first wordBeingBuilt is "place" is necessary as multiple
      * place commands are read
      */
     if (firstWord != "place")
@@ -151,7 +151,7 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
                 if (board->isEmpty())
                 {
                     std::cout
-                        << "Invalid Input: Make sure your word includes the"
+                        << "Invalid Input: Make sure your wordBeingBuilt includes the"
                         << std::endl;
                     std::cout
                         << "center of the board (H7),"
@@ -162,7 +162,7 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
                 {
                     std::cout
                         << "Invalid Input:"
-                        << " Make sure that your word connects to"
+                        << " Make sure that your wordBeingBuilt connects to"
                         << std::endl;
                     std::cout
                         << "an existing one, and that"
@@ -207,7 +207,7 @@ bool CommandHandler::isReplaceCommandValid(const TileBagPtr tileBag)
         std::string secondWord = playerCommand[1];
         LinkedListPtr<TilePtr> currPlayerHand = currPlayer->getHand();
 
-        // Check if the second word is not a letter within the range
+        // Check if the second wordBeingBuilt is not a letter within the range
         if (secondWord < "A" || secondWord > "Z")
         {
             std::cout << "Invalid Input: place [A-Z] at <grid location>"

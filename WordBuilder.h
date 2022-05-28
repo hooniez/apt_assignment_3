@@ -15,7 +15,7 @@
  * A placement adjacent to only one existing tile is considered easy whereas
  * a placement adjacent to more than one existing tile is considered hard.
  *
- * For example, let's say there is one word (GOOD) placed in the board:
+ * For example, let's say there is one wordBeingBuilt (GOOD) placed in the board:
  *
  *                       XXXX
  *                      YGOODY
@@ -106,10 +106,10 @@ public:
     void readFileToMap(const std::string &, sortedMapPtr& map);
     void initialiseMaps();
     // WordBuilder executes the next move
-    void execute();
+    std::shared_ptr<std::map<std::string, char>> getTheBestMove();
 
     void updateAdjacentTiles();
-    void suggestTiles();
+    void findWords();
 
     // Check if the index is within the board and on the same line as the baseLine
     bool isOnBaseLine(int idx, int baseLine, Angle dir);
@@ -126,15 +126,22 @@ public:
 
     void placeTiles();
 
-    bool isLineOnBoard(int line);
+    bool isOnBoard(int idx);
     // Convert the processed tiles into a priority queue
-    void convertTilesIntoPQ();
+    void prioritiseTiles();
 
     void updateSortedMappableAdjacentTile();
 
     void setBoard(BoardPtr board);
 
     void setDictionary(DictionaryPtr dictionary);
+
+    std::shared_ptr<std::map<std::string, char>> convert(std::map<int, char> & tileIndices);
+
+    char convertIntToRowLetter(int);
+
+    bool isPlacedTileOnTheSameLine(int idx, int baseLine, Angle dir);
+    bool isEmptyTileOnTheSameLine(int idx, int baseLine, Angle dir);
 
 
 
@@ -147,7 +154,7 @@ private:
     sortedMapPtr sortedMap;
     BoardPtr board;
     DictionaryPtr dictionary;
-    std::shared_ptr<std::priority_queue<Word, std::vector<Word>, CompareWord>> wordsInQueue;
+    std::shared_ptr<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>> wordsInQueue;
 //    std::set<EmptyTilePtr> singleWordTiles;
 //    std::set<EmptyTilePtr> multiWordTiles;
 //    std::array<BoardDir, TOTALDIRECTIONS> verticaldDirs =
@@ -172,13 +179,13 @@ private:
                            int backwardIdx,
                            int currLine,
                            Angle angle,
-                           Word& word);
+                           WordPtr& word);
 
     void buildWordBackwards(int forwardIdx,
                             int backwardIdx,
                            int currLine,
                            Angle angle,
-                           Word& word);
+                            WordPtr& word);
 
     bool wordCanEnd(const std::string& lettersToSearch);
     bool wordCanStart(const std::string& lettersToSearch);

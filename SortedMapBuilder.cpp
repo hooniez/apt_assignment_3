@@ -18,7 +18,7 @@ void SortedMapBuilder::build() {
     saveMap();
 }
 
-// Sort the letters of each word in the dictionary
+// Sort the letters of each wordBeingBuilt in the dictionary
 // Use each of the sorted wordsInQueue as a key mapped to its original value
 // (e.g. AELPP is a key mapped to APPLE)
 void SortedMapBuilder::convertToMap() {
