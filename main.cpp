@@ -131,9 +131,11 @@ void runAiBattles() {
 //
 //    game->play();
 
-    std::unique_ptr<Game>game = std::make_shared<Game>(configSetting, wordBuilder1, wordBuilder2);
+    std::unique_ptr<Game>game = std::make_unique<Game>(configSetting, wordBuilder1, wordBuilder2);
 
     while (game->play()) {
+        wordBuilder1->getHand()->clear();
+        wordBuilder2->getHand()->clear();
         game = std::make_unique<Game>(configSetting, wordBuilder1, wordBuilder2);
     }
 }

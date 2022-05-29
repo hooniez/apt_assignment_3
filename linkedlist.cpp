@@ -168,6 +168,7 @@ void LinkedList<T>::clear()
 {
     head = nullptr;
     tail = nullptr;
+    length = 0;
 }
 
 template <class T>

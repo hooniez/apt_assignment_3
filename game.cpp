@@ -97,6 +97,10 @@ void Game::processConfigSetting() {
         AdjacentTilesPtr adjacentTilesPtr = std::make_shared<std::vector<AdjacentTilePtr>>(BOARD_LENGTH * BOARD_LENGTH, nullptr);
         wordBuilder->setAdjacentTiles(adjacentTilesPtr);
         wordBuilder2->setAdjacentTiles(adjacentTilesPtr);
+        wordBuilder->resetNumPasses();
+        wordBuilder2->resetNumPasses();
+        wordBuilder->getHand() = std::make_shared<LinkedList<TilePtr>>();
+        wordBuilder2->getHand() = std::make_shared<LinkedList<TilePtr>>();
     }
 }
 
