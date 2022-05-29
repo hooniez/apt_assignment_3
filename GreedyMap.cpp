@@ -40,8 +40,6 @@ void GreedyMap::readFileToMap(const std::string &fileName, mapPtr& mainMap) {
     in.close();
 }
 
-
-
 // To measure time it takes to construct maps, use the code below.
 // #include <chrono>
 //    auto start = std::chrono::high_resolution_clock::now();

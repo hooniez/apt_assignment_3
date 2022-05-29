@@ -10,7 +10,8 @@ enum Input
     NEW = 1,
     LOAD,
     CREDIT,
-    QUIT
+    QUIT,
+    AI
 };
 
 typedef std::set<std::string> configSettingType;

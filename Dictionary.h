@@ -14,7 +14,7 @@
 #define ASSIGNMENT3_DICTIONARY_H
 
 /*
- * Dictionary is initialised when --dictionary, --ai, or --hint options are enabled.
+ * Dictionary is initialised when --dictionary, --ai, or --hint option is enabled.
  */
 
 typedef std::unordered_set<std::string> dictType;

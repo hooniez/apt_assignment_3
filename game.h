@@ -38,6 +38,20 @@ public:
         PlayerPtr playerTurn,
         WordBuilderPtr wordBuilder,
         DictionaryPtr dictionary);
+    Game(const configSettingPtr& configSetting,
+         const WordBuilderPtr& wordBuilder1,
+         const WordBuilderPtr& wordBuilder2);
+    Game(const configSettingPtr& configSetting,
+         const WordBuilderPtr& wordBuilder1,
+         const WordBuilderPtr& wordBuilder2,
+         std::vector<PlayerPtr> players,
+         BoardPtr board,
+         std::shared_ptr<TileBag> tileBag,
+         PlayerPtr playerTurn,
+         DictionaryPtr dictionary);
+
+
+
     ~Game();
     // Process options read from the command-line and accordingly initialise data members and run the game
     void processConfigSetting();
@@ -56,7 +70,7 @@ public:
      */
     bool playerNameExists(const std::string &playerName);
     // Employs the game loop
-    void play();
+    bool play();
     /*
      * readCommand reads only once for every command except for the place
      * command, which is read multiple times until "place Done"
@@ -116,6 +130,7 @@ private:
      */
     DictionaryPtr dictionary;
     WordBuilderPtr wordBuilder;
+    WordBuilderPtr wordBuilder2;
     configSettingPtr configSetting;
 
     void executePlaceCommand(const std::map<std::string, char>& tileIndices);

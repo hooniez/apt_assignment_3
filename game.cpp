@@ -32,6 +32,43 @@ Game::Game(
                             wordBuilder(wordBuilder),
                             configSetting(configSetting) {}
 
+
+Game::Game(const configSettingPtr& configSetting,
+           const WordBuilderPtr& wordBuilder1,
+           const WordBuilderPtr& wordBuilder2):
+           inSession(true),
+           numRounds(0),
+           dictionary(nullptr),
+           wordBuilder(wordBuilder1),
+           wordBuilder2(wordBuilder2),
+           configSetting(configSetting)
+
+{
+    initialiseBoard();
+    initialiseTileBag();
+    processConfigSetting();
+    initialisePlayers();
+}
+
+Game::Game(const configSettingPtr& configSetting,
+           const WordBuilderPtr& wordBuilder1,
+           const WordBuilderPtr& wordBuilder2,
+           std::vector<PlayerPtr> players,
+           BoardPtr board,
+           std::shared_ptr<TileBag> tileBag,
+           PlayerPtr playerTurn,
+           DictionaryPtr dictionary):
+           currPlayer(playerTurn),
+           players(players),
+           board(board),
+           tileBag(tileBag),
+           inSession(true),
+           numRounds(0),
+           dictionary(dictionary),
+           wordBuilder(wordBuilder1),
+           wordBuilder2(wordBuilder2),
+           configSetting(configSetting) {}
+
 Game::~Game() = default;
 
 // The function below is called only when starting a game
@@ -52,6 +89,14 @@ void Game::processConfigSetting() {
                                                     "AI",
                                                     board);
 
+    }
+
+    if (configSetting->count("--battle")) {
+        wordBuilder->setBoard(board);
+        wordBuilder2->setBoard(board);
+        AdjacentTilesPtr adjacentTilesPtr = std::make_shared<std::vector<AdjacentTilePtr>>(BOARD_LENGTH * BOARD_LENGTH, nullptr);
+        wordBuilder->setAdjacentTiles(adjacentTilesPtr);
+        wordBuilder2->setAdjacentTiles(adjacentTilesPtr);
     }
 }
 
@@ -74,6 +119,8 @@ void Game::initialisePlayers()
     // If the player plays against AI
     if (configSetting->count("--ai"))
         numHumanPlayers = 1;
+    if (configSetting->count("--battle"))
+        numHumanPlayers = 0;
 
     // Read in the players' names
     for (size_t i = 0; i < numHumanPlayers; ++i) {
@@ -96,6 +143,11 @@ void Game::initialisePlayers()
     // If the player plays against AI, insert him into players
     if (configSetting->count("--ai"))
         players.push_back(wordBuilder);
+
+    if (configSetting->count("--battle")) {
+        players.push_back(wordBuilder);
+        players.push_back(wordBuilder2);
+    }
 
     // Draw tiles from tileBag for each player's hand
     for (auto player : players) {
@@ -166,7 +218,7 @@ bool Game::playerNameExists(const std::string &playerName)
 }
 
 // Employs the game loop
-void Game::play()
+bool Game::play()
 {
     std::cout << "\nLet's play!"
               << std::endl;
@@ -175,16 +227,38 @@ void Game::play()
     while (inSession && !isGameOver)
     {
         printCurrTurn();
+
+        std::shared_ptr<std::map<std::string, char>> tileIndices;
         if (configSetting->count("--ai")) {
             wordBuilder->scanTheBoard();
             if (currPlayer == wordBuilder) {
-                auto tileIndices = wordBuilder->getTheBestMove();
+                tileIndices = wordBuilder->getTheBestMove();
                 executePlaceCommand(*tileIndices);
                 size_t numTilesPlaced = tileIndices->size();
                 board->makeCurrWords();
                 executePlaceDoneCommand(numTilesPlaced);
             } else {
                 readCommand();
+            }
+        } else if (configSetting->count("--battle")) {
+            if (currPlayer == wordBuilder) {
+                wordBuilder->scanTheBoard();
+                tileIndices = wordBuilder->getTheBestMove();
+                if (tileIndices != nullptr) {
+                    executePlaceCommand(*tileIndices);
+                    size_t numTilesPlaced = tileIndices->size();
+                    board->makeCurrWords();
+                    executePlaceDoneCommand(numTilesPlaced);
+                }
+            } else {
+                wordBuilder2->scanTheBoard();
+                tileIndices = wordBuilder2->getTheBestMove();
+                if (tileIndices != nullptr) {
+                    executePlaceCommand(*tileIndices);
+                    size_t numTilesPlaced = tileIndices->size();
+                    board->makeCurrWords();
+                    executePlaceDoneCommand(numTilesPlaced);
+                }
             }
         } else { // Regular play between players
             // In order to give a hint, wordBuilder needs to scan the board each turn
@@ -196,18 +270,28 @@ void Game::play()
 
 
 
+
+
         // The game ends when the tile bag is empty AND One player has no
         // more tiles in his/her hand OR passes his turn twice
         if (tileBag->isEmpty())
         {
             // Check if the player has passed this turn
-            if (commandHandler->firstWord == "pass")
-            {
-                currPlayer->incrementNumPasses();
-            }
-            else
-            {
-                currPlayer->resetNumPasses();
+            if (!configSetting->count("--battle")) {
+                if (commandHandler->firstWord == "pass")
+                {
+                    currPlayer->incrementNumPasses();
+                }
+                else
+                {
+                    currPlayer->resetNumPasses();
+                }
+            } else {
+                if (tileIndices == nullptr) {
+                    currPlayer->incrementNumPasses();
+                } else {
+                    currPlayer->resetNumPasses();
+                }
             }
             // One player has no more tiles in their hands OR passes his
             // turn twice
@@ -222,6 +306,7 @@ void Game::play()
 
         currPlayer = players[numRounds % NUM_PLAYERS];
     }
+    return isGameOver;
 }
 
 // readCommand reads only once for every command except for the place
@@ -380,7 +465,7 @@ int Game::calculateScores()
 {
     auto words = board->getCurrWords();
     int score = 0;
-    std::cout << currPlayer->getName() << " made the wordsInQueue: " << std::endl;
+    std::cout << currPlayer->getName() << " made the words: " << std::endl;
     for (auto it = words.cbegin(); it != words.cend(); ++it)
     {
         // Iterate characters in a wordBeingBuilt

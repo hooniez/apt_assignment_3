@@ -14,8 +14,8 @@ WordBuilder::WordBuilder(const GreedyMapPtr& greedyMap,
                          greedyMap(greedyMap),
                          board(board),
                          dictionary(dictionary),
-                         wordsInQueue(std::make_shared<WordsInQueue>()),
-                         adjacentTiles(BOARD_LENGTH * BOARD_LENGTH, nullptr) {}
+                         wordsInQueue(std::make_shared<WordsInQueue>())
+                         {}
 
 WordBuilder::WordBuilder(const GreedyMapPtr& greedyMap,
                          const DictionaryPtr& dictionary,
@@ -24,15 +24,14 @@ WordBuilder::WordBuilder(const GreedyMapPtr& greedyMap,
                          Player(name),
                          greedyMap(greedyMap),
                          board(board),
-                         dictionary(dictionary),
-                         adjacentTiles(BOARD_LENGTH * BOARD_LENGTH, nullptr) {}
+                         dictionary(dictionary){}
 
 void WordBuilder::scanTheBoard() {
     if (board->isEmpty()) {
         // Place an empty AdjacentTile at the centre
         int centreIdx = BOARD_LENGTH * BOARD_LENGTH / 2;
         AdjacentTilePtr at = std::make_shared<AdjacentTile>(0, "", NA, centreIdx);
-        adjacentTiles[centreIdx] = at;
+        (*adjacentTiles)[centreIdx] = at;
     } else {
         beAwareOfTiles();
     }
@@ -43,7 +42,9 @@ std::shared_ptr<std::map<std::string, char>> WordBuilder::getTheBestMove() {
     prioritiseTiles();
     std::string lettersInHand = getHand()->getLetters();
     findWords(lettersInHand);
-    auto chosenTileIndices = wordsInQueue->top()->tileIndices;
+    std::map<int, char> chosenTileIndices;
+    if (!wordsInQueue->empty())
+        chosenTileIndices = wordsInQueue->top()->tileIndices;
     // TODO implement replace when no word can be made && make ai place first
     // Convert chosenTileIndices into the format Board's pre-existing function understands
     return convert(chosenTileIndices);
@@ -51,17 +52,20 @@ std::shared_ptr<std::map<std::string, char>> WordBuilder::getTheBestMove() {
 
 
 std::shared_ptr<std::map<std::string, char>> WordBuilder::convert(std::map<int, char>& tileIndices) {
-    std::shared_ptr<std::map<std::string, char>> ret = std::make_shared<std::map<std::string, char>>();
+    std::shared_ptr<std::map<std::string, char>> ret = nullptr;
     int rowIdx;
     int colIdx;
     std::string gridLoc;
     char letter;
-    for (auto tileIndex : tileIndices) {
-        rowIdx = getCurrLine(tileIndex.first, HORIZONTAL);
-        colIdx = getCurrLine(tileIndex.first, VERTICAL);
-        gridLoc = convertIntToRowLetter(rowIdx) + std::to_string(colIdx);
-        letter = tileIndex.second;
-        ret->insert(std::make_pair(gridLoc, letter));
+    if (!tileIndices.empty()) {
+        ret = std::make_shared<std::map<std::string, char>>();
+        for (auto tileIndex : tileIndices) {
+            rowIdx = getCurrLine(tileIndex.first, HORIZONTAL);
+            colIdx = getCurrLine(tileIndex.first, VERTICAL);
+            gridLoc = convertIntToRowLetter(rowIdx) + std::to_string(colIdx);
+            letter = tileIndex.second;
+            ret->insert(std::make_pair(gridLoc, letter));
+        }
     }
     return ret;
 }
@@ -128,6 +132,10 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
                         }
                     }
                 }
+
+                //debugging
+                if (lettersInHand == "INSNCSP" && at->idx == 123)
+                    std::cout << "HERE";
 
                 // If letters can be extended
                 if (forwardWordExists || backwardWordExists) {
@@ -323,7 +331,7 @@ void WordBuilder::buildWordForwards(int forwardIdx,
 
                     isForwardable = false;
                     isBackwardable = false;
-                    auto at = adjacentTiles[forwardIdx];
+                    auto at = (*adjacentTiles)[forwardIdx];
                     // If on an AdjacentTile
                     if (at != nullptr) {
                         std::string verticalLetters;
@@ -410,7 +418,7 @@ void WordBuilder::buildWordForwards(int forwardIdx,
                     }
 
                     // Debugging
-                    if (newWord->wordBeingBuilt == "SINUS") {
+                    if (newWord->wordBeingBuilt == "PSI") {
                         std::cout << "here";
                     }
 
@@ -458,7 +466,7 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
                     backwardIdxToSearch = backwardIdx;
                     isForwardable = false;
                     isBackwardable = false;
-                    auto at = adjacentTiles[backwardIdx];
+                    auto at = (*adjacentTiles)[backwardIdx];
                     if (at != nullptr) {
                         std::string verticalLetters;
                         std::string horizontalLetters;
@@ -548,7 +556,7 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
                     }
 
                     // Debugging
-                    if (newWord->wordBeingBuilt == "SINUS") {
+                    if (newWord->wordBeingBuilt == "PSI") {
                         std::cout << "here";
                     }
 
@@ -596,7 +604,7 @@ void WordBuilder::beAwareOfTiles() {
 
         createOrUpdateEmptyAdjacencyTiles(multipleSearchDir, currIdx, currLine, placedDir);
         // Destroy the AdjacentTile if found on the placed indices
-        adjacentTiles[currIdx] = nullptr;
+        (*adjacentTiles)[currIdx] = nullptr;
         placedIndices->pop();
     }
 }
@@ -604,7 +612,7 @@ void WordBuilder::beAwareOfTiles() {
 void WordBuilder::prioritiseTiles() {
     // Clear tilesToStartFrom before putting
     tilesToStartFrom = TilesToStartFrom();
-    for (auto adjacentTile : adjacentTiles) {
+    for (auto adjacentTile : *adjacentTiles) {
         if (adjacentTile)
             tilesToStartFrom.push(adjacentTile);
     }
@@ -696,25 +704,25 @@ void WordBuilder::createOrUpdateEmptyAdjacencyTiles(Angle searchingDir,
     // Create or update the bottommost or rightmost AdjacentTile
     if (isOnBaseLine(mostForwardIdx, currLine, searchingDir)) {
         // If the next following tile from the bottommost or rightmost has no AdjacentTile
-        if (!adjacentTiles[mostForwardIdx]) {
+        if (!(*adjacentTiles)[mostForwardIdx]) {
             AdjacentTilePtr currAt = std::make_shared<AdjacentTile>(
                     totalLetterScores, oss.str(),
                     forwardDir, mostForwardIdx);
-            adjacentTiles[mostForwardIdx] = currAt;
+            (*adjacentTiles)[mostForwardIdx] = currAt;
         } else {
-            adjacentTiles[mostForwardIdx]->update(totalLetterScores, oss.str(), forwardDir);
+            (*adjacentTiles)[mostForwardIdx]->update(totalLetterScores, oss.str(), forwardDir);
         }
     }
 
     // Create or update the uppermost or leftmost emptyAdjacencyTile
     if (isOnBaseLine(mostBackwardIdx, currLine, searchingDir)) {
-        if (!adjacentTiles[mostBackwardIdx]) {
+        if (!(*adjacentTiles)[mostBackwardIdx]) {
             AdjacentTilePtr currAt = std::make_shared<AdjacentTile>(
                     totalLetterScores, oss.str(),
                     backwardDir, mostBackwardIdx);
-            adjacentTiles[mostBackwardIdx] = currAt;
+            (*adjacentTiles)[mostBackwardIdx] = currAt;
         } else {
-            adjacentTiles[mostBackwardIdx]->update(totalLetterScores, oss.str(), backwardDir);
+            (*adjacentTiles)[mostBackwardIdx]->update(totalLetterScores, oss.str(), backwardDir);
         }
     }
 }
@@ -761,6 +769,10 @@ void WordBuilder::setBoard(BoardPtr board) {
 
 void WordBuilder::setDictionary(DictionaryPtr dictionary) {
     this->dictionary = dictionary;
+}
+
+void WordBuilder::setAdjacentTiles(AdjacentTilesPtr adjacentTiles) {
+    this->adjacentTiles = adjacentTiles;
 }
 
 void WordBuilder::giveHint(const LinkedListPtr<TilePtr>& hand) {

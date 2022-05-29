@@ -67,9 +67,10 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     if (configSetting->count("--ai")) {
         numHumanPlayers = 1;
     }
+    if (configSetting->count("--battle")) {
+        numHumanPlayers = 0;
+    }
 
-    // Since the human player will always play first if playing against AI
-    // read him first.
     for (int i = 0; i < numHumanPlayers; ++i)
     {
 
@@ -85,6 +86,7 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     }
 
     WordBuilderPtr wordBuilder = nullptr;
+    WordBuilderPtr wordBuilder2 = nullptr;
     // both --ai and --hint requires the instantiation of a wordBuilder
     if (configSetting->count("--ai")) {
         wordBuilder = files::parseWordBuilder(inFile);
@@ -93,6 +95,11 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
             players.push_back(wordBuilder);
         else
             invalid = true;
+    } else if (configSetting->count("--battle")) {
+        wordBuilder = files::parseWordBuilder(inFile);
+        wordBuilder2 = files::parseWordBuilder(inFile);
+        players.push_back(wordBuilder);
+        players.push_back(wordBuilder2);
     } else if (configSetting->count("--hint")) {
         // If Ai is not a player,
         wordBuilder = std::make_shared<WordBuilder>(nullptr,
@@ -105,6 +112,10 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     if (configSetting->count("--ai") || configSetting->count("--hint")) {
         greedyMap = std::make_shared<GreedyMap>();
         wordBuilder->setGreedyMap(greedyMap);
+    } else if (configSetting->count("--battle")) {
+        greedyMap = std::make_shared<GreedyMap>();
+        wordBuilder->setGreedyMap(greedyMap);
+        wordBuilder2->setGreedyMap(greedyMap);
     }
 
     BoardPtr board = files::parseBoard(inFile);
@@ -112,16 +123,33 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     if (configSetting->count("--ai") || configSetting->count("--hint")) {
         wordBuilder->setBoard(board);
         board->setPlacedIndices();
+    } else if (configSetting->count("--battle")) {
+        wordBuilder->setBoard(board);
+        wordBuilder2->setBoard(board);
     }
+
+    AdjacentTilesPtr adjacentTiles = std::make_shared<std::vector<AdjacentTilePtr>>(BOARD_LENGTH * BOARD_LENGTH, nullptr);
+    if (configSetting->count("--ai") || configSetting->count("--hint")) {
+        wordBuilder->setAdjacentTiles(adjacentTiles);
+    } else if (configSetting->count("--battle")) {
+        wordBuilder->setAdjacentTiles(adjacentTiles);
+        wordBuilder2->setAdjacentTiles(adjacentTiles);
+    }
+
 
     DictionaryPtr dictionary = nullptr;
     if (configSetting->count("--dictionary") ||
         configSetting->count("--ai") ||
-        configSetting->count("--hint"))
+        configSetting->count("--hint") ||
+        configSetting->count("--battle"))
         dictionary = std::make_shared<Dictionary>("words");
 
     if (configSetting->count("--ai") || configSetting->count("--hint"))
         wordBuilder->setDictionary(dictionary);
+    else if (configSetting->count("--battle")) {
+        wordBuilder->setDictionary(dictionary);
+        wordBuilder2->setDictionary(dictionary);
+    }
 
     std::shared_ptr<TileBag> tileBag = parseTileBag(inFile);
 
@@ -140,8 +168,10 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     {
         if (configSetting->empty()) {
             game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn, nullptr, nullptr);
-        } else {
+        } else if (!configSetting->count("--battle")){
             game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn, wordBuilder, dictionary);
+        } else {
+            game = std::make_shared<Game>(configSetting, wordBuilder, wordBuilder2, players, board, tileBag, playerTurn, dictionary);
         }
 
     }

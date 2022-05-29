@@ -46,7 +46,7 @@ public:
 };
 
 typedef std::shared_ptr<AdjacentTile> AdjacentTilePtr;
-typedef std::vector<AdjacentTilePtr> AdjacentTiles;
+typedef std::shared_ptr<std::vector<AdjacentTilePtr>> AdjacentTilesPtr;
 
 /*
  * AdjacentTiles are stored in two containers—one in an array of the size BOARD_LENGTH * BOARD_LENGTH (for fast

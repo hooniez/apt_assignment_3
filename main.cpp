@@ -5,6 +5,8 @@
 #include "board.h"
 #include "filemanager.h"
 #include "utils.h"
+#include "WordBuilder.h"
+#include "GreedyMap.h"
 
 #include <iostream>
 #include <vector>
@@ -20,6 +22,7 @@ void mainMenu(const configSettingPtr&);
 void printCredits();
 void startNewGame(const configSettingPtr&);
 bool loadGame();
+void runAiBattles();
 
 /*                          Milestone 1 & 2 Above
  * -------------------------------------------------------------------
@@ -91,10 +94,47 @@ void mainMenu(const configSettingPtr &options)
         {
             terminate = true;
         }
+        else if (selection == AI)
+        {
+            runAiBattles();
+        }
         else if (!terminate)
         {
             std::cout << "Invalid Input - 1" << std::endl;
         }
+    }
+}
+
+void runAiBattles() {
+    // Create a config setting to pass to Game
+    configSettingPtr configSetting = std::make_shared<configSettingType>();
+    configSetting->insert("--battle");
+    // Initiate an instance of GreedyMap
+    GreedyMapPtr greedyMap = std::make_shared<GreedyMap>();
+    DictionaryPtr dictionary = std::make_shared<Dictionary>("words");
+    // Create two instances of WordBuilder
+    WordBuilderPtr wordBuilder1 = std::make_shared<WordBuilder>(greedyMap, dictionary, "AI1", nullptr);
+    WordBuilderPtr wordBuilder2 = std::make_shared<WordBuilder>(greedyMap, dictionary, "AI2", nullptr);
+
+
+
+//    std::string fileName;
+//    std::shared_ptr<Game> game = nullptr;
+//
+//    std::cout << "Enter the filename from which to load a game" << std::endl;
+//    std::cout << "> ";
+//    std::getline(std::cin, fileName);
+//
+////    AdjacentTiles adjacentTiles;
+//
+//    game = files::loadGame(fileName);
+//
+//    game->play();
+
+    std::unique_ptr<Game>game = std::make_shared<Game>(configSetting, wordBuilder1, wordBuilder2);
+
+    while (game->play()) {
+        game = std::make_unique<Game>(configSetting, wordBuilder1, wordBuilder2);
     }
 }
 
@@ -164,7 +204,7 @@ void printMenu()
               << "2. Load Game" << std::endl
               << "3. Credits (Show student information)" << std::endl
               << "4. Quit\n"
-              << std::endl;
+              << "5. AI play against other AI until eof is typed" << std::endl;
 }
 
 /*                          Milestone 1 & 2 Above

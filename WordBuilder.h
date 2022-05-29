@@ -116,6 +116,8 @@ public:
 
     void setDictionary(DictionaryPtr dictionary);
 
+    void setAdjacentTiles(AdjacentTilesPtr adjacentTiles);
+
     std::shared_ptr<std::map<std::string, char>> convert(std::map<int, char> & tileIndices);
 
     char convertIntToRowLetter(int);
@@ -147,7 +149,7 @@ private:
     std::shared_ptr<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>> wordsInQueue;
 
     // adjacentTiles keeps track of instances of AdjacentTile
-    AdjacentTiles adjacentTiles;
+    AdjacentTilesPtr adjacentTiles;
     // tilesToStartFrom stores AdjacentTiles sorted by its potential scores in ascending order
     TilesToStartFrom tilesToStartFrom;
 
