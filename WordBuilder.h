@@ -50,7 +50,7 @@
  * or given continuous tiles without a gap.
  *
  * Each of the tiles placeable is searched by its letter in both
- * forwardGreedyMap and backwardGreedyMap, by which one with the highest value
+ * forwardMap and backwardMap, by which one with the highest value
  * (the probability of a letter among valid letters * the score of a letter)
  * can be found.
  *
@@ -69,47 +69,30 @@
 #include "types.h"
 #include "player.h"
 #include "board.h"
-#include "SortedMapBuilder.h"
-#include "GreedyMapBuilder.h"
+#include "GreedyMap.h"
 #include "AdjacentTile.h"
 #include "Word.h"
 
 class WordBuilder : public Player {
 public:
-    // This constructor is called when --hint is typed by itself
-    WordBuilder(const std::string& forwardSearchMapFileName,
-                const std::string& backwardSearchMapFileName,
-                const std::string& sortedMapFileName,
-                const DictionaryPtr& dictionary,
-                BoardPtr board,
-                bool canGiveHints);
-    // This constructor is called when --ai is typed by itself OR with --hint
-    WordBuilder(const std::string& forwardSearchMapFileName,
-                const std::string& backwardSearchMapFileName,
-                const std::string& sortedMapFileName,
+    // This constructor is called from loading a saved game
+    WordBuilder(const GreedyMapPtr& greedyMap,
                 const DictionaryPtr& dictionary,
                 const std::string& name,
                 size_t score,
                 LinkedListPtr<TilePtr> hand,
-                BoardPtr board,
-                bool canGiveHints);
+                BoardPtr board);
 
-    WordBuilder(const std::string& forwardSearchMapFileName,
-                const std::string& backwardSearchMapFileName,
-                const std::string& sortedMapFileName,
+    // This constructor is called when starting a new game
+    WordBuilder(const GreedyMapPtr& greedyMap,
                 const DictionaryPtr& dictionary,
                 const std::string& name,
-                BoardPtr board,
-                bool canGiveHints);
+                BoardPtr board);
 
-    void readFileToMap(const std::string &, greedyMapPtr& map);
-    void readFileToMap(const std::string &, sortedMapPtr& map);
-    void initialiseMaps();
     // WordBuilder executes the next move
     std::shared_ptr<std::map<std::string, char>> getTheBestMove();
 
-    void updateAdjacentTiles();
-    void findWords();
+    void findWords(const std::string &);
 
     // Check if the index is within the board and on the same line as the baseLine
     bool isOnBaseLine(int idx, int baseLine, Angle dir);
@@ -121,16 +104,13 @@ public:
 
     int getCurrLine(int idx, Angle dir);
 
-
     void beAwareOfTiles();
-
-    void placeTiles();
 
     bool isOnBoard(int idx);
     // Convert the processed tiles into a priority queue
     void prioritiseTiles();
 
-    void updateSortedMappableAdjacentTile();
+    void setGreedyMap(GreedyMapPtr greedyMap);
 
     void setBoard(BoardPtr board);
 
@@ -141,42 +121,12 @@ public:
     char convertIntToRowLetter(int);
 
     bool isPlacedTileOnTheSameLine(int idx, int baseLine, Angle dir);
+
     bool isEmptyTileOnTheSameLine(int idx, int baseLine, Angle dir);
-
-
-
-
-    bool canGiveHints;
-    bool isPlaying;
 
     void scanTheBoard();
 
-private:
-    greedyMapPtr greedyForwardMap;
-    greedyMapPtr greedyBackwardMap;
-    sortedMapPtr sortedMap;
-    BoardPtr board;
-    DictionaryPtr dictionary;
-    std::shared_ptr<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>> wordsInQueue;
-//    std::set<EmptyTilePtr> singleWordTiles;
-//    std::set<EmptyTilePtr> multiWordTiles;
-//    std::array<BoardDir, TOTALDIRECTIONS> verticaldDirs =
-//            {TOP, BOTTOM};
-//
-//    std::array<BoardDir, TOTALDIRECTIONS> horizontalDirs =
-//            {RIGHT, LEFT};
-
-
-    // emptyAdjacnetTiles keep track of instances of EmptyAdjancetTile
-    AdjacentTiles adjacentTiles;
-    // tilesToStartFrom stores the same instances of AdjacentTile stored
-    // in adjacentTiles sorted by its potential scores
-//    AdjacentTilesPtr tilesToStartFrom;
-    TilesToStartFrom tilesToStartFrom;
-
-    const std::vector<BoardDir> boardDirections = {TOP, RIGHT, BOTTOM, LEFT};
-    const std::vector<AdjacentTileDir> adjacentTileDirection =
-            {DOWNWARD, LEFTWARD, UPWARD, RIGHTWARD};
+    void giveHint(const LinkedListPtr<TilePtr>& hand);
 
     void buildWordForwards(int forwardIdx,
                            int backwardIdx,
@@ -186,17 +136,20 @@ private:
 
     void buildWordBackwards(int forwardIdx,
                             int backwardIdx,
-                           int currLine,
-                           Angle angle,
+                            int currLine,
+                            Angle angle,
                             const WordPtr& word);
 
-    bool wordCanEnd(const std::string& lettersToSearch);
-    bool wordCanStart(const std::string& lettersToSearch);
+private:
+    GreedyMapPtr greedyMap;
+    BoardPtr board;
+    DictionaryPtr dictionary;
+    std::shared_ptr<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>> wordsInQueue;
 
-    //    bool isExtensionable(const AdjacentTilePtr&, std::string letters)
-
-
-//    std::shared_ptr<std::map<int, std::tuple<int, int>>> testMap;
+    // adjacentTiles keeps track of instances of AdjacentTile
+    AdjacentTiles adjacentTiles;
+    // tilesToStartFrom stores AdjacentTiles sorted by its potential scores in ascending order
+    TilesToStartFrom tilesToStartFrom;
 
 
 };

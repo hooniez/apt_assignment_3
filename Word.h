@@ -63,7 +63,7 @@ public:
     }
 };
 
-//typedef std::priority_queue
+typedef std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord> WordsInQueue;
 
 
 

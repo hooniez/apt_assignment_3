@@ -179,8 +179,8 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
                 }
             } else {
                 // If dictionary is initialised (in all cases of the options)
-                if (dictionary && dictionary->isCheckingValidity && !board->isWordValid(dictionary)) {
-                    std::cout << "Invalid Input: Make sure your wordsInQueue are valid wordsInQueue" << std::endl;
+                if (dictionary && !board->isWordValid(dictionary)) {
+                    std::cout << "Invalid Input: Make sure your words are valid words" << std::endl;
                     // Put the returned tiles back in the player's hand
                     for (const auto &placedTile : board->getTilesToReturn())
                     {
@@ -266,6 +266,18 @@ bool CommandHandler::isSaveCommandValid()
 
 bool CommandHandler::isQuitCommandValid()
 {
+    if (numWords != 1)
+    {
+        std::cout << "Invalid Input: pass" << std::endl;
+    }
+    else
+    {
+        isValid = true;
+    }
+    return isValid;
+}
+
+bool CommandHandler::isHintCommandValid() {
     if (numWords != 1)
     {
         std::cout << "Invalid Input: pass" << std::endl;

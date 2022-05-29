@@ -442,26 +442,7 @@ bool Board::checkAllOnTheSameLine() {
 
     return allOnTheSameLine;
 }
-//bool Board::checkTheFirstPlacement() {
-//    bool placedValid = false;
-//    /*
-//     * go through each added letter, check that one of them
-//     * is in the center
-//     */
-//    for (long unsigned int i = 0;
-//         i < this->gridLocs.size(); ++i)
-//    {
-//        if ((gridLocs[i][0] == int(this->height / 2)) &&
-//            (gridLocs[i][1] == int(this->width / 2)))
-//        {
-//            placedValid = true;
-//        }
-//    }
-//    return placedValid;
-//}
-/*
- * pre-condition: the
- */
+
 std::vector<int> Board::convertPosToInt(const std::string &position)
 {
     char rowChar = position[0];
@@ -596,6 +577,31 @@ std::vector<std::string>& Board::getCurrWords() {
     return currWords;
 }
 
+bool Board::setTile(std::tuple<int, int> coords, TilePtr tile) {
+    bool returnVal = true;
+
+    // Coverts string input to the required row,col index
+    /*
+     * first check if the space is avaliable.
+     */
+    // TODO get rid of the test when it is confirmed wordBuilder works without error
+    if (board[std::get<X>(coords)][std::get<Y>(coords)] == nullptr)
+    {
+        board[std::get<X>(coords)][std::get<Y>(coords)] = tile;
+        // TODO if a bug is thrown, look into this line more closely
+    }
+    else
+    {
+        std::cout
+                << "Board: Received a already used tile space"
+                << " as new tile location."
+                << std::endl;
+        returnVal = false;
+    }
+
+    return returnVal;
+}
+
 /*                          Milestone 1 & 2 Above
  * -------------------------------------------------------------------
  * -------------------------------------------------------------------
@@ -627,23 +633,11 @@ void Board::setTilesToReturn() {
     }
 }
 
-placedIndicesPtr Board::getPlacedIndices() {
-    return placedIndices;
-}
-
-Angle Board::getPlacedDir() {
-    return placedDir;
-}
-
-// The repeated use of std::tuple to refer to a certain tile on the board can be inefficient.
-// Especially it can be when looking up EmptyTilePtr stored in two different set containers
-// namely singleWordTiles and multipleWordTiles.
-// Without reducing the dimensionality, another vector of a vector of EmptyTilePtr is needed
-// to find a particular EmptyTilePtr, or a tuple of coordinates or a string (C14) needs to be
-// used a key. Rather than these solutions, each coordinate will be translated to single number
-// (e.g. A0 -> 0, A7 -> 7, A14 -> 14, B0 -> 15, B7 -> 22 -> B14 -> 29).
-//
-// Keep track of all the tiles placed using placedBoard array.
+/*
+ * As indicated by the header file, the 1 dimensional representation of the board state
+ * with respect to whether tiles are placed or not will be used for performance reasons
+ * (e.g. A0 -> 0, A7 -> 7, A14 -> 14, B0 -> 15, B7 -> 22 -> B14 -> 29).
+ */
 void Board::trackPlacedTiles() {
     // Iterate gridLocs and convert them to placedIndices
     int x = 0;
@@ -659,45 +653,40 @@ void Board::trackPlacedTiles() {
     gridLocs.clear();
 }
 
-Value Board::getValue(int idx) {
-    return board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getValue();
-}
-
 std::string Board::getLetters(int idx) {
     return std::string(1, board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getLetter());
-}
-
-Letter Board::getLetter(int idx) {
-    return board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getLetter();
 }
 
 bool Board::hasPlacedTile(int idx) {
     return placedBoard[idx];
 }
 
-bool Board::setTile(std::tuple<int, int> coords, TilePtr tile) {
-    bool returnVal = true;
-
-    // Coverts string input to the required row,col index
-    /*
-     * first check if the space is avaliable.
-     */
-    // TODO get rid of the test when it is confirmed wordBuilder works without error
-    if (this->board[std::get<X>(coords)][std::get<Y>(coords)] == nullptr)
-    {
-        this->board[std::get<X>(coords)][std::get<Y>(coords)] = tile;
-        // TODO if a bug is thrown, look into this line more closely
-//        this->gridLocs.push_back(lettersAsInt);
-    }
-    else
-    {
-        std::cout
-                << "Board: Received a already used tile space"
-                << " as new tile location."
-                << std::endl;
-        returnVal = false;
-    }
-
-    return returnVal;
+Value Board::getValue(int idx) {
+    return board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getValue();
 }
 
+Letter Board::getLetter(int idx) {
+    return board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getLetter();
+}
+
+placedIndicesPtr Board::getPlacedIndices() {
+    return placedIndices;
+}
+
+Angle Board::getPlacedDir() {
+    return placedDir;
+}
+
+// A setter needed to load the board state when loading a game
+void Board::setPlacedIndices() {
+    int idx;
+    for (int x = 0; x < BOARD_LENGTH; ++x) {
+        for (int y = 0; y < BOARD_LENGTH; ++y) {
+            if (board[x][y] != nullptr) {
+                idx = (BOARD_LENGTH * x) + y;
+                placedIndices->push(idx);
+                placedBoard[idx] = true;
+            }
+        }
+    }
+}

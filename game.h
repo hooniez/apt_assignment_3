@@ -17,6 +17,7 @@
 #include "Dictionary.h"
 #include "types.h"
 #include "WordBuilder.h"
+#include "GreedyMap.h"
 
 /*
  * Game's role is to initialise every object that makes up Scrabble (e.g.
@@ -38,8 +39,8 @@ public:
         WordBuilderPtr wordBuilder,
         DictionaryPtr dictionary);
     ~Game();
-    // Process options read from the command-line and accordingly initialise data members
-    void processConfigSetting(const configSettingPtr& options);
+    // Process options read from the command-line and accordingly initialise data members and run the game
+    void processConfigSetting();
     void initialiseBoard();
     void initialiseTileBag();
     /*

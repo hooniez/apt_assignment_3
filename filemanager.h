@@ -7,6 +7,7 @@
 #include "linkedlist.h"
 #include "board.h"
 #include "strstream"
+#include "GreedyMap.h"
 
 namespace files
 {
@@ -19,7 +20,7 @@ namespace files
                               std::vector<PlayerPtr> players);
     LinkedListPtr<TilePtr> parseTiles(std::string tileStr);
     PlayerPtr parsePlayer(std::ifstream &in);
-    WordBuilderPtr parseWordBuilder(std::ifstream &in, bool canGiveHints);
+    WordBuilderPtr parseWordBuilder(std::ifstream &in);
     BoardPtr parseBoard(std::ifstream &in);
     std::shared_ptr<TileBag> parseTileBag(std::ifstream &in);
     int createSubString(std::string &parentStr,

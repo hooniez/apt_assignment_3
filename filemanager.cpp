@@ -9,7 +9,6 @@
 #include <string>
 #include <iostream>
 #include "utils.h"
-#include "filemanager.h"
 #include "game.h"
 #include "player.h"
 #include "linkedlist.h"
@@ -86,61 +85,45 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     }
 
     WordBuilderPtr wordBuilder = nullptr;
-    // Read AI if --ai is configured
+    // both --ai and --hint requires the instantiation of a wordBuilder
     if (configSetting->count("--ai")) {
-        if (configSetting->count("--hint")) {
-            wordBuilder = files::parseWordBuilder(inFile, true);
-        } else {
-            wordBuilder = files::parseWordBuilder(inFile, false);
-        }
+        wordBuilder = files::parseWordBuilder(inFile);
 
         if (wordBuilder != nullptr)
-        {
             players.push_back(wordBuilder);
-        }
         else
-        {
             invalid = true;
-        }
     } else if (configSetting->count("--hint")) {
-        // If Ai is not a player, but should give a hint,
-        // Create wordBuilder with board set to nullptr since board is read after
-        // the players are parsed. Set board once it is parsed below.
-        wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
-                                                    "backwardGreedyMap",
-                                                    "sortedMap",
+        // If Ai is not a player,
+        wordBuilder = std::make_shared<WordBuilder>(nullptr,
                                                     nullptr,
-                                                    nullptr,
-                                                    false);
+                                                    "AI",
+                                                    nullptr);
+    }
 
+    GreedyMapPtr greedyMap = nullptr;
+    if (configSetting->count("--ai") || configSetting->count("--hint")) {
+        greedyMap = std::make_shared<GreedyMap>();
+        wordBuilder->setGreedyMap(greedyMap);
     }
 
     BoardPtr board = files::parseBoard(inFile);
     // Now that board is parsed, allow wordBuilder, if it exists, to store board as its data member
-    if (wordBuilder)
+    if (configSetting->count("--ai") || configSetting->count("--hint")) {
         wordBuilder->setBoard(board);
-
-    DictionaryPtr dictionary = nullptr;
-    if (configSetting->count("--dictionary")) {
-        dictionary = std::make_shared<Dictionary>("words", true);
-    } else {
-        if (wordBuilder) {
-            dictionary = std::make_shared<Dictionary>("words", false);
-        }
+        board->setPlacedIndices();
     }
 
-    if (wordBuilder)
+    DictionaryPtr dictionary = nullptr;
+    if (configSetting->count("--dictionary") ||
+        configSetting->count("--ai") ||
+        configSetting->count("--hint"))
+        dictionary = std::make_shared<Dictionary>("words");
+
+    if (configSetting->count("--ai") || configSetting->count("--hint"))
         wordBuilder->setDictionary(dictionary);
 
     std::shared_ptr<TileBag> tileBag = parseTileBag(inFile);
-
-//    // Debugging
-//    while (!tileBag->isEmpty()) {
-//        auto something = tileBag->getBag()->dequeue();
-//        std::cout << something->getLetter() << std::endl;
-//        std::cout << something->getValue() << std::endl;
-//    }
-
 
     PlayerPtr playerTurn = parsePlayerTurn(inFile, players);
 
@@ -284,7 +267,7 @@ PlayerPtr files::parsePlayer(std::ifstream &in)
     return player;
 }
 
-WordBuilderPtr files::parseWordBuilder(std::ifstream &in, bool canGiveHints) {
+WordBuilderPtr files::parseWordBuilder(std::ifstream &in) {
     // parse the WordBuilder's name
     string name;
     std::getline(in, name);
@@ -308,15 +291,13 @@ WordBuilderPtr files::parseWordBuilder(std::ifstream &in, bool canGiveHints) {
         hand != nullptr)
     {
         score = std::stoi(scoreStr);
-        wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
-                                                    "backwardGreedyMap",
-                                                    "sortedMap",
+        // Assign greedyMap, dictionary, board once this function is exited
+        wordBuilder = std::make_shared<WordBuilder>(nullptr,
                                                     nullptr,
                                                     name,
                                                     score,
                                                     hand,
-                                                    nullptr,
-                                                    canGiveHints);
+                                                    nullptr);
     }
 
     // returns nullptr if one of the attributes is invalid

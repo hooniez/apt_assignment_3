@@ -19,7 +19,7 @@
  * Step 1)
  * Each wordBeingBuilt in the provided dictionary is iterated in one character increments
  * and the corresponding frequencies are recorded.
- * For example, if the wordBeingBuilt "GOOD" is processed, forwardGreedyMap generates
+ * For example, if the wordBeingBuilt "GOOD" is processed, forwardMap generates
  * {
  *  "G":{'O':1}, "O":{'O':1}, "O":{'D':1}, "D":{'|':1},
  *  "GO":{'O':1}, "OO":{'d':1}, "OD":{'|':1}
@@ -42,7 +42,7 @@
  *
  * In the same reasoning as above, each of the probabilities above is then multiplied
  * by the score of the corresponding letter (0.5 in the case of '|'). Therefore,
- * Looking up "GOOD" in the final forwardGreedyMap will return
+ * Looking up "GOOD" in the final forwardMap will return
  * {'|': 0.113635, 'S': 0.06818, 'E': 0.09091, 'H': 0.27272, 'I': 0.06818,
  *  'L': 0.13636, 'M': 0.13635, 'N': 0.04545, 'W': 0.36364, 'Y': 0.63636}
  *
@@ -62,12 +62,8 @@
 // TODO fix the error in generating files later
 #include "MapBuilder.h"
 
+
 typedef std::map<char, size_t> letterToScoreMapType;
-typedef std::shared_ptr<letterToScoreMapType> letterToScorePtr;
-
-typedef std::unordered_map<std::string, letterToScorePtr> greedyMapType;
-typedef std::shared_ptr<greedyMapType> greedyMapPtr;
-
 typedef std::map<std::string, letterToScoreMapType> greedyMapBuilder;
 
 class GreedyMapBuilder: public MapBuilder {

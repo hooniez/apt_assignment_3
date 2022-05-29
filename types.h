@@ -47,7 +47,8 @@ enum BoardDir {
     TOP = -BOARD_LENGTH,
     LEFT = -1,
     RIGHT = 1,
-    BOTTOM = BOARD_LENGTH
+    BOTTOM = BOARD_LENGTH,
+    NA = 0
 };
 
 enum AdjacentTileDir {

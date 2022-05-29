@@ -9,9 +9,8 @@ Game::Game(const configSettingPtr& configSetting) : inSession(true), numRounds(0
 {
     initialiseBoard();
     initialiseTileBag();
-    processConfigSetting(configSetting);
+    processConfigSetting();
     initialisePlayers();
-    currPlayer = players[0];
 }
 
 Game::Game(
@@ -33,53 +32,26 @@ Game::Game(
                             wordBuilder(wordBuilder),
                             configSetting(configSetting) {}
 
-
-
-
 Game::~Game() = default;
 
-void Game::processConfigSetting(const configSettingPtr& options) {
-    // If options is not empty
-    if (!options->empty()) {
+// The function below is called only when starting a game
+void Game::processConfigSetting() {
+    // When --ai or --hint is configured, --dictionary will be automatically included.
+    if (configSetting->count("--ai") ||
+        configSetting->count("--hint") ||
+        configSetting->count("--dictionary")) {
         // Create a dictionary as all the options make use of it.
-        // Pass true as the second argument if the validity check is required
-        if (options->count("--dictionary")) {
-            dictionary = std::make_shared<Dictionary>("words", true);
-        } else {
-            dictionary = std::make_shared<Dictionary>("words", false);
-        }
-        // If options includes --ai, create wordBuilder as a player
-        if (options->count("--ai")) {
-            // If options includes --hint, allow wordBuilder to give hints
-            if (options->count("--hint")) {
-                wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
-                                                            "backwardGreedyMap",
-                                                            "sortedMap"
-                                                            "AI",
-                                                            dictionary,
-                                                            board,
-                                                            true);
-            } else {
-                // If options doesn't include --hint, do not allow wordBuilder to give hints
-                wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
-                                                            "backwardGreedyMap",
-                                                            "sortedMap",
-                                                            dictionary,
-                                                            "AI",
-                                                            board,
-                                                            false);
-            }
-        } else if (options->count("--hint")) {
-            // If options includes just --hint, do not create wordBuilder as a player
-            // but allow it to give hints
-            wordBuilder = std::make_shared<WordBuilder>("forwardGreedyMap",
-                                                        "backwardGreedyMap",
-                                                        "sortedMap",
-                                                        dictionary,
-                                                        board,
-                                                        true);
+        dictionary = std::make_shared<Dictionary>("words");
+    }
 
-        }
+    // If options includes --ai or --hint
+    if (configSetting->count("--ai") || configSetting->count("--hint")) {
+        GreedyMapPtr greedyMap = std::make_shared<GreedyMap>();
+        wordBuilder = std::make_shared<WordBuilder>(greedyMap,
+                                                    dictionary,
+                                                    "AI",
+                                                    board);
+
     }
 }
 
@@ -99,8 +71,8 @@ void Game::initialisePlayers()
 {
 
     size_t numHumanPlayers = NUM_PLAYERS;
-    // If the player plays against wordBuilder
-    if (wordBuilder && wordBuilder->isPlaying)
+    // If the player plays against AI
+    if (configSetting->count("--ai"))
         numHumanPlayers = 1;
 
     // Read in the players' names
@@ -111,7 +83,7 @@ void Game::initialisePlayers()
         while (playerNameExists(playerName) && inSession) {
             std::cout << "\nPlease enter a non-existing player name."
                       << std::endl;
-            if (wordBuilder && wordBuilder->isPlaying) {
+            if (configSetting->count("--ai")) {
                 std::cout << "\nIf you are playing against AI, please name yourself other than AI"
                           << std::endl;
             }
@@ -121,8 +93,8 @@ void Game::initialisePlayers()
         players.push_back(std::make_shared<Player>(playerName));
     }
 
-    // If the player plays against wordBuilder
-    if (wordBuilder && wordBuilder->isPlaying)
+    // If the player plays against AI, insert him into players
+    if (configSetting->count("--ai"))
         players.push_back(wordBuilder);
 
     // Draw tiles from tileBag for each player's hand
@@ -133,12 +105,11 @@ void Game::initialisePlayers()
         }
     }
 
-
-
-//    std::cout << (*(*wordBuilder->greedyForwardMap)["A"])['C'] << std::endl;
-
-
-
+    // Randomly assign who is going to play first, including AI
+    std::random_device rd;
+    auto rng = std::default_random_engine {rd()};
+    std::shuffle(std::begin(players), std::end(players), rng);
+    currPlayer = players[0];
 }
 
 // Read a valid player name until it is all in uppercase characters
@@ -186,7 +157,7 @@ bool Game::playerNameExists(const std::string &playerName)
     }
 
     // If a player plays against AI
-    if (wordBuilder && wordBuilder->isPlaying) {
+    if (configSetting->count("--ai")) {
         if (playerName == "AI") {
             nameExists = true;
         }
@@ -200,17 +171,12 @@ void Game::play()
     std::cout << "\nLet's play!"
               << std::endl;
 
-    /*
-     * if played with the --ai configuration on,
-     * the human player always plays first, stored in the first
-     * element of the vector called players
-     */
-
     bool isGameOver = false;
     while (inSession && !isGameOver)
     {
         printCurrTurn();
         if (configSetting->count("--ai")) {
+            wordBuilder->scanTheBoard();
             if (currPlayer == wordBuilder) {
                 auto tileIndices = wordBuilder->getTheBestMove();
                 executePlaceCommand(*tileIndices);
@@ -220,18 +186,14 @@ void Game::play()
             } else {
                 readCommand();
             }
-            wordBuilder->scanTheBoard();
+        } else { // Regular play between players
+            // In order to give a hint, wordBuilder needs to scan the board each turn
+            if (configSetting->count("--hint"))
+                wordBuilder->scanTheBoard();
+            readCommand();
         }
 
-//        readCommand();
 
-
-
-
-
-//        if (wordBuilder && wordBuilder->isPlaying &&
-//            currPlayer->getName() == wordBuilder->getName()) {
-//            wordBuilder->getTheBestMove();
 
 
         // The game ends when the tile bag is empty AND One player has no
@@ -272,14 +234,19 @@ void Game::readCommand()
     // game, the loop is entered again so that he can type in a game-related
     // command (e.g. place, replace, etc)
     bool isSaved = false;
+    // In a similar vein, a boolean variable isHintGiven is used to have the player
+    // type in another command.
+    bool isHintGiven = false;
+
     // Every time commandHandler->getline(std::cin, currPlayer) is invoked,
     // commandHandler's content gets reset. if a command is deemed valid via
     // is<CommandType>CommandValid() for each type, commandHandler->isValid
     // is set to true within the function in CommandHandler class and the
     // command gets executed in Game class.
-    while (!commandHandler->isValid || isSaved)
+    while (!commandHandler->isValid || isSaved || isHintGiven)
     {
         isSaved = false;
+        isHintGiven = false;
         if (commandHandler->getline(std::cin, currPlayer))
         {
             // numTiles the player has placed on the tile is tracked by the
@@ -340,6 +307,16 @@ void Game::readCommand()
             {
                 if (commandHandler->isQuitCommandValid())
                     inSession = false;
+            }
+            else if (configSetting->count("--hint") && commandHandler->firstWord == "hint")
+            {
+                if (commandHandler->isHintCommandValid()) {
+                    wordBuilder->giveHint(currPlayer->getHand());
+                    isHintGiven = true;
+                } else {
+                    std::cout << "Sorry, please enable the hint configuration first" << std::endl;
+                }
+
             }
             else
             {
@@ -463,6 +440,8 @@ void Game::printCurrTurn()
     utils::printBoard(std::cout, board);
     std::cout << std::endl;
     utils::printHand(std::cout, currPlayer->getHand());
+    if (configSetting->count("--hint") && currPlayer != wordBuilder)
+        std::cout << "Type \"hint\" to see the best word to place" << std::endl;
 }
 
 // Print the result when the game ends (If more than one player shares the

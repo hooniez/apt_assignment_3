@@ -3,9 +3,7 @@
 //
 
 #include "Dictionary.h"
-Dictionary::Dictionary(const std::string& dictFileName, bool isCheckingValidity):
-                                                        isCheckingValidity(isCheckingValidity),
-                                                        dict(std::make_shared<dictType>()) {
+Dictionary::Dictionary(const std::string& dictFileName): dict(std::make_shared<dictType>()) {
     // Make sure dict can hold the total number of wordsInQueue in the provided file
     // so that no rehash slows down the loading process
     dict->reserve(TOTAL_WORDS_IN_DIC);
@@ -22,7 +20,7 @@ Dictionary::Dictionary(const std::string& dictFileName, bool isCheckingValidity)
 bool Dictionary::isInDict(std::vector<std::string>& words) {
     bool isAllInDict = false;
     for (auto it = words.cbegin();
-         it != words.cend() && isAllInDict; ++it) {
+         it != words.cend(); ++it) {
         if (dict->count(*it))
             isAllInDict = true;
         else

@@ -9,7 +9,6 @@
 #include <string>
 #include <queue>
 
-
 #include "types.h"
 #include "tile.h"
 #include "player.h"
@@ -20,8 +19,6 @@ typedef std::priority_queue<int, std::vector<int>, std::greater<>> placedIndices
 typedef std::shared_ptr<placedIndicesType> placedIndicesPtr;
 
 class Board {
-
-
 public:
     /*
      * Create a board with a specified width, height and if it is empty
@@ -116,19 +113,33 @@ public:
      *                          Milestone 3 & 4 Below
      */
 
-    // Check whether the placed tiles make up wordsInQueue found in a dict stored in wordBuilder
+    // Check whether the placed tiles make a valid word found in a dictionary
     bool isWordValid(DictionaryPtr dict);
+
+    // This method was created as the previous implementation lacked the easy access of the tiles to be returned.
     std::vector<TilePtr>& getTilesToReturn();
     // Clear the board of invalid tiles and put them in tilesToReturn
     void setTilesToReturn();
-    placedIndicesPtr getPlacedIndices();
-    Angle getPlacedDir();
-    // Reduce the dimensionality
+
+    /*
+     * Guided by the good people on stackoverflow (https://stackoverflow.com/questions/17259877/1d-or-2d-array-whats-faster),
+     * The 2 dimensional representation of the board is reduced to one dimension as the speed of the AI algorithm
+     * is factored in as part of the assessment.
+     */
     void trackPlacedTiles();
-    Value getValue(int idx);
+
+    // Getters and setters for working with the 1 dimensional array to be used in WordBuilder
     std::string getLetters(int idx);
-    Letter getLetter(int idx);
     bool hasPlacedTile(int idx);
+    Value getValue(int idx);
+    Letter getLetter(int idx);
+
+    // Get the indices of the tiles placed in the previous turn to be processed by WordBuilder
+    placedIndicesPtr getPlacedIndices();
+    // Get the angle at which tiles were placed in the previous turn.
+    Angle getPlacedDir();
+    // The method used to update placedIndices after loading a saved file
+    void setPlacedIndices();
 
 private:
     std::vector<std::vector<TilePtr> > board;
@@ -147,12 +158,17 @@ private:
 
     // If tiles placed are deemed invalid, they are put back in tilesToReturn.
     std::vector<TilePtr> tilesToReturn;
+    // currWords as a data member missing in the previous milestone, which stores currWords built in the previous turn
     std::vector<std::string> currWords;
+    // placedDir denotes whether words are placed horizontally or vertically
     Angle placedDir;
-    // placedIndices is cleared at the beginning of the turn and filled with the
-    // placedIndices converted from gridLocs belonging to the tiles placed
+    // placedIndices stores 1 dimensional indices at which tiles are placed in the previous turn so that
+    // AdjacentTiles can be created or updated accordingly.
     placedIndicesPtr placedIndices;
+    // the placedBoard array is used to work with the 1 dimensional array in WordBuilder and checks whether
+    // a letter has been placed at a given index.
     bool placedBoard[BOARD_LENGTH * BOARD_LENGTH];
+
 
 
 };

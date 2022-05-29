@@ -22,10 +22,9 @@ typedef std::shared_ptr<dictType> dictPtr;
 
 class Dictionary {
 public:
-    Dictionary(const std::string& dictFileName, bool isCheckingValidity);
+    Dictionary(const std::string& dictFileName);
     bool isInDict(std::vector<std::string>& words);
     bool isInDict(std::string& word);
-    bool isCheckingValidity;
 private:
     dictPtr dict;
 

@@ -29,6 +29,7 @@ public:
     bool isPassCommmandValid();
     bool isSaveCommandValid();
     bool isQuitCommandValid();
+    bool isHintCommandValid();
     std::vector<std::string> playerCommand;
     std::string firstWord;
     bool isValid;
