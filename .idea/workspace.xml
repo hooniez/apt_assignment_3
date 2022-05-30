@@ -184,7 +184,7 @@
       <workItem from="1653189152197" duration="19775000" />
       <workItem from="1653255195099" duration="531000" />
       <workItem from="1653255866090" duration="380303000" />
-      <workItem from="1653866555088" duration="5280000" />
+      <workItem from="1653866555088" duration="5775000" />
     </task>
     <servers />
   </component>
@@ -209,11 +209,6 @@
           <url>file://$PROJECT_DIR$/board.cpp</url>
           <line>481</line>
           <option name="timeStamp" value="399" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/GreedyMap.cpp</url>
-          <line>37</line>
-          <option name="timeStamp" value="400" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
