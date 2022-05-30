@@ -386,7 +386,7 @@ bool Board::checkAllOnTheSameLine() {
                 }
                 col++;
             }
-            /* The wordBeingBuilt has a up down direction, check that all letters are on
+            /* The word has a up down direction, check that all letters are on
              * the updown
              */
         }
@@ -554,9 +554,6 @@ bool Board::isPlacementValid(){
     bool lettersValid = checkAdjacentTiles();
     if (lettersValid)
         lettersValid = checkAllOnTheSameLine();
-//    if (misEmpty)
-//        lettersValid = checkTheFirstPlacement();
-
     // Return a nullptr in the returnVector if the letters are valid
     if (lettersValid) {
         // Fill the data member currWords with all the wordsInQueue created by
@@ -586,12 +583,8 @@ bool Board::setTile(std::tuple<int, int> coords, TilePtr tile) {
      */
     // TODO get rid of the test when it is confirmed wordBuilder works without error
     if (board[std::get<X>(coords)][std::get<Y>(coords)] == nullptr)
-    {
-        board[std::get<X>(coords)][std::get<Y>(coords)] = tile;
-        // TODO if a bug is thrown, look into this line more closely
-    }
-    else
-    {
+        board[std::get<X>(coords)][std::get<Y>(coords)] = std::move(tile);
+    else {
         std::cout
                 << "Board: Received a already used tile space"
                 << " as new tile location."
@@ -610,7 +603,7 @@ bool Board::setTile(std::tuple<int, int> coords, TilePtr tile) {
  *                          Milestone 3 & 4 Below
  */
 
-bool Board::isWordValid(DictionaryPtr dict) {
+bool Board::isWordValid(const DictionaryPtr& dict) {
     bool isValid = false;
 
     // User dict to check whether wordsInQueue are valid
@@ -627,9 +620,9 @@ std::vector<TilePtr>& Board::getTilesToReturn() {
 }
 
 void Board::setTilesToReturn() {
-    for (auto it = gridLocs.cbegin(); it != gridLocs.cend(); ++it) {
-        tilesToReturn.push_back(board[(*it)[0]][(*it)[1]]);
-        board[(*it)[X]][(*it)[Y]] = nullptr;
+    for (const auto & gridLoc : gridLocs) {
+        tilesToReturn.push_back(board[gridLoc[0]][gridLoc[1]]);
+        board[gridLoc[X]][gridLoc[Y]] = nullptr;
     }
 }
 
@@ -643,9 +636,9 @@ void Board::trackPlacedTiles() {
     int x = 0;
     int y = 0;
     int index;
-    for (auto it = gridLocs.cbegin(); it != gridLocs.cend(); ++it) {
-        x = (*it)[X];
-        y = (*it)[Y];
+    for (const auto & gridLoc : gridLocs) {
+        x = gridLoc[X];
+        y = gridLoc[Y];
         index = (BOARD_LENGTH * x) + y;
         placedIndices->push(index);
         placedBoard[index] = true;
@@ -654,7 +647,7 @@ void Board::trackPlacedTiles() {
 }
 
 std::string Board::getLetters(int idx) {
-    return std::string(1, board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getLetter());
+    return {1, board[idx / BOARD_LENGTH][idx % BOARD_LENGTH]->getLetter()};
 }
 
 bool Board::hasPlacedTile(int idx) {

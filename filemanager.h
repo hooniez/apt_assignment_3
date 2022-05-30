@@ -14,18 +14,28 @@ namespace files
     void saveGame(std::vector<PlayerPtr> players,
                   BoardPtr board, TileBagPtr tileBag, PlayerPtr currPlayer,
                   configSettingPtr configSetting, const std::string &fileName);
-    std::shared_ptr<Game> loadGame(std::string fileName);
     configSettingPtr parseConfigSetting(std::ifstream &in);
     PlayerPtr parsePlayerTurn(std::ifstream &in,
                               std::vector<PlayerPtr> players);
-    LinkedListPtr<TilePtr> parseTiles(std::string tileStr);
     PlayerPtr parsePlayer(std::ifstream &in);
-    WordBuilderPtr parseWordBuilder(std::ifstream &in);
     BoardPtr parseBoard(std::ifstream &in);
     std::shared_ptr<TileBag> parseTileBag(std::ifstream &in);
     int createSubString(std::string &parentStr,
                         std::string &outputStr, unsigned int i);
     bool isNumber(std::string string);
+
+    /*                          Milestone 1 & 2 Above
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     * -------------------------------------------------------------------
+     *                          Milestone 3 & 4 Below
+     *                          (including the functions edited)
+     */
+
+    std::shared_ptr<Game> loadGame(std::string fileName);
+    WordBuilderPtr parseWordBuilder(std::ifstream &in);
+    LinkedListPtr<TilePtr> parseTiles(std::string tileStr);
 }
 
 #endif // ASSIGNMENT2_FILES_H

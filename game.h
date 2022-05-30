@@ -30,7 +30,7 @@
 class Game
 {
 public:
-    Game(const configSettingPtr&);
+    Game(configSettingPtr );
     Game(configSettingPtr configSetting,
         std::vector<PlayerPtr> players,
         BoardPtr board,
@@ -38,12 +38,12 @@ public:
         PlayerPtr playerTurn,
         WordBuilderPtr wordBuilder,
         DictionaryPtr dictionary);
-    Game(const configSettingPtr& configSetting,
-         const WordBuilderPtr& wordBuilder1,
-         const WordBuilderPtr& wordBuilder2);
-    Game(const configSettingPtr& configSetting,
-         const WordBuilderPtr& wordBuilder1,
-         const WordBuilderPtr& wordBuilder2,
+    Game(configSettingPtr  configSetting,
+         WordBuilderPtr  wordBuilder1,
+         WordBuilderPtr  wordBuilder2);
+    Game(configSettingPtr  configSetting,
+         WordBuilderPtr  wordBuilder1,
+         WordBuilderPtr  wordBuilder2,
          std::vector<PlayerPtr> players,
          BoardPtr board,
          std::shared_ptr<TileBag> tileBag,
@@ -53,7 +53,7 @@ public:
 
 
     ~Game();
-    // Process options read from the command-line and accordingly initialise data members and run the game
+    // Process options read from the command-line and initialise data members
     void processConfigSetting();
     void initialiseBoard();
     void initialiseTileBag();

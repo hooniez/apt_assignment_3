@@ -5,11 +5,13 @@
 #include "AdjacentTile.h"
 
 /*
- * Depending on the direction from the placedTile (the reference point) to AdjacentTile,
- * store the letters of the placedTiles in appropriate positions.
+ * Depending on the direction from the placedTile (the reference point)
+ * to AdjacentTile, store the letters of the placedTiles in appropriate
+ * positions.
  *
- * (e.g. if fromPlacedTile is TOP, AdjacentTile is created above the placedTile. Therefore, the letters
- *  of the placedTile should be stored in the DOWNWARD position of adjacentLetters.
+ * (e.g. if fromPlacedTile is TOP, AdjacentTile is created above the placedTile.
+ * Therefore, the letters of the placedTile should be stored in the DOWNWARD
+ * position of adjacentLetters.
  */
 AdjacentTile::AdjacentTile(int potentialScore,
                            const std::string & lettersToStore,
@@ -29,7 +31,11 @@ AdjacentTile::AdjacentTile(int potentialScore,
     }
 }
 
-// Update the contents of a particular position in adjacentLetters depending on the value of fromPalcedTile
+/*
+ * Update the contents of a particular position in adjacentLetters
+ * depending on the value of fromPalcedTile.
+ */
+
 void AdjacentTile::update(int potentialScore,
                           const std::string & lettersToStore,
                           BoardDir fromPlacedTile) {
@@ -45,8 +51,11 @@ void AdjacentTile::update(int potentialScore,
         idx = RIGHTWARD;
     }
 
-    // Also calculate an existing letter(s)' score and then subtract it from the total potentialScores
-    // before updating it to a new value.
+    /*
+     * Also calculate an existing letter(s)' score and
+     * then subtract it from the total potentialScores
+     * before updating it to a new value.
+     */
     size_t existingScore = 0;
     for (char ch: adjacentLetters[idx]) {
         existingScore += letterScoreMap.at(ch);

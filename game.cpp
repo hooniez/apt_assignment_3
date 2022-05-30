@@ -1,10 +1,12 @@
 #include "game.h"
+
+#include <utility>
 #include "filemanager.h"
 
-Game::Game(const configSettingPtr& configSetting) : inSession(true), numRounds(0),
+Game::Game(configSettingPtr  configSetting) : inSession(true), numRounds(0),
                                                     commandHandler(std::make_shared<CommandHandler>()),
                                                     dictionary(nullptr), wordBuilder(nullptr),
-                                                    configSetting(configSetting)
+                                                    configSetting(std::move(configSetting))
 
 {
     initialiseBoard();
@@ -21,27 +23,27 @@ Game::Game(
         PlayerPtr playerTurn,
         WordBuilderPtr wordBuilder,
         DictionaryPtr dictionary):
-                            currPlayer(playerTurn),
-                            players(players),
-                            board(board),
-                            tileBag(tileBag),
+                            currPlayer(std::move(playerTurn)),
+                            players(std::move(players)),
+                            board(std::move(board)),
+                            tileBag(std::move(tileBag)),
                             inSession(true),
                             numRounds(0),
                             commandHandler(std::make_shared<CommandHandler>()),
-                            dictionary(dictionary),
-                            wordBuilder(wordBuilder),
-                            configSetting(configSetting) {}
+                            dictionary(std::move(dictionary)),
+                            wordBuilder(std::move(wordBuilder)),
+                            configSetting(std::move(configSetting)) {}
 
 
-Game::Game(const configSettingPtr& configSetting,
-           const WordBuilderPtr& wordBuilder1,
-           const WordBuilderPtr& wordBuilder2):
+Game::Game(configSettingPtr  configSetting,
+           WordBuilderPtr  wordBuilder1,
+           WordBuilderPtr  wordBuilder2):
            inSession(true),
            numRounds(0),
            dictionary(nullptr),
-           wordBuilder(wordBuilder1),
-           wordBuilder2(wordBuilder2),
-           configSetting(configSetting)
+           wordBuilder(std::move(wordBuilder1)),
+           wordBuilder2(std::move(wordBuilder2)),
+           configSetting(std::move(configSetting))
 
 {
     initialiseBoard();
@@ -50,28 +52,28 @@ Game::Game(const configSettingPtr& configSetting,
     initialisePlayers();
 }
 
-Game::Game(const configSettingPtr& configSetting,
-           const WordBuilderPtr& wordBuilder1,
-           const WordBuilderPtr& wordBuilder2,
+Game::Game(configSettingPtr  configSetting,
+           WordBuilderPtr  wordBuilder1,
+           WordBuilderPtr  wordBuilder2,
            std::vector<PlayerPtr> players,
            BoardPtr board,
            std::shared_ptr<TileBag> tileBag,
            PlayerPtr playerTurn,
            DictionaryPtr dictionary):
-           currPlayer(playerTurn),
-           players(players),
-           board(board),
-           tileBag(tileBag),
+           currPlayer(std::move(playerTurn)),
+           players(std::move(players)),
+           board(std::move(board)),
+           tileBag(std::move(tileBag)),
            inSession(true),
            numRounds(0),
-           dictionary(dictionary),
-           wordBuilder(wordBuilder1),
-           wordBuilder2(wordBuilder2),
-           configSetting(configSetting) {}
+           dictionary(std::move(dictionary)),
+           wordBuilder(std::move(wordBuilder1)),
+           wordBuilder2(std::move(wordBuilder2)),
+           configSetting(std::move(configSetting)) {}
 
 Game::~Game() = default;
 
-// The function below is called only when starting a game
+// The function below is called only when starting a new game
 void Game::processConfigSetting() {
     // When --ai or --hint is configured, --dictionary will be automatically included.
     if (configSetting->count("--ai") ||
@@ -89,12 +91,19 @@ void Game::processConfigSetting() {
                                                     "AI",
                                                     board);
 
+        AdjacentTilesPtr adjacentTilesPtr =
+                std::make_shared<std::vector<AdjacentTilePtr>>(
+                        BOARD_LENGTH * BOARD_LENGTH, nullptr);
+        wordBuilder->setAdjacentTiles(adjacentTilesPtr);
+
     }
 
     if (configSetting->count("--battle")) {
         wordBuilder->setBoard(board);
         wordBuilder2->setBoard(board);
-        AdjacentTilesPtr adjacentTilesPtr = std::make_shared<std::vector<AdjacentTilePtr>>(BOARD_LENGTH * BOARD_LENGTH, nullptr);
+        AdjacentTilesPtr adjacentTilesPtr =
+                std::make_shared<std::vector<AdjacentTilePtr>>
+                (BOARD_LENGTH * BOARD_LENGTH, nullptr);
         wordBuilder->setAdjacentTiles(adjacentTilesPtr);
         wordBuilder2->setAdjacentTiles(adjacentTilesPtr);
         wordBuilder->resetNumPasses();
@@ -135,7 +144,8 @@ void Game::initialisePlayers()
             std::cout << "\nPlease enter a non-existing player name."
                       << std::endl;
             if (configSetting->count("--ai")) {
-                std::cout << "\nIf you are playing against AI, please name yourself other than AI"
+                std::cout <<
+                "\nIf you are playing against AI, please use a different name"
                           << std::endl;
             }
             playerName = readPlayerName(i);
@@ -228,6 +238,7 @@ bool Game::play()
               << std::endl;
 
     bool isGameOver = false;
+    WordBuilderPtr currWordBuilder;
     while (inSession && !isGameOver)
     {
         printCurrTurn();
@@ -245,39 +256,29 @@ bool Game::play()
                 readCommand();
             }
         } else if (configSetting->count("--battle")) {
-            if (currPlayer == wordBuilder) {
-                wordBuilder->scanTheBoard();
-                tileIndices = wordBuilder->getTheBestMove();
-                if (tileIndices != nullptr) {
-                    executePlaceCommand(*tileIndices);
-                    size_t numTilesPlaced = tileIndices->size();
-                    board->makeCurrWords();
-                    executePlaceDoneCommand(numTilesPlaced);
-                }
-            } else {
-                wordBuilder2->scanTheBoard();
-                tileIndices = wordBuilder2->getTheBestMove();
-                if (tileIndices != nullptr) {
-                    executePlaceCommand(*tileIndices);
-                    size_t numTilesPlaced = tileIndices->size();
-                    board->makeCurrWords();
-                    executePlaceDoneCommand(numTilesPlaced);
-                }
+            if (currPlayer == wordBuilder)
+                currWordBuilder = wordBuilder;
+            else
+                currWordBuilder = wordBuilder2;
+            currWordBuilder->scanTheBoard();
+            tileIndices = currWordBuilder->getTheBestMove();
+            if (tileIndices != nullptr) {
+                executePlaceCommand(*tileIndices);
+                size_t numTilesPlaced = tileIndices->size();
+                board->makeCurrWords();
+                executePlaceDoneCommand(numTilesPlaced);
             }
         } else { // Regular play between players
-            // In order to give a hint, wordBuilder needs to scan the board each turn
+            // To give a hint, wordBuilder needs to scan the board each turn
             if (configSetting->count("--hint"))
                 wordBuilder->scanTheBoard();
             readCommand();
         }
 
-
-
-
-
-
-        // The game ends when the tile bag is empty AND One player has no
-        // more tiles in his/her hand OR passes his turn twice
+        /*
+         * The game ends when the tile bag is empty AND One player has no
+         * more tiles in his/her hand OR passes his turn twice
+         */
         if (tileBag->isEmpty())
         {
             // Check if the player has passed this turn
@@ -297,8 +298,10 @@ bool Game::play()
                     currPlayer->resetNumPasses();
                 }
             }
-            // One player has no more tiles in their hands OR passes his
-            // turn twice
+            /*
+             * One player has no more tiles in their hands OR passes his turn
+             * twice
+             */
             if (currPlayer->getHand()->getLength() == 0 ||
                 currPlayer->hasPassedTwie())
             {
@@ -313,25 +316,34 @@ bool Game::play()
     return isGameOver;
 }
 
-// readCommand reads only once for every command except for the place
-// command, which is read multiple times until "place Done"
+/*
+ * readCommand reads only once for every command except for the place
+ * command, which is read multiple times until "place Done"
+ */
 void Game::readCommand()
 {
     // Assume each command is invalid at the entry point and validate it.
     commandHandler->isValid = false;
-    // If isSaved is set to True within the loop when the player saves the
-    // game, the loop is entered again so that he can type in a game-related
-    // command (e.g. place, replace, etc)
+    /*
+     * If isSaved is set to True within the loop when the player saves the
+     * game, the loop is entered again so that he can type in a game-related
+     * command (e.g. place, replace, etc)
+     */
     bool isSaved = false;
-    // In a similar vein, a boolean variable isHintGiven is used to have the player
-    // type in another command.
+    /*
+     * In a similar vein, a boolean variable isHintGiven is used to have the
+     * player type in another command.
+     */
     bool isHintGiven = false;
 
-    // Every time commandHandler->getline(std::cin, currPlayer) is invoked,
-    // commandHandler's content gets reset. if a command is deemed valid via
-    // is<CommandType>CommandValid() for each type, commandHandler->isValid
-    // is set to true within the function in CommandHandler class and the
-    // command gets executed in Game class.
+    /*
+     * Every time commandHandler->getline(std::cin, currPlayer) is invoked,
+     * commandHandler's content gets reset. if a command is deemed valid via
+     * is<CommandType>CommandValid() for each type, commandHandler->isValid
+     * is set to true within the function in CommandHandler class and
+     * the command gets executed in Game class.
+     */
+
     while (!commandHandler->isValid || isSaved || isHintGiven)
     {
         isSaved = false;
@@ -357,7 +369,8 @@ void Game::readCommand()
                         auto secondWord = commandHandler->playerCommand[1];
                         if (firstWord == "place" && secondWord == "Done")
                         {
-                            if (commandHandler->isPlaceDoneCommandValid(board, dictionary))
+                            if (commandHandler->
+                                isPlaceDoneCommandValid(board, dictionary))
                                 executePlaceDoneCommand(numTilesPlaced);
                             placeDoneTyped = true;
                         }
@@ -397,13 +410,16 @@ void Game::readCommand()
                 if (commandHandler->isQuitCommandValid())
                     inSession = false;
             }
-            else if (configSetting->count("--hint") && commandHandler->firstWord == "hint")
+            else if (configSetting->count("--hint") &&
+                     commandHandler->firstWord == "hint")
             {
                 if (commandHandler->isHintCommandValid()) {
                     wordBuilder->giveHint(currPlayer->getHand());
                     isHintGiven = true;
                 } else {
-                    std::cout << "Sorry, please enable the hint configuration first" << std::endl;
+                    std::cout <<
+                    "Sorry, please enable the hint configuration first"
+                    << std::endl;
                 }
 
             }
@@ -420,8 +436,10 @@ void Game::readCommand()
     }
 }
 
-// Execute a regular place command (This function can only be invoked once
-// the command is validated)
+/*
+ * Execute a regular place command (This function can only be invoked once
+ * the command is validated)
+ */
 void Game::executePlaceCommand(size_t &numTilesPlaced)
 {
     std::string gridLoc = commandHandler->playerCommand[3];
@@ -511,7 +529,12 @@ void Game::executeSaveCommand()
 
     try
     {
-        files::saveGame(players, board, tileBag, currPlayer, configSetting, fileName);
+        files::saveGame(players,
+                        board,
+                        tileBag,
+                        currPlayer,
+                        configSetting,
+                        fileName);
         std::cout << "\nGame successfully saved\n"
                   << std::endl;
     }

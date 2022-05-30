@@ -63,6 +63,7 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
 
     std::vector<PlayerPtr> players;
     PlayerPtr player;
+    // Vary the number of players depending on the configSetting
     size_t numHumanPlayers = NUM_PLAYERS;
     if (configSetting->count("--ai")) {
         numHumanPlayers = 1;
@@ -71,17 +72,29 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
         numHumanPlayers = 0;
     }
 
+    /*
+     * In the AI configuration, either a human player or AI can start first.
+     * Make sure to peek at the first line of a file to decide who needs to
+     * be created first.
+     */
+    bool aiNameFirst = false;
+    if (configSetting->count("--ai")) {
+        std::string firstName;
+        int len = inFile.tellg();
+
+        getline(inFile, firstName);
+
+        if (firstName == "AI")
+            aiNameFirst = true;
+
+        inFile.seekg(len, std::ios_base::beg);
+    }
+
     for (int i = 0; i < numHumanPlayers; ++i)
     {
-
-        player = files::parsePlayer(inFile);
-        if (player != nullptr)
-        {
+        if (!aiNameFirst) {
+            player = files::parsePlayer(inFile);
             players.push_back(player);
-        }
-        else
-        {
-            invalid = true;
         }
     }
 
@@ -90,11 +103,11 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     // both --ai and --hint requires the instantiation of a wordBuilder
     if (configSetting->count("--ai")) {
         wordBuilder = files::parseWordBuilder(inFile);
-
-        if (wordBuilder != nullptr)
-            players.push_back(wordBuilder);
-        else
-            invalid = true;
+        players.push_back(wordBuilder);
+        if (aiNameFirst) {
+            player = files::parsePlayer(inFile);
+            players.push_back(player);
+        }
     } else if (configSetting->count("--battle")) {
         wordBuilder = files::parseWordBuilder(inFile);
         wordBuilder2 = files::parseWordBuilder(inFile);
@@ -119,7 +132,10 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
     }
 
     BoardPtr board = files::parseBoard(inFile);
-    // Now that board is parsed, allow wordBuilder, if it exists, to store board as its data member
+    /*
+     * Now that board is parsed, allow wordBuilder, if it exists, to store
+     * board as its data member
+     */
     if (configSetting->count("--ai") || configSetting->count("--hint")) {
         wordBuilder->setBoard(board);
         board->setPlacedIndices();
@@ -128,7 +144,9 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
         wordBuilder2->setBoard(board);
     }
 
-    AdjacentTilesPtr adjacentTiles = std::make_shared<std::vector<AdjacentTilePtr>>(BOARD_LENGTH * BOARD_LENGTH, nullptr);
+    AdjacentTilesPtr adjacentTiles =
+            std::make_shared<std::vector<AdjacentTilePtr>>(
+                    BOARD_LENGTH * BOARD_LENGTH, nullptr);
     if (configSetting->count("--ai") || configSetting->count("--hint")) {
         wordBuilder->setAdjacentTiles(adjacentTiles);
     } else if (configSetting->count("--battle")) {
@@ -155,6 +173,14 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
 
     PlayerPtr playerTurn = parsePlayerTurn(inFile, players);
 
+    // If the player in playerTurn is not found in the first element of players,
+    if (playerTurn != players[0]) {
+        PlayerPtr temp;
+        temp = players[0];
+        players[0] = players[1];
+        players[1] = temp;
+    }
+
     std::shared_ptr<Game> game = nullptr;
 
     /*
@@ -162,16 +188,36 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
      * unable to be loaded
      */
     if (!invalid &&
+        player != nullptr &&
         board != nullptr &&
         tileBag != nullptr &&
         playerTurn != nullptr)
     {
         if (configSetting->empty()) {
-            game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn, nullptr, nullptr);
+            game = std::make_shared<Game>(configSetting,
+                                          players,
+                                          board,
+                                          tileBag,
+                                          playerTurn,
+                                          nullptr,
+                                          nullptr);
         } else if (!configSetting->count("--battle")){
-            game = std::make_shared<Game>(configSetting, players, board, tileBag, playerTurn, wordBuilder, dictionary);
+            game = std::make_shared<Game>(configSetting,
+                                          players,
+                                          board,
+                                          tileBag,
+                                          playerTurn,
+                                          wordBuilder,
+                                          dictionary);
         } else {
-            game = std::make_shared<Game>(configSetting, wordBuilder, wordBuilder2, players, board, tileBag, playerTurn, dictionary);
+            game = std::make_shared<Game>(configSetting,
+                                          wordBuilder,
+                                          wordBuilder2,
+                                          players,
+                                          board,
+                                          tileBag,
+                                          playerTurn,
+                                          dictionary);
         }
 
     }
@@ -180,10 +226,10 @@ std::shared_ptr<Game> files::loadGame(std::string fileName)
 }
 
 /*
- * Read the first line of the file to find out the configuration setting of the game
- * If it is a regular game without any extra configuration, the file starts with an empty line
- * Otherwise, such configuration options as --ai, --dictionary, or --hint will be read
- * on the first line
+ * Read the first line of the file to find out the configuration setting of
+ * the game. If it is a regular game without any extra configuration, the file
+ * starts with an empty line. Otherwise, such configuration options as --ai,
+ * --dictionary, or --hint will be read on the first line.
  */
 configSettingPtr files::parseConfigSetting(std::ifstream &in) {
     configSettingPtr configSetting = std::make_shared<configSettingType>();
@@ -403,7 +449,8 @@ BoardPtr files::parseBoard(std::ifstream &in)
             coord = rowLabel + std::to_string(k);
             if (isalpha(rowStr[j]))
             {
-                board->setTile(coord, std::make_shared<Tile>(rowStr[j]));
+                board->setTile(coord,
+                               std::make_shared<Tile>(rowStr[j]));
                 addedTileFlag = true;
             }
         }
@@ -442,11 +489,19 @@ LinkedListPtr<TilePtr> files::parseTiles(std::string tileStr)
     {
         std::istringstream iss(tileStr);
         std::string whitespaceDiscarded;
-        while (std::getline(iss, letter, '-') && std::getline(iss, val, ',') && std::getline(iss, whitespaceDiscarded, ' ')) {
+        while (std::getline(iss, letter, '-') &&
+               std::getline(iss, val, ',') &&
+               std::getline(iss,whitespaceDiscarded, ' ')) {
             tiles->append(std::make_shared<Tile>(
                     letter[0], std::stoi(val)));
         }
     }
+    /*
+     * When the last tile is read, while loop exits as eof is read. Append
+     * the last tile outside the loop.
+     */
+    tiles->append(std::make_shared<Tile>(
+            letter[0], std::stoi(val)));
 
     if (tiles->getLength() < 1)
     {

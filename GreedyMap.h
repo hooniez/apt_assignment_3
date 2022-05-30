@@ -5,6 +5,11 @@
 #ifndef ASSIGNMENT3_GREEDYMAP_H
 #define ASSIGNMENT3_GREEDYMAP_H
 
+/*
+ * GreedyMap was initially preprocessed from the provided dictionary such
+ * that each
+ */
+
 #include <unordered_map>
 #include <map>
 #include <string>
@@ -14,10 +19,10 @@
 
 #include "types.h"
 
-typedef std::map<char, size_t> letterToScoreMapType;
-typedef std::shared_ptr<letterToScoreMapType> letterToScorePtr;
+typedef std::set<char> extendableLettersType;
+typedef std::shared_ptr<extendableLettersType> extendableLettersPtr;
 
-typedef std::unordered_map<std::string, letterToScorePtr> greedyMapType;
+typedef std::unordered_map<std::string, extendableLettersPtr> greedyMapType;
 typedef std::shared_ptr<greedyMapType> mapPtr;
 
 class GreedyMap {
@@ -26,7 +31,7 @@ public:
     mapPtr forward;
     mapPtr backward;
 
-    void readFileToMap(const std::string&, mapPtr&);
+    static void readFileToMap(const std::string&, mapPtr&);
 };
 
 typedef std::shared_ptr<GreedyMap> GreedyMapPtr;

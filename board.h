@@ -15,7 +15,8 @@
 #include "Dictionary.h"
 
 // The min-heap syntax
-typedef std::priority_queue<int, std::vector<int>, std::greater<>> placedIndicesType;
+typedef std::priority_queue<int, std::vector<int>,
+        std::greater<>> placedIndicesType;
 typedef std::shared_ptr<placedIndicesType> placedIndicesPtr;
 
 class Board {
@@ -95,8 +96,9 @@ public:
     Angle getWordDirection(std::vector<int> &location1,
                            std::vector<int> &location2);
 
-    // Get all the wordsInQueue created by the letters put on the board in the current turn &
-    // store them in the data member currWords if all are valid.
+    // Get all the words created by the letters put on the board
+    // in the current turn & store them in the data member currWords if all
+    // are valid.
     void makeCurrWords();
 
     // Return the vector currWords that contains all the valid wordsInQueue
@@ -114,27 +116,36 @@ public:
      */
 
     // Check whether the placed tiles make a valid word found in a dictionary
-    bool isWordValid(DictionaryPtr dict);
+    bool isWordValid(const DictionaryPtr& dict);
 
-    // This method was created as the previous implementation lacked the easy access of the tiles to be returned.
+    /* This method was created as the previous implementation lacked the easy
+     * access of the tiles to be returned.
+     */
     std::vector<TilePtr>& getTilesToReturn();
     // Clear the board of invalid tiles and put them in tilesToReturn
     void setTilesToReturn();
 
     /*
-     * Guided by the good people on stackoverflow (https://stackoverflow.com/questions/17259877/1d-or-2d-array-whats-faster),
-     * The 2 dimensional representation of the board is reduced to one dimension as the speed of the AI algorithm
-     * is factored in as part of the assessment.
+     * Guided by the good people on stackoverflow
+     * (https://stackoverflow.com/questions/17259877/1d-or-2d-array-whats-faster),
+     * The 2 dimensional representation of the board is reduced to one dimension
+     * as the speed of the AI algorithm is assessed.
      */
     void trackPlacedTiles();
 
-    // Getters and setters for working with the 1 dimensional array to be used in WordBuilder
+    /*
+     * Getters and setters for working with the 1 dimensional array
+     * to be used in WordBuilder
+     */
     std::string getLetters(int idx);
     bool hasPlacedTile(int idx);
     Value getValue(int idx);
     Letter getLetter(int idx);
 
-    // Get the indices of the tiles placed in the previous turn to be processed by WordBuilder
+    /*
+     * Get the indices of the tiles placed in the previous turn
+     * to be processed by WordBuilder
+     */
     placedIndicesPtr getPlacedIndices();
     // Get the angle at which tiles were placed in the previous turn.
     Angle getPlacedDir();
@@ -158,15 +169,23 @@ private:
 
     // If tiles placed are deemed invalid, they are put back in tilesToReturn.
     std::vector<TilePtr> tilesToReturn;
-    // currWords as a data member missing in the previous milestone, which stores currWords built in the previous turn
+    /*
+     * currWords as a data member was absent in the previous milestone,
+     * which stores currWords built in the previous turn
+     */
     std::vector<std::string> currWords;
     // placedDir denotes whether words are placed horizontally or vertically
     Angle placedDir;
-    // placedIndices stores 1 dimensional indices at which tiles are placed in the previous turn so that
-    // AdjacentTiles can be created or updated accordingly.
+    /*
+     * placedIndices stores 1 dimensional indices at which tiles are placed
+     * in the previous turn so that AdjacentTiles can be created or updated
+     * accordingly.
+     */
     placedIndicesPtr placedIndices;
-    // the placedBoard array is used to work with the 1 dimensional array in WordBuilder and checks whether
-    // a letter has been placed at a given index.
+    /*
+     * the placedBoard array is used to work with the 1 dimensional array in
+     * WordBuilder and checks whether a letter has been placed at a given index.
+     */
     bool placedBoard[BOARD_LENGTH * BOARD_LENGTH];
 
 

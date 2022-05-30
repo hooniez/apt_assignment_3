@@ -133,10 +133,6 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
                     }
                 }
 
-                //debugging
-                if (lettersInHand == "INSNCSP" && at->idx == 123)
-                    std::cout << "HERE";
-
                 // If letters can be extended
                 if (forwardWordExists || backwardWordExists) {
                     std::string lettersCopy(lettersInHand);
@@ -417,11 +413,6 @@ void WordBuilder::buildWordForwards(int forwardIdx,
                         buildWordForwards(forwardIdxToSearch, backwardIdx, currLine, angle, newWord);
                     }
 
-                    // Debugging
-                    if (newWord->wordBeingBuilt == "PSI") {
-                        std::cout << "here";
-                    }
-
                     // Add a word if it exists in a dictionary
                     if (dictionary->isInDict(newWord->wordBeingBuilt))
                         wordsInQueue->push(newWord);
@@ -554,12 +545,6 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
                     if (isForwardable && isEmptyTileOnTheSameLine(forwardIdx, currLine, angle)) {
                         buildWordForwards(forwardIdx, backwardIdxToSearch, currLine, angle, newWord);
                     }
-
-                    // Debugging
-                    if (newWord->wordBeingBuilt == "PSI") {
-                        std::cout << "here";
-                    }
-
 
                     // Add a word if it exists in a dictionary
                     if (dictionary->isInDict(newWord->wordBeingBuilt))

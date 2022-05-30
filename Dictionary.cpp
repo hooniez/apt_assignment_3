@@ -3,9 +3,10 @@
 //
 
 #include "Dictionary.h"
-Dictionary::Dictionary(const std::string& dictFileName): dict(std::make_shared<dictType>()) {
-    // Make sure dict can hold the total number of wordsInQueue in the provided file
-    // so that no rehash slows down the loading process
+Dictionary::Dictionary(const std::string& dictFileName):
+dict(std::make_shared<dictType>()) {
+    // Make sure dict can hold the total number of words in the provided file
+    // so that rehash does not slow down the loading process
     dict->reserve(TOTAL_WORDS_IN_DIC);
 
     // Read wordsInQueue in the file into dict

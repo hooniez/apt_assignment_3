@@ -6,8 +6,7 @@
 #define ASSIGNMENT3_GREEDYMAPBUILDER_H
 
 #include "MapBuilder.h"
-typedef std::map<char, size_t> letterToScoreMapType;
-typedef std::map<std::string, letterToScoreMapType> greedyMapBuilder;
+typedef std::map<std::string, std::set<char>> greedyMapBuilder;
 
 /*
  * GreedyMapBuilder was used to create the text files called backwardMap and forwardMap so that
@@ -48,8 +47,8 @@ typedef std::map<std::string, letterToScoreMapType> greedyMapBuilder;
 class GreedyMapBuilder: public MapBuilder {
 public:
     GreedyMapBuilder(bool forward,
-                     const std::string& inFile,
-                     const std::string& outFile);
+                     std::string  inFile,
+                     std::string  outFile);
     void build();
     void convertToMap() override;
     void saveMap() override;

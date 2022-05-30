@@ -116,21 +116,6 @@ void runAiBattles() {
     WordBuilderPtr wordBuilder1 = std::make_shared<WordBuilder>(greedyMap, dictionary, "AI1", nullptr);
     WordBuilderPtr wordBuilder2 = std::make_shared<WordBuilder>(greedyMap, dictionary, "AI2", nullptr);
 
-
-
-//    std::string fileName;
-//    std::shared_ptr<Game> game = nullptr;
-//
-//    std::cout << "Enter the filename from which to load a game" << std::endl;
-//    std::cout << "> ";
-//    std::getline(std::cin, fileName);
-//
-////    AdjacentTiles adjacentTiles;
-//
-//    game = files::loadGame(fileName);
-//
-//    game->play();
-
     std::unique_ptr<Game>game = std::make_unique<Game>(configSetting, wordBuilder1, wordBuilder2);
 
     while (game->play()) {
@@ -206,7 +191,7 @@ void printMenu()
               << "2. Load Game" << std::endl
               << "3. Credits (Show student information)" << std::endl
               << "4. Quit\n"
-              << "5. AI play against other AI until eof is typed" << std::endl;
+              << "5. AI plays against other AI" << std::endl;
 }
 
 /*                          Milestone 1 & 2 Above

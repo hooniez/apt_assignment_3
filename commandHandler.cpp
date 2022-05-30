@@ -16,7 +16,7 @@ CommandHandler::~CommandHandler() = default;
  * std::string).
  */
 std::istream &CommandHandler::getline(std::istream &in,
-                                      PlayerPtr currPlayer)
+                                      PlayerPtr player)
 {
     /*
      * Make sure to reset isValid and userWord in case of re-reading a
@@ -24,7 +24,7 @@ std::istream &CommandHandler::getline(std::istream &in,
      */
     utils::promptInput();
     reset();
-    this->currPlayer = currPlayer;
+    this->currPlayer = player;
 
     std::string userLine;
     std::getline(in, userLine);
@@ -37,7 +37,7 @@ std::istream &CommandHandler::getline(std::istream &in,
         playerCommand.push_back(userWord);
     }
     // Store the first wordBeingBuilt in a variable called commandWord
-    if (playerCommand.size() > 0)
+    if (!playerCommand.empty())
         firstWord = playerCommand[0];
     numWords = playerCommand.size();
     return in;
@@ -52,11 +52,11 @@ void CommandHandler::reset()
     firstWord = "";
 }
 
-bool CommandHandler::isPlaceCommandValid(const BoardPtr board)
+bool CommandHandler::isPlaceCommandValid(const BoardPtr& board)
 {
     /*
-     * Checking whether the first wordBeingBuilt is "place" is necessary as multiple
-     * place commands are read
+     * Checking whether the first wordBeingBuilt is "place" is necessary
+     * as multiple place commands are read
      */
     if (firstWord != "place")
     {
@@ -130,7 +130,8 @@ bool CommandHandler::isPlaceCommandValid(const BoardPtr board)
     return isValid;
 }
 
-bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dictionary)
+bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr& board,
+                                             const DictionaryPtr& dictionary)
 {
     if (numWords == 2)
     {
@@ -151,7 +152,7 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
                 if (board->isEmpty())
                 {
                     std::cout
-                        << "Invalid Input: Make sure your wordBeingBuilt includes the"
+                        << "Invalid Input: Make sure your word includes the"
                         << std::endl;
                     std::cout
                         << "center of the board (H7),"
@@ -173,16 +174,20 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
                         << std::endl;
                 }
                 // Put the returned tiles back in the player's hand
-                for (const auto &placedTile : board->getTilesToReturn())
+                for (const auto &placedTile
+                     : board->getTilesToReturn())
                 {
                     currPlayer->getHand()->append(placedTile);
                 }
             } else {
                 // If dictionary is initialised (in all cases of the options)
                 if (dictionary && !board->isWordValid(dictionary)) {
-                    std::cout << "Invalid Input: Make sure your words are valid words" << std::endl;
+                    std::cout <<
+                    "Invalid Input: Make sure your words are valid words"
+                    << std::endl;
                     // Put the returned tiles back in the player's hand
-                    for (const auto &placedTile : board->getTilesToReturn())
+                    for (const auto &placedTile
+                    : board->getTilesToReturn())
                     {
                         currPlayer->getHand()->append(placedTile);
                     }
@@ -195,7 +200,7 @@ bool CommandHandler::isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dicti
     return isValid;
 }
 
-bool CommandHandler::isReplaceCommandValid(const TileBagPtr tileBag)
+bool CommandHandler::isReplaceCommandValid(const TileBagPtr& tileBag)
 {
     if (numWords != 2)
     {

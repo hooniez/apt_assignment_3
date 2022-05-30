@@ -23,9 +23,10 @@ public:
     std::istream& getline(std::istream&, PlayerPtr);
     // Reset the re-used command object when reading the next command
     void reset();
-    bool isPlaceCommandValid(BoardPtr board);
-    bool isPlaceDoneCommandValid(BoardPtr board, DictionaryPtr dictionary);
-    bool isReplaceCommandValid(TileBagPtr tileBag);
+    bool isPlaceCommandValid(const BoardPtr& board);
+    bool isPlaceDoneCommandValid(const BoardPtr& board,
+                                 const DictionaryPtr& dictionary);
+    bool isReplaceCommandValid(const TileBagPtr& tileBag);
     bool isPassCommmandValid();
     bool isSaveCommandValid();
     bool isQuitCommandValid();
