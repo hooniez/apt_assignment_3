@@ -101,7 +101,7 @@ public:
     // are valid.
     void makeCurrWords();
 
-    // Return the vector currWords that contains all the valid wordsInQueue
+    // Return the vector currWords that contains all the valid completeWords
     std::vector<std::string>& getCurrWords();
 
     // Check whether the placement is legal according to the game rules

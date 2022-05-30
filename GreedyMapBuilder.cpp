@@ -20,7 +20,7 @@ void GreedyMapBuilder::build() {
 }
 
 void GreedyMapBuilder::convertToMap() {
-    // Read in wordsInQueue from the file
+    // Read in completeWords from the file
     std::ifstream in(inFile);
     std::string word;
     while (std::getline(in, word)) {
@@ -82,7 +82,7 @@ void GreedyMapBuilder::saveMap() {
  */
 
 //void GreedyMapBuilder::convertToMap() {
-//    // Read in wordsInQueue from the file
+//    // Read in completeWords from the file
 //    std::ifstream in(inFile);
 //    std::string word;
 //    while (std::getline(in, word)) {

@@ -179,14 +179,14 @@ bool Board::checkAdjacentTiles()
 /*
  * Give it a list of all the letters the player just added,
  * and the length of this letter list,
- * will return all the wordsInQueue that can be created
+ * will return all the completeWords that can be created
  */
 void Board::makeCurrWords()
 {
     currWords.clear();
     /*
      * Work out the direction that the wordBuilder is going.
-     * Make sure not to check wordsInQueue in this direction
+     * Make sure not to check completeWords in this direction
      * Need to check if its a one letter wordBuilder first.
      */
 
@@ -200,8 +200,8 @@ void Board::makeCurrWords()
     if (length == 1)
     {
         /*
-         * first add all the wordsInQueue in a right direction,
-         * then add all the wordsInQueue in a left direction
+         * first add all the completeWords in a right direction,
+         * then add all the completeWords in a left direction
          */
         wordString = addWordInDirection(this->gridLocs[0],
                                         HORIZONTAL);
@@ -239,7 +239,7 @@ void Board::makeCurrWords()
         {
             if (dir == HORIZONTAL)
             {
-                // if look at wordsInQueue running parallel so check the opposite
+                // if look at completeWords running parallel so check the opposite
                 wordString = addWordInDirection(this->gridLocs[i],
                                                 VERTICAL);
                 /*
@@ -249,7 +249,7 @@ void Board::makeCurrWords()
             }
             else
             {
-                // if look at wordsInQueue running parallel so check the opposite
+                // if look at completeWords running parallel so check the opposite
                 wordString = addWordInDirection(this->gridLocs[i],
                                                 HORIZONTAL);
             }
@@ -272,7 +272,7 @@ std::string Board::addWordInDirection(std::vector<int> &startingLetterCoords,
 
     /*
      * if the first call is false,
-     * then we don't want to count wordsInQueue of length 1
+     * then we don't want to count completeWords of length 1
      */
 
     // move left
@@ -556,7 +556,7 @@ bool Board::isPlacementValid(){
         lettersValid = checkAllOnTheSameLine();
     // Return a nullptr in the returnVector if the letters are valid
     if (lettersValid) {
-        // Fill the data member currWords with all the wordsInQueue created by
+        // Fill the data member currWords with all the completeWords created by
         // the letters put on the board in the current turn.
         makeCurrWords();
     } else {
@@ -606,7 +606,7 @@ bool Board::setTile(std::tuple<int, int> coords, TilePtr tile) {
 bool Board::isWordValid(const DictionaryPtr& dict) {
     bool isValid = false;
 
-    // User dict to check whether wordsInQueue are valid
+    // User dict to check whether completeWords are valid
     isValid = dict->isInDict(currWords);
     if (!isValid) {
         setTilesToReturn();

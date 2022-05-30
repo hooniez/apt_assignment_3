@@ -1,5 +1,3 @@
-#include "linkedlist.h"
-#include "player.h"
 #include "types.h"
 #include "game.h"
 #include "board.h"
@@ -11,7 +9,6 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-#include <fstream>
 
 using std::pair;
 using std::string;
@@ -40,7 +37,7 @@ int main(int argc, const char *argv[])
 {
     configSettingPtr optionsValid = readConfig(argc, argv);
 
-    // If the entered options are invalid, make the user type again until they are valid
+    // If the entered options are invalid, make the user type again
     if (!optionsValid)
         optionsValid = readConfigUntilValid();
 
@@ -59,7 +56,7 @@ void mainMenu(const configSettingPtr &options)
 {
     bool terminate = false;
     std::string input;
-    int selection = 0;
+    int selection;
     while (!terminate)
     {
         printMenu();
@@ -105,6 +102,7 @@ void mainMenu(const configSettingPtr &options)
     }
 }
 
+// Make a WordBuilder battle against another WordBuilder infinitely
 void runAiBattles() {
     // Create a config setting to pass to Game
     configSettingPtr configSetting = std::make_shared<configSettingType>();
@@ -113,15 +111,21 @@ void runAiBattles() {
     GreedyMapPtr greedyMap = std::make_shared<GreedyMap>();
     DictionaryPtr dictionary = std::make_shared<Dictionary>("words");
     // Create two instances of WordBuilder
-    WordBuilderPtr wordBuilder1 = std::make_shared<WordBuilder>(greedyMap, dictionary, "AI1", nullptr);
-    WordBuilderPtr wordBuilder2 = std::make_shared<WordBuilder>(greedyMap, dictionary, "AI2", nullptr);
+    WordBuilderPtr wordBuilder1 = std::make_shared<WordBuilder>(
+            greedyMap, dictionary, "AI1", nullptr);
+    WordBuilderPtr wordBuilder2 = std::make_shared<WordBuilder>(
+            greedyMap, dictionary, "AI2", nullptr);
 
-    std::unique_ptr<Game>game = std::make_unique<Game>(configSetting, wordBuilder1, wordBuilder2);
+    std::unique_ptr<Game>game = std::make_unique<Game>(
+            configSetting, wordBuilder1, wordBuilder2);
 
+    // Play games until force-quit as this option is for demonstrations
     while (game->play()) {
+        // wordBuilders' hands need to be dealt anew again
         wordBuilder1->getHand()->clear();
         wordBuilder2->getHand()->clear();
-        game = std::make_unique<Game>(configSetting, wordBuilder1, wordBuilder2);
+        game = std::make_unique<Game>(
+                configSetting, wordBuilder1, wordBuilder2);
     }
 }
 
@@ -135,7 +139,7 @@ void printCredits()
                     {"Myeonghoon Sun", "s3774430"}};
 
     std::cout << "\n----------------------------------" << std::endl;
-    for (pair<string, string> contributor : contributors)
+    for (const pair<string, string>& contributor : contributors)
     {
         std::cout << "Name: " << contributor.first << std::endl
                   << "Student ID: " << contributor.second << std::endl
@@ -212,8 +216,10 @@ configSettingPtr readConfig(int argc, const char *argv[]) {
         // Return an empty set rather than nullptr
         options = std::make_shared<configSettingType>();
 
-    // Check if options specified are fewer than the total number of available options
-    // argc - 1 excludes the program name
+    /*
+     * Check if options specified are fewer than the total number of
+     * available options; argc - 1 excludes the program name
+     */
     if (argc - 1 <= CONFIGOPTIONS.size()) {
         for (int i = 1; i < argc; ++i) {
             if (CONFIGOPTIONS.count(argv[i]) == 1) {
@@ -237,7 +243,9 @@ configSettingPtr readConfigUntilValid() {
     // While options are not valid OR the user is not done
     while (!optionsValid || !done) {
         std::cout << std::endl;
-        std::cout << "Please type in an option to enable (type --done when finished)" << std::endl;
+        std::cout <<
+        "Please type in an option to enable (type --done when finished)"
+        << std::endl;
         utils::promptInput();
         std::getline(std::cin, userOption);
         // If the user correctly types in an option
@@ -247,8 +255,12 @@ configSettingPtr readConfigUntilValid() {
                 optionsValid = std::make_shared<configSettingType>();
             optionsValid->insert(userOption);
 
-            // Only if optionsValid has a valid option entered, enter the condition below
-            // If the user has typed "--done"", exit the loop
+            /*
+             * Only if optionsValid has a valid option entered, enter the
+             * condition below
+             *
+             * If the user has typed "--done"", exit the loop
+             */
         } else if (optionsValid && (userOption == "--done")) {
             done = true;
         } else {
@@ -263,6 +275,7 @@ void printConfigOptions() {
     std::cout << "Invalid Option(s)\n" << std::endl;
     std::cout << "Available options are:" << std::endl;
     std::cout << "To play against a computer: --ai" << std::endl;
-    std::cout << "To check whether the entered wordsInQueue are valid: --dictionary" << std::endl;
+    std::cout << "To check whether the entered words are valid: --dictionary"
+    << std::endl;
     std::cout << "To get hints on where to place tiles: --hint" << std::endl;
 }

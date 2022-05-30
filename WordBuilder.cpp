@@ -4,85 +4,200 @@
 
 #include "WordBuilder.h"
 
-WordBuilder::WordBuilder(const GreedyMapPtr& greedyMap,
-                         const DictionaryPtr& dictionary,
+#include <utility>
+
+WordBuilder::WordBuilder(GreedyMapPtr  greedyMap,
+                         DictionaryPtr  dictionary,
                          const std::string &name,
-                         size_t score,
+                         int score,
                          LinkedListPtr<TilePtr> hand,
                          BoardPtr board):
-                         Player(name, score, hand),
-                         greedyMap(greedyMap),
-                         board(board),
-                         dictionary(dictionary),
-                         wordsInQueue(std::make_shared<WordsInQueue>())
-                         {}
+        Player(name, score, std::move(hand)),
+        greedyMap(std::move(greedyMap)),
+        board(std::move(board)),
+        dictionary(std::move(dictionary)),
+        completeWords(std::make_shared<CompleteWords>()) {}
 
-WordBuilder::WordBuilder(const GreedyMapPtr& greedyMap,
-                         const DictionaryPtr& dictionary,
+WordBuilder::WordBuilder(GreedyMapPtr  greedyMap,
+                         DictionaryPtr  dictionary,
                          const std::string& name,
                          BoardPtr board):
                          Player(name),
-                         greedyMap(greedyMap),
-                         board(board),
-                         dictionary(dictionary){}
+                         greedyMap(std::move(greedyMap)),
+                         board(std::move(board)),
+                         dictionary(std::move(dictionary)),
+                         completeWords(std::make_shared<CompleteWords>()) {}
 
 void WordBuilder::scanTheBoard() {
     if (board->isEmpty()) {
         // Place an empty AdjacentTile at the centre
         int centreIdx = BOARD_LENGTH * BOARD_LENGTH / 2;
-        AdjacentTilePtr at = std::make_shared<AdjacentTile>(0, "", NA, centreIdx);
+        AdjacentTilePtr at = std::make_shared<AdjacentTile>(
+                0, "", NA, centreIdx);
         (*adjacentTiles)[centreIdx] = at;
     } else {
         beAwareOfTiles();
     }
 }
 
-std::shared_ptr<std::map<std::string, char>> WordBuilder::getTheBestMove() {
-    wordsInQueue = std::make_shared<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>>();
+void WordBuilder::beAwareOfTiles() {
+    auto placedDir = board->getPlacedDir();
+    Angle singleSearchDir;
+    Angle multipleSearchDir;
+    if (placedDir == HORIZONTAL) {
+        singleSearchDir = HORIZONTAL;
+        multipleSearchDir = VERTICAL;
+    } else {
+        singleSearchDir = VERTICAL;
+        multipleSearchDir = HORIZONTAL;
+    }
+
+    // Access the leftmost or uppermost index among the tiles just placed
+    placedIndicesPtr placedIndices = board->getPlacedIndices();
+
+    int currIdx = placedIndices->top();
+    int currLine = getCurrLine(currIdx, placedDir);
+
+    // First, build letters in the same direction as placedDir
+    createOrUpdateAdjacentTiles(singleSearchDir,
+                                currIdx,
+                                currLine,
+                                placedDir);
+
+    // Next, build letters in the perpendicular direction as placedDir
+    while (!placedIndices->empty()) {
+        // Access the leftmost or uppermost index of those of the placed tiles
+        currIdx = placedIndices->top();
+
+        currLine = getCurrLine(currIdx, multipleSearchDir);
+
+
+        createOrUpdateAdjacentTiles(multipleSearchDir,
+                                    currIdx,
+                                    currLine,
+                                    placedDir);
+        // Destroy the AdjacentTile if found on the placed indices
+        (*adjacentTiles)[currIdx] = nullptr;
+        placedIndices->pop();
+    }
+}
+
+// The leftmost or uppermost index among the tiles placed is passed as currIdx
+void WordBuilder::createOrUpdateAdjacentTiles(Angle searchingDir,
+                                              int currIdx,
+                                              int currLine,
+                                              Angle placedDirection) {
+    // First, build letters in the same direction as placedDir
+    std::ostringstream oss;
+    BoardDir backwardDir;
+    BoardDir forwardDir;
+    if (searchingDir == HORIZONTAL) {
+        backwardDir = LEFT;
+        forwardDir = RIGHT;
+    } else {
+        backwardDir = TOP;
+        forwardDir = BOTTOM;
+    }
+
+    int mostBackwardIdx = currIdx;
+
+    /*
+     * Since the tile could have been placed next to an existing tile,
+     * Traverse backwards once to check whether another placed tile
+     * is connected to the one just placed
+     */
+    mostBackwardIdx += backwardDir;
+
+    /*
+     * Find out the leftmost or uppermost tile that is placed on the board on
+     * the same row or column
+     */
+    while (isPlacedTileOnTheSameLine(mostBackwardIdx,
+                                     currLine,
+                                     searchingDir)) {
+        mostBackwardIdx += backwardDir;
+    }
+
+    /*
+     * After the while loop above, mostBackwardIdx lands on a spot one index
+     * further back. Pull it back with the line below so that a string can be
+     * built by traversing to the bottommost or rightmost index of a placed
+     * tile and then create or update emptyAdjacentTile
+     */
+    currIdx = mostBackwardIdx + forwardDir;
+    int totalLetterScores = 0;
+    while (isPlacedTileOnTheSameLine(currIdx,
+                                     currLine,
+                                     searchingDir)) {
+        totalLetterScores += board->getValue(currIdx);
+        oss << (board->getLetter(currIdx));
+        currIdx += forwardDir;
+    }
+
+    /*
+     * currIdx now refers to the index on which bottommost or rightmost
+     * placed tile is found or off the line.
+     * Assign mostForwardIdx with currIdx for readability.
+     */
+    int mostForwardIdx = currIdx;
+    // Create or update the bottommost or rightmost AdjacentTile
+    if (isOnCurrLine(mostForwardIdx, currLine, searchingDir)) {
+        if (!(*adjacentTiles)[mostForwardIdx]) {
+            AdjacentTilePtr currAt = std::make_shared<AdjacentTile>(
+                    totalLetterScores, oss.str(),
+                    forwardDir, mostForwardIdx);
+            (*adjacentTiles)[mostForwardIdx] = currAt;
+        } else {
+            (*adjacentTiles)[mostForwardIdx]->update(
+                    totalLetterScores,
+                    oss.str(),
+                    forwardDir);
+        }
+    }
+
+    // Create or update the uppermost or leftmost emptyAdjacencyTile
+    if (isOnCurrLine(mostBackwardIdx, currLine, searchingDir)) {
+        if (!(*adjacentTiles)[mostBackwardIdx]) {
+            AdjacentTilePtr currAt = std::make_shared<AdjacentTile>(
+                    totalLetterScores, oss.str(),
+                    backwardDir, mostBackwardIdx);
+            (*adjacentTiles)[mostBackwardIdx] = currAt;
+        } else {
+            (*adjacentTiles)[mostBackwardIdx]->update(
+                    totalLetterScores,
+                    oss.str(),
+                    backwardDir);
+        }
+    }
+}
+
+indicesToLettersPtr WordBuilder::getTheBestMove() {
+    completeWords = std::make_shared<CompleteWords>();
     prioritiseTiles();
     std::string lettersInHand = getHand()->getLetters();
     findWords(lettersInHand);
     std::map<int, char> chosenTileIndices;
-    if (!wordsInQueue->empty())
-        chosenTileIndices = wordsInQueue->top()->tileIndices;
-    // TODO implement replace when no word can be made && make ai place first
-    // Convert chosenTileIndices into the format Board's pre-existing function understands
+    if (!completeWords->empty())
+        chosenTileIndices = completeWords->top()->tileIndices;
+    /*
+     * Convert chosenTileIndices into the format
+     * Board's pre-existing function understands
+     */
     return convert(chosenTileIndices);
 }
 
-
-std::shared_ptr<std::map<std::string, char>> WordBuilder::convert(std::map<int, char>& tileIndices) {
-    std::shared_ptr<std::map<std::string, char>> ret = nullptr;
-    int rowIdx;
-    int colIdx;
-    std::string gridLoc;
-    char letter;
-    if (!tileIndices.empty()) {
-        ret = std::make_shared<std::map<std::string, char>>();
-        for (auto tileIndex : tileIndices) {
-            rowIdx = getCurrLine(tileIndex.first, HORIZONTAL);
-            colIdx = getCurrLine(tileIndex.first, VERTICAL);
-            gridLoc = convertIntToRowLetter(rowIdx) + std::to_string(colIdx);
-            letter = tileIndex.second;
-            ret->insert(std::make_pair(gridLoc, letter));
-        }
+void WordBuilder::prioritiseTiles() {
+    // Clear adjacentTilesToProcess before putting
+    adjacentTilesToProcess = AdjacentTilesToProcess();
+    for (auto adjacentTile : *adjacentTiles) {
+        if (adjacentTile)
+            adjacentTilesToProcess.push(adjacentTile);
     }
-    return ret;
-}
-
-// This method converts a 2D row index back to the alphabetical representation.
-// Even though it is an inefficient, roundabout way to convert it only to be converted back again by board,
-// it is considered a good solution as the conversion allows for
-// the reuse of the pre-existing methods in other classes.
-char WordBuilder::convertIntToRowLetter(int rowIdx) {
-    char a = 'A';
-    int baseInt = int(a);
-    return rowIdx + baseInt;
 }
 
 void WordBuilder::findWords(const std::string& lettersInHand) {
-    while(!tilesToStartFrom.empty()) {
-        auto at = tilesToStartFrom.top();
+    while(!adjacentTilesToProcess.empty()) {
+        auto at = adjacentTilesToProcess.top();
         Angle angles[] = {VERTICAL, HORIZONTAL};
 
         std::string verticalLetters;
@@ -100,15 +215,19 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
             verticalLetters = std::string(1, letter);
             horizontalLetters = std::string(1, letter);
             if (!at->adjacentLetters[UPWARD].empty())
-                verticalLetters = at->adjacentLetters[UPWARD] + verticalLetters;
+                verticalLetters =
+                        at->adjacentLetters[UPWARD] + verticalLetters;
             if (!at->adjacentLetters[DOWNWARD].empty())
                 verticalLetters += at->adjacentLetters[DOWNWARD];
             if (!at->adjacentLetters[LEFTWARD].empty())
-                horizontalLetters = at->adjacentLetters[LEFTWARD] + horizontalLetters;
+                horizontalLetters=
+                        at->adjacentLetters[LEFTWARD] + horizontalLetters;
             if (!at->adjacentLetters[RIGHTWARD].empty())
                 horizontalLetters += at->adjacentLetters[RIGHTWARD];
 
-            // Iterate VERTICAL and HORIZONTAL angles to see whether the AdjacentTile can go forwards or backwards or both.
+            /* Iterate VERTICAL and HORIZONTAL angles to see whether the
+             * AdjacentTile can go forwards or backwards or both.
+             */
             for (auto angle: angles) {
                 forwardWordExists = false;
                 backwardWordExists = false;
@@ -136,11 +255,15 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
                 // If letters can be extended
                 if (forwardWordExists || backwardWordExists) {
                     std::string lettersCopy(lettersInHand);
-                    auto charPos = std::find(lettersCopy.begin(), lettersCopy.end(), letter);
+                    auto charPos = std::find(
+                            lettersCopy.begin(),
+                            lettersCopy.end(),
+                            letter);
                     lettersCopy.erase(charPos);
                     tileIndices.insert(std::make_pair(at->idx, letter));
 
-                    std::tuple<bool, bool> wordAvailability = std::make_tuple(0, 0);
+                    std::tuple<bool, bool> wordAvailability =
+                            std::make_tuple(0, 0);
                     if (forwardWordExists)
                         std::get<FORWARDWORDEXISTS>(wordAvailability) = true;
                     if (backwardWordExists)
@@ -148,28 +271,41 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
 
 
                     if (angle == VERTICAL) {
-                        WordPtr newWord = std::make_shared<Word>(verticalLetters, lettersCopy, tileIndices);
-                        // If the word in the perpendicular direction was more than one letter, add it to buiitWords
+                        WordPtr newWord = std::make_shared<Word>(
+                                verticalLetters,
+                                lettersCopy,
+                                tileIndices);
+                        /*
+                         * If the word in the perpendicular direction was
+                         * more than one letter, add it to builtWords
+                         */
                         if (horizontalLetters.size() > 1) {
                             newWord->builtWords.push_back(horizontalLetters);
                         }
-                        verticalValidLetters.insert(std::make_pair(newWord,wordAvailability));
+                        verticalValidLetters.insert(std::make_pair(
+                                newWord,
+                                wordAvailability));
                     } else {
-                        WordPtr newWord = std::make_shared<Word>(horizontalLetters, lettersCopy, tileIndices);
+                        WordPtr newWord = std::make_shared<Word>(
+                                horizontalLetters,
+                                lettersCopy,
+                                tileIndices);
                         if (verticalLetters.size() > 1) {
                             newWord->builtWords.push_back(verticalLetters);
                         }
-                        horizontalValidLetters.insert(std::make_pair(newWord,wordAvailability));
-
-
+                        horizontalValidLetters.insert(
+                                std::make_pair(newWord,
+                                               wordAvailability));
                     }
-
                 }
             }
         }
 
-//      Find out the most backward index and forward index connected to the AdjacentIdx
-//      and then build wordsInQueue
+        /*
+         * Find out the most backward index and forward index connected to the
+         * AdjacentIdx and then build completeWords
+         */
+
         int currIdx;
         int forwardDir;
         int backwardDir;
@@ -191,48 +327,60 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
             backwardDir = TOP;
             forwardDir = BOTTOM;
 
-            // currIdx is technically occupied by one of the elements in verticalValidLetters
-            // Therefore move backward to find the next empty cell
+            /*
+             * currIdx is occupied by one of the letters in verticalValidLetters
+             * Therefore move backward to find the next empty cell
+             */
             mostBackwardIdx = currIdx + backwardDir;
             // As long as on the board and there are already placed tiles
-            while (isPlacedTileOnTheSameLine(mostBackwardIdx, currVerticalLine, VERTICAL)) {
+            while (isPlacedTileOnTheSameLine(mostBackwardIdx,
+                                             currVerticalLine,
+                                             VERTICAL)) {
                 mostBackwardIdx += backwardDir;
             }
 
             // Find out mostForwardIdx
             mostForwardIdx = currIdx + forwardDir;
             // As long as on the board and there are already placed tiles
-            while (isPlacedTileOnTheSameLine(mostForwardIdx, currVerticalLine, VERTICAL)) {
+            while (isPlacedTileOnTheSameLine(mostForwardIdx,
+                                             currVerticalLine,
+                                             VERTICAL)) {
                 mostForwardIdx += forwardDir;
             }
 
-//            // If mostBackwardIdx is the same as currIdx, go backwards again (taking into account the letter to be placed)
-//            if (mostBackwardIdx == currIdx)
-//                mostBackwardIdx += backwardDir;
-//            // If mostForwardIdx is the same as currIdx, go forwards again (taking into account the letter to be placed)
-//            if (mostForwardIdx == currIdx)
-//                mostForwardIdx += forwardDir;
-
-            if (isEmptyTileOnTheSameLine(mostBackwardIdx, currVerticalLine, VERTICAL)) {
+            if (isEmptyTileOnTheSameLine(mostBackwardIdx,
+                                         currVerticalLine,
+                                         VERTICAL)) {
                 isBackwardable = true;
             } else {
                 isBackwardable = false;
             }
 
-            if (isEmptyTileOnTheSameLine(mostForwardIdx, currVerticalLine, VERTICAL)) {
+            if (isEmptyTileOnTheSameLine(mostForwardIdx,
+                                         currVerticalLine,
+                                         VERTICAL)) {
                 isForwardable = true;
             } else {
                 isForwardable = false;
             }
 
-
             // Build words
-            for (auto it = verticalValidLetters.begin(); it != verticalValidLetters.end(); ++it) {
-                if (isForwardable && std::get<FORWARDWORDEXISTS>(it->second)) {
-                    buildWordForwards(mostForwardIdx, mostBackwardIdx, currVerticalLine, VERTICAL, it->first);
+            for (auto & verticalValidLetter : verticalValidLetters) {
+                if (isForwardable &&
+                    std::get<FORWARDWORDEXISTS>(verticalValidLetter.second)) {
+                    buildWordForwards(mostForwardIdx,
+                                      mostBackwardIdx,
+                                      currVerticalLine,
+                                      VERTICAL,
+                                      verticalValidLetter.first);
                 }
-                if (isBackwardable && std::get<BACKWARDWORDEXISTS>(it->second)) {
-                    buildWordBackwards(mostForwardIdx, mostBackwardIdx, currVerticalLine, VERTICAL, it->first);
+                if (isBackwardable &&
+                    std::get<BACKWARDWORDEXISTS>(verticalValidLetter.second)) {
+                    buildWordBackwards(mostForwardIdx,
+                                       mostBackwardIdx,
+                                       currVerticalLine,
+                                       VERTICAL,
+                                       verticalValidLetter.first);
                 }
             }
         }
@@ -248,48 +396,91 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
             // Find out mostBackwardIdx first
             mostBackwardIdx = currIdx + backwardDir;
             // As long as on the board and there are already placed tiles
-            while (isPlacedTileOnTheSameLine(mostBackwardIdx, currHorizontalLine, HORIZONTAL)) {
+            while (isPlacedTileOnTheSameLine(mostBackwardIdx,
+                                             currHorizontalLine,
+                                             HORIZONTAL)) {
                 mostBackwardIdx += backwardDir;
             }
 
             // Find out mostForwardIdx
             mostForwardIdx = currIdx + forwardDir;
             // As long as on the board and there are already placed tiles
-            while (isPlacedTileOnTheSameLine(mostForwardIdx, currHorizontalLine, HORIZONTAL)) {
+            while (isPlacedTileOnTheSameLine(mostForwardIdx,
+                                             currHorizontalLine,
+                                             HORIZONTAL)) {
                 mostForwardIdx += forwardDir;
             }
 
-            // If mostBackwardIdx is the same as currIdx, go backwards again (taking into account the letter to be placed)
-            if (mostBackwardIdx == currIdx)
-                mostBackwardIdx += backwardDir;
-            // If mostForwardIdx is the same as currIdx, go forwards again (taking into account the letter to be placed)
-            if (mostForwardIdx == currIdx)
-                mostForwardIdx += forwardDir;
-
-            if (isEmptyTileOnTheSameLine(mostBackwardIdx, currHorizontalLine, HORIZONTAL)) {
+            if (isEmptyTileOnTheSameLine(mostBackwardIdx,
+                                         currHorizontalLine,
+                                         HORIZONTAL)) {
                 isBackwardable = true;
             } else {
                 isBackwardable = false;
             }
 
-            if (isEmptyTileOnTheSameLine(mostForwardIdx, currHorizontalLine, HORIZONTAL)) {
+            if (isEmptyTileOnTheSameLine(mostForwardIdx,
+                                         currHorizontalLine,
+                                         HORIZONTAL)) {
                 isForwardable = true;
             } else {
                 isForwardable = false;
             }
 
             // Build words
-            for (auto it = horizontalValidLetters.begin(); it != horizontalValidLetters.end(); ++it) {
-                if (isForwardable && std::get<FORWARDWORDEXISTS>(it->second))
-                    buildWordForwards(mostForwardIdx, mostBackwardIdx, currHorizontalLine, HORIZONTAL, it->first);
-                if (isBackwardable && std::get<BACKWARDWORDEXISTS>(it->second))
-                    buildWordBackwards(mostForwardIdx, mostBackwardIdx, currHorizontalLine, HORIZONTAL, it->first);
+            for (auto & horizontalValidLetter : horizontalValidLetters) {
+                if (isForwardable &&
+                    std::get<FORWARDWORDEXISTS>(horizontalValidLetter.second))
+                    buildWordForwards(mostForwardIdx,
+                                      mostBackwardIdx,
+                                      currHorizontalLine,
+                                      HORIZONTAL,
+                                      horizontalValidLetter.first);
+                if (isBackwardable &&
+                    std::get<BACKWARDWORDEXISTS>(horizontalValidLetter.second))
+                    buildWordBackwards(mostForwardIdx,
+                                       mostBackwardIdx,
+                                       currHorizontalLine,
+                                       HORIZONTAL,
+                                       horizontalValidLetter.first);
             }
         }
 
         // Move over to the next adjacent tile
-        tilesToStartFrom.pop();
+        adjacentTilesToProcess.pop();
     }
+}
+
+indicesToLettersPtr WordBuilder::convert(std::map<int, char>& tileIndices) {
+    std::shared_ptr<std::map<std::string, char>> ret = nullptr;
+    int rowIdx;
+    int colIdx;
+    std::string gridLoc;
+    char letter;
+    if (!tileIndices.empty()) {
+        ret = std::make_shared<std::map<std::string, char>>();
+        for (auto tileIndex : tileIndices) {
+            rowIdx = getCurrLine(tileIndex.first, HORIZONTAL);
+            colIdx = getCurrLine(tileIndex.first, VERTICAL);
+            gridLoc = convertIntToRowLetter(rowIdx) + std::to_string(colIdx);
+            letter = tileIndex.second;
+            ret->insert(std::make_pair(gridLoc, letter));
+        }
+    }
+    return ret;
+}
+
+/*
+ * This method converts a 2D row index back to the alphabetical representation.
+ * Even though it is a roundabout way to convert it only to be converted back
+ * to 2D integer indices again by board, it is considered a good solution as
+ * the conversion allows for the reuse of the pre-existing methods in other
+ * classes, namely executePlaceCommand() in Game.
+ */
+char WordBuilder::convertIntToRowLetter(int rowIdx) {
+    char a = 'A';
+    int baseInt = int(a);
+    return rowIdx + baseInt;
 }
 
 void WordBuilder::buildWordForwards(int forwardIdx,
@@ -297,13 +488,10 @@ void WordBuilder::buildWordForwards(int forwardIdx,
                                     int currLine,
                                     Angle angle,
                                     const WordPtr& word) {
-    // Base case
-    // There is no more letter to place in the hand
+    // Base case: no more letter to place in the hand
     if (word->lettersInHand.empty())  {
     } else {
-        // Recursive case
-
-        // Set up the directions
+        // Recursive case: extend letters and create a Word if found in dic
         int forwardDir;
         if (angle == VERTICAL) {
             forwardDir = BOTTOM;
@@ -316,107 +504,130 @@ void WordBuilder::buildWordForwards(int forwardIdx,
         bool isForwardable;
         bool isBackwardable;
 
-        // Check whether forwardIdx is on the same line as the original start index
-        if (isOnBaseLine(forwardIdx, currLine, angle)) {
-            for (const auto letter: word->lettersInHand) {
-                newWord = nullptr;
-                // Check whether letter can be found in the map
-                if (greedyMap->forward->count(word->wordBeingBuilt) &&
-                   (*greedyMap->forward)[word->wordBeingBuilt]->count(letter)) {
-                    forwardIdxToSearch = forwardIdx;
+        for (const auto letter: word->lettersInHand) {
+            newWord = nullptr;
+            // Check whether letter can be found in the map
+            if (greedyMap->forward->count(word->wordBeingBuilt) &&
+               (*greedyMap->forward)[word->wordBeingBuilt]->count(letter)) {
+                forwardIdxToSearch = forwardIdx;
 
-                    isForwardable = false;
-                    isBackwardable = false;
-                    auto at = (*adjacentTiles)[forwardIdx];
-                    // If on an AdjacentTile
-                    if (at != nullptr) {
-                        std::string verticalLetters;
-                        std::string horizontalLetters;
-                        if (angle == VERTICAL) {
-                            verticalLetters = word->wordBeingBuilt + letter;
-                            horizontalLetters = std::string(1, letter);
-                            // If going vertical, the forward direction is bottom, which means the adjacentTile can have at most three elements
-                            if (!at->adjacentLetters[DOWNWARD].empty())
-                                verticalLetters += at->adjacentLetters[DOWNWARD];
-                            if (!at->adjacentLetters[LEFTWARD].empty())
-                                horizontalLetters = at->adjacentLetters[LEFTWARD] + horizontalLetters;
-                            if (!at->adjacentLetters[RIGHTWARD].empty())
-                                horizontalLetters += at->adjacentLetters[RIGHTWARD];
-                        } else {
-                            verticalLetters = std::string(1, letter);
-                            horizontalLetters = word->wordBeingBuilt + letter;
-                            // If going horizontal, the forward direction is right, which means the adjacentTile can have at most three elements
-                            if (!at->adjacentLetters[UPWARD].empty())
-                                verticalLetters = at->adjacentLetters[UPWARD] + verticalLetters;
-                            if (!at->adjacentLetters[DOWNWARD].empty())
-                                verticalLetters += at->adjacentLetters[DOWNWARD];
-                            if (!at->adjacentLetters[RIGHTWARD].empty())
-                                horizontalLetters += at->adjacentLetters[RIGHTWARD];
-                        }
-
-                        // Check whether the connected letters at a perpendicular angle is in the dictionary
-                        if (angle == VERTICAL && dictionary->isInDict(horizontalLetters)) {
-                            if (greedyMap->forward->count(verticalLetters) || greedyMap->backward->count(verticalLetters)) {
-                                newWord = std::make_shared<Word>(*word);
-                                newWord->wordBeingBuilt = verticalLetters;
-
-                                if (horizontalLetters.size() > 1)
-                                    newWord->builtWords.push_back(horizontalLetters);
-
-                                if (greedyMap->forward->count(verticalLetters))
-                                    isForwardable = true;
-                                if (greedyMap->backward->count(verticalLetters))
-                                    isBackwardable = true;
-                            }
-                        }
-
-                        // Check whether the connected letters at a perpendicular angle is in the dictionary
-                        if (angle == HORIZONTAL && dictionary->isInDict(verticalLetters)) {
-                            if (greedyMap->forward->count(horizontalLetters) || greedyMap->backward->count(horizontalLetters)) {
-                                newWord = std::make_shared<Word>(*word);
-                                newWord->wordBeingBuilt = horizontalLetters;
-
-                                if (verticalLetters.size() > 1)
-                                    newWord->builtWords.push_back(verticalLetters);
-
-                                if (greedyMap->forward->count(horizontalLetters))
-                                    isForwardable = true;
-                                if (greedyMap->backward->count(horizontalLetters))
-                                    isBackwardable = true;
-                            }
-                        }
+                isForwardable = false;
+                isBackwardable = false;
+                auto at = (*adjacentTiles)[forwardIdx];
+                // If on an AdjacentTile
+                if (at != nullptr) {
+                    std::string verticalLetters;
+                    std::string horizontalLetters;
+                    if (angle == VERTICAL) {
+                        verticalLetters = word->wordBeingBuilt + letter;
+                        horizontalLetters = std::string(1, letter);
+                        if (!at->adjacentLetters[DOWNWARD].empty())
+                            verticalLetters += at->adjacentLetters[DOWNWARD];
+                        if (!at->adjacentLetters[LEFTWARD].empty())
+                            horizontalLetters =
+                                    at->adjacentLetters[LEFTWARD]
+                                    + horizontalLetters;
+                        if (!at->adjacentLetters[RIGHTWARD].empty())
+                            horizontalLetters += at->adjacentLetters[RIGHTWARD];
                     } else {
-                        // If the cell at the current index is an empty cell
-                        newWord = std::make_shared<Word>(*word);
-                        newWord->wordBeingBuilt = newWord->wordBeingBuilt + letter;
-                        if (greedyMap->forward->count(newWord->wordBeingBuilt))
-                            isForwardable = true;
-                        if (greedyMap->backward->count(newWord->wordBeingBuilt))
-                            isBackwardable = true;
+                        verticalLetters = std::string(1, letter);
+                        horizontalLetters = word->wordBeingBuilt + letter;
+                        if (!at->adjacentLetters[UPWARD].empty())
+                            verticalLetters =
+                                    at->adjacentLetters[UPWARD]
+                                    + verticalLetters;
+                        if (!at->adjacentLetters[DOWNWARD].empty())
+                            verticalLetters += at->adjacentLetters[DOWNWARD];
+                        if (!at->adjacentLetters[RIGHTWARD].empty())
+                            horizontalLetters += at->adjacentLetters[RIGHTWARD];
                     }
+
+                    if (angle == VERTICAL &&
+                    dictionary->isInDict(horizontalLetters)) {
+                        if (greedyMap->forward->count(verticalLetters) ||
+                        greedyMap->backward->count(verticalLetters)) {
+                            newWord = std::make_shared<Word>(*word);
+                            newWord->wordBeingBuilt = verticalLetters;
+
+                            if (horizontalLetters.size() > 1)
+                                newWord->builtWords.push_back(horizontalLetters);
+
+                            if (greedyMap->forward->count(verticalLetters))
+                                isForwardable = true;
+                            if (greedyMap->backward->count(verticalLetters))
+                                isBackwardable = true;
+                        }
+                    }
+
+                    if (angle == HORIZONTAL &&
+                    dictionary->isInDict(verticalLetters)) {
+                        if (greedyMap->forward->count(horizontalLetters) ||
+                        greedyMap->backward->count(horizontalLetters)) {
+                            newWord = std::make_shared<Word>(*word);
+                            newWord->wordBeingBuilt = horizontalLetters;
+
+                            if (verticalLetters.size() > 1)
+                                newWord->builtWords.push_back(verticalLetters);
+
+                            if (greedyMap->forward->count(horizontalLetters))
+                                isForwardable = true;
+                            if (greedyMap->backward->count(horizontalLetters))
+                                isBackwardable = true;
+                        }
+                    }
+                } else {
+                    // If the cell at the current index is an empty cell
+                    newWord = std::make_shared<Word>(*word);
+                    newWord->wordBeingBuilt = newWord->wordBeingBuilt + letter;
+                    if (greedyMap->forward->count(newWord->wordBeingBuilt))
+                        isForwardable = true;
+                    if (greedyMap->backward->count(newWord->wordBeingBuilt))
+                        isBackwardable = true;
                 }
+            }
 
-                // If newWord has been assigned
-                if (newWord) {
-                    newWord->tileIndices.insert(std::make_pair(forwardIdx, letter));
-                    // Erase the letter from the lettersInHand
-                    newWord->erase(letter);
+            // If newWord has been assigned
+            if (newWord) {
+                newWord->tileIndices.insert(
+                        std::make_pair(forwardIdx, letter
+                        ));
+                // Erase the letter from the lettersInHand
+                newWord->erase(letter);
 
-                    // Traverse forwards until either an empty cell is encountered or out of the current line
+                    /*
+                     * Traverse forwards until either an empty cell is
+                     * encountered or out of the current line
+                     */
                     forwardIdxToSearch += forwardDir;
-                    while (isPlacedTileOnTheSameLine(forwardIdxToSearch, currLine, angle))
+                    while (isPlacedTileOnTheSameLine(
+                            forwardIdxToSearch,
+                            currLine,
+                            angle))
                         forwardIdxToSearch += forwardDir;
-                    if (isBackwardable && isEmptyTileOnTheSameLine(backwardIdx, currLine, angle)) {
-                        buildWordBackwards(forwardIdxToSearch, backwardIdx, currLine, angle, newWord);
+                    if (isBackwardable && isEmptyTileOnTheSameLine(
+                            backwardIdx,
+                            currLine,
+                            angle)) {
+                        buildWordBackwards(forwardIdxToSearch,
+                                           backwardIdx,
+                                           currLine,
+                                           angle,
+                                           newWord);
                     }
-                    if (isForwardable && isEmptyTileOnTheSameLine(forwardIdxToSearch, currLine, angle)) {
-                        buildWordForwards(forwardIdxToSearch, backwardIdx, currLine, angle, newWord);
+                    if (isForwardable &&
+                    isEmptyTileOnTheSameLine(forwardIdxToSearch,
+                                             currLine,
+                                             angle)) {
+                        buildWordForwards(forwardIdxToSearch,
+                                          backwardIdx,
+                                          currLine,
+                                          angle,
+                                          newWord);
                     }
 
-                    // Add a word if it exists in a dictionary
-                    if (dictionary->isInDict(newWord->wordBeingBuilt))
-                        wordsInQueue->push(newWord);
-                }
+                // Add a word if it exists in a dictionary
+                if (dictionary->isInDict(newWord->wordBeingBuilt))
+                    completeWords->push(newWord);
             }
         }
     }
@@ -427,14 +638,10 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
                                      int currLine,
                                      Angle angle,
                                      const WordPtr& word) {
-    // Base case
-    // There is no more letter to place in the hand
+    // Base case: no more letter to place in the hand
     if (word->lettersInHand.empty()) {
-        // Then do not enter the recursion
     } else {
-        // Recursive case
-
-        // Set up the directions
+        // Recursive case: extend letters and create a Word if found in dic
         int backwardDir;
         if (angle == VERTICAL) {
             backwardDir = TOP;
@@ -447,267 +654,136 @@ void WordBuilder::buildWordBackwards(int forwardIdx,
         bool isForwardable;
         bool isBackwardable;
 
-        // TODO: get rid of the check below
-        if (isOnBaseLine(backwardIdx, currLine, angle)) {
-            for (const auto letter: word->lettersInHand) {
-                newWord = nullptr;
-                // Check whether letter can be found in the map
-                if (greedyMap->backward->count(word->wordBeingBuilt) &&
-                   (*greedyMap->backward)[word->wordBeingBuilt]->count(letter)) {
-                    backwardIdxToSearch = backwardIdx;
-                    isForwardable = false;
-                    isBackwardable = false;
-                    auto at = (*adjacentTiles)[backwardIdx];
-                    if (at != nullptr) {
-                        std::string verticalLetters;
-                        std::string horizontalLetters;
-                        // Process all the connected letters
-                        if (angle == VERTICAL) {
-                            verticalLetters = letter + word->wordBeingBuilt;
-                            horizontalLetters = std::string(1, letter);
-                            // If going vertical, the backward direction is top
-                            if (!at->adjacentLetters[UPWARD].empty())
-                                verticalLetters = at->adjacentLetters[UPWARD] + verticalLetters;
-                            if (!at->adjacentLetters[LEFTWARD].empty())
-                                horizontalLetters = at->adjacentLetters[LEFTWARD] + horizontalLetters;
-                            if (!at->adjacentLetters[RIGHTWARD].empty())
-                                horizontalLetters += at->adjacentLetters[RIGHTWARD];
-                        } else { // If HORIZONTAL
-                            verticalLetters = std::string(1, letter);
-                            horizontalLetters = letter + word->wordBeingBuilt;
-                            // If going horizontal, the backward direction is left
-                            if (!at->adjacentLetters[UPWARD].empty())
-                                verticalLetters = at->adjacentLetters[UPWARD] + verticalLetters;
-                            if (!at->adjacentLetters[DOWNWARD].empty())
-                                verticalLetters += at->adjacentLetters[DOWNWARD];
-                            if (!at->adjacentLetters[LEFTWARD].empty())
-                                horizontalLetters = at->adjacentLetters[LEFTWARD] + horizontalLetters;
-                        }
-
-                        // Check whether the connected letters at a perpendicular angle is in the dictionary
-                        if (angle == VERTICAL && dictionary->isInDict(horizontalLetters)) {
-                            if (greedyMap->forward->count(verticalLetters) ||
-                                greedyMap->backward->count(verticalLetters)) {
-                                newWord = std::make_shared<Word>(*word);
-                                newWord->wordBeingBuilt = verticalLetters;
-
-                                if (horizontalLetters.size() > 1)
-                                    newWord->builtWords.push_back(horizontalLetters);
-
-                                if (greedyMap->forward->count(verticalLetters))
-                                    isForwardable = true;
-                                if (greedyMap->backward->count(verticalLetters))
-                                    isBackwardable = true;
-                            }
-                        }
-
-                        // Check whether the connected letters at a perpendicular angle is in the dictionary
-                        if (angle == HORIZONTAL && dictionary->isInDict(verticalLetters)) {
-                            if (greedyMap->forward->count(horizontalLetters) ||
-                                greedyMap->backward->count(horizontalLetters)) {
-                                newWord = std::make_shared<Word>(*word);
-                                newWord->wordBeingBuilt = horizontalLetters;
-
-                                if (verticalLetters.size() > 1)
-                                    newWord->builtWords.push_back(verticalLetters);
-
-                                if (greedyMap->forward->count(horizontalLetters))
-                                    isForwardable = true;
-                                if (greedyMap->backward->count(horizontalLetters))
-                                    isBackwardable = true;
-                            }
-                        }
-
-                    } else {
-                        // If the cell at the current index is an empty cell
-                        newWord = std::make_shared<Word>(*word);
-                        newWord->wordBeingBuilt = letter + newWord->wordBeingBuilt;
-                        if (greedyMap->forward->count(newWord->wordBeingBuilt))
-                            isForwardable = true;
-                        if (greedyMap->backward->count(newWord->wordBeingBuilt))
-                            isBackwardable = true;
+        for (const auto letter: word->lettersInHand) {
+            newWord = nullptr;
+            // Check whether letter can be found in the map
+            if (greedyMap->backward->count(word->wordBeingBuilt) &&
+               (*greedyMap->backward)[word->wordBeingBuilt]->count(letter)) {
+                backwardIdxToSearch = backwardIdx;
+                isForwardable = false;
+                isBackwardable = false;
+                auto at = (*adjacentTiles)[backwardIdx];
+                if (at != nullptr) {
+                    std::string verticalLetters;
+                    std::string horizontalLetters;
+                    // Process all the connected letters
+                    if (angle == VERTICAL) {
+                        verticalLetters = letter + word->wordBeingBuilt;
+                        horizontalLetters = std::string(1, letter);
+                        // If going vertical, the backward direction is top
+                        if (!at->adjacentLetters[UPWARD].empty())
+                            verticalLetters =
+                                    at->adjacentLetters[UPWARD]
+                                    + verticalLetters;
+                        if (!at->adjacentLetters[LEFTWARD].empty())
+                            horizontalLetters =
+                                    at->adjacentLetters[LEFTWARD]
+                                    + horizontalLetters;
+                        if (!at->adjacentLetters[RIGHTWARD].empty())
+                            horizontalLetters += at->adjacentLetters[RIGHTWARD];
+                    } else { // If HORIZONTAL
+                        verticalLetters = std::string(1, letter);
+                        horizontalLetters = letter + word->wordBeingBuilt;
+                        // If going horizontal, the backward direction is left
+                        if (!at->adjacentLetters[UPWARD].empty())
+                            verticalLetters =
+                                    at->adjacentLetters[UPWARD]
+                                    + verticalLetters;
+                        if (!at->adjacentLetters[DOWNWARD].empty())
+                            verticalLetters += at->adjacentLetters[DOWNWARD];
+                        if (!at->adjacentLetters[LEFTWARD].empty())
+                            horizontalLetters =
+                                    at->adjacentLetters[LEFTWARD]
+                                    + horizontalLetters;
                     }
+
+                    if (angle == VERTICAL &&
+                    dictionary->isInDict(horizontalLetters)) {
+                        if (greedyMap->forward->count(verticalLetters) ||
+                            greedyMap->backward->count(verticalLetters)) {
+                            newWord = std::make_shared<Word>(*word);
+                            newWord->wordBeingBuilt = verticalLetters;
+
+                            if (horizontalLetters.size() > 1)
+                                newWord->builtWords.push_back(horizontalLetters);
+
+                            if (greedyMap->forward->count(verticalLetters))
+                                isForwardable = true;
+                            if (greedyMap->backward->count(verticalLetters))
+                                isBackwardable = true;
+                        }
+                    }
+
+                    if (angle == HORIZONTAL &&
+                    dictionary->isInDict(verticalLetters)) {
+                        if (greedyMap->forward->count(horizontalLetters) ||
+                            greedyMap->backward->count(horizontalLetters)) {
+                            newWord = std::make_shared<Word>(*word);
+                            newWord->wordBeingBuilt = horizontalLetters;
+
+                            if (verticalLetters.size() > 1)
+                                newWord->builtWords.push_back(verticalLetters);
+
+                            if (greedyMap->forward->count(horizontalLetters))
+                                isForwardable = true;
+                            if (greedyMap->backward->count(horizontalLetters))
+                                isBackwardable = true;
+                        }
+                    }
+
+                } else {
+                    // If the cell at the current index is an empty cell
+                    newWord = std::make_shared<Word>(*word);
+                    newWord->wordBeingBuilt = letter + newWord->wordBeingBuilt;
+                    if (greedyMap->forward->count(newWord->wordBeingBuilt))
+                        isForwardable = true;
+                    if (greedyMap->backward->count(newWord->wordBeingBuilt))
+                        isBackwardable = true;
                 }
-
-                // If newWord has been assigned
-                if (newWord) {
-                    newWord->tileIndices.insert(std::make_pair(backwardIdx, letter));
-                    // Erase the letter from the lettersInHand
-                    newWord->erase(letter);
-
-                    // Traverse forwards until either an empty cell is encountered or out of the current line
-                    backwardIdxToSearch += backwardDir;
-                    while (isPlacedTileOnTheSameLine(backwardIdxToSearch, currLine, angle))
-                        backwardIdxToSearch += backwardDir;
-                    if (isBackwardable && isEmptyTileOnTheSameLine(backwardIdxToSearch, currLine, angle)) {
-                        buildWordBackwards(forwardIdx, backwardIdxToSearch, currLine, angle, newWord);
-                    }
-                    if (isForwardable && isEmptyTileOnTheSameLine(forwardIdx, currLine, angle)) {
-                        buildWordForwards(forwardIdx, backwardIdxToSearch, currLine, angle, newWord);
-                    }
-
-                    // Add a word if it exists in a dictionary
-                    if (dictionary->isInDict(newWord->wordBeingBuilt))
-                        wordsInQueue->push(newWord);
-
-                }
-
             }
-        }
-    }
-}
 
-void WordBuilder::beAwareOfTiles() {
-    auto placedDir = board->getPlacedDir();
-    Angle singleSearchDir;
-    Angle multipleSearchDir;
-    if (placedDir == HORIZONTAL) {
-        singleSearchDir = HORIZONTAL;
-        multipleSearchDir = VERTICAL;
-    } else {
-        singleSearchDir = VERTICAL;
-        multipleSearchDir = HORIZONTAL;
-    }
+            // If newWord has been assigned
+            if (newWord) {
+                newWord->tileIndices.insert(
+                        std::make_pair(backwardIdx, letter
+                        ));
+                // Erase the letter from the lettersInHand
+                newWord->erase(letter);
 
-    // Access the leftmost or uppermost index among the tiles just placed
-    placedIndicesPtr placedIndices = board->getPlacedIndices();
+                /*
+                 * Traverse forwards until either an empty cell is
+                 * encountered or out of the current line
+                 */
+                backwardIdxToSearch += backwardDir;
+                while (isPlacedTileOnTheSameLine(backwardIdxToSearch,
+                                                 currLine,
+                                                 angle))
+                    backwardIdxToSearch += backwardDir;
+                if (isBackwardable &&
+                isEmptyTileOnTheSameLine(backwardIdxToSearch,
+                                         currLine,
+                                         angle)) {
+                    buildWordBackwards(forwardIdx,
+                                       backwardIdxToSearch,
+                                       currLine,
+                                       angle,
+                                       newWord);
+                }
+                if (isForwardable &&
+                isEmptyTileOnTheSameLine(forwardIdx,
+                                         currLine,
+                                         angle)) {
+                    buildWordForwards(forwardIdx,
+                                      backwardIdxToSearch,
+                                      currLine,
+                                      angle,
+                                      newWord);
+                }
 
-    int currIdx = placedIndices->top();
-    int currLine = getCurrLine(currIdx, placedDir);
-
-    // First, build letters in the same direction as placedDir
-    createOrUpdateEmptyAdjacencyTiles(singleSearchDir, currIdx, currLine, placedDir);
-
-    // Next, build letters in the perpendicular direction as placedDir
-    // Process the placed indices in a priority queue
-    while (!placedIndices->empty()) {
-        // Access the most leftmost or uppermost index among those of the placed tiles
-        currIdx = placedIndices->top();
-
-        currLine = getCurrLine(currIdx, multipleSearchDir);
-
-
-        createOrUpdateEmptyAdjacencyTiles(multipleSearchDir, currIdx, currLine, placedDir);
-        // Destroy the AdjacentTile if found on the placed indices
-        (*adjacentTiles)[currIdx] = nullptr;
-        placedIndices->pop();
-    }
-}
-
-void WordBuilder::prioritiseTiles() {
-    // Clear tilesToStartFrom before putting
-    tilesToStartFrom = TilesToStartFrom();
-    for (auto adjacentTile : *adjacentTiles) {
-        if (adjacentTile)
-            tilesToStartFrom.push(adjacentTile);
-    }
-}
-
-/*
- * There are two algorithms used to place tiles.
- *
- * First, if a given row or column has only one letter in the center, sortedMap can be used to increase the chances of
- * hitting a bingo, as no ordering needs to be factored in when placing the entire tiles in the hand.
- *
- * In order to check whether a given AdjacentTile is solvable by sortedMap, first its data member adjacentLetters
- * is checked to see how many placed tile is connected to it. If there is only one, the presumably adjacent tile
- * on the opposite side of it and its data member adjacentLetters is also checked. If this check passes,
- * the rows or columns next to the one the original AdjacentTile is on are checked in its entirety.
- *
- * If there are no placed tiles found other than the ones on the centre, the sortedMap can be used to quickly
- * find 7 or 8 letter-long wordsInQueue.
- *
- * Second, if the check above does not turn up any valid wordBeingBuilt, the greedy algorithm is used.
- * As all the AdjacentTiles are stored in a priority queue with the potentialScore data member as a key,
- * the one with the highest potential score can be looked at first.
- *
- * If the AdjacentTile has only one placed tile connected to it, the algorithm is first made to go in
- * the perpendicular direction to generate a long wordBeingBuilt.
- *
- * The algorithm first looks up connected letters in forwardMap if they are placed to the right or bottom
- * of an AdjacentTile and iterates each letter in the hand to see a wordBeingBuilt can be made with any of the letters in the hand
- * in front of the existing connected letters. If they are placed to the left or top of an AdjacentTile, backwardMap
- * is accessed to find whether the existing connected letters can be extended by any of the letters in the hand.
- *
- * If not, its data member misExtendible is set to false and its potentialScores is also set to 0.
- * Otherwise, the aggregate number of wordsInQueue that can be made with any of the letters in the hand is stored.
- * The number of wordsInQueue is then compared to that of an AdjacentTile on its opposite end to see which presents
- * higher chances of being made into a wordBeingBuilt
- * (in each turn, built letters are searched in a dictionary and put into a priority queue with its score).
- *
- * Once one of the AdjacentTiles is selected, the most frequent letter is placed (since the starting letter(s) that was
- * already placed was deemed the highest, the most frequent letter is chosen from the hand).
- *
- * In the next round, the same step is repeated. If the current tile on the board being enquired is an AdjacentTile,
- * its data member adjacentLetters is accessed to check whether the trailing letters can be connected to all the letters
- * found in adjacentLetters. If not, the algorithm no longer goes forward
- *
- */
-
-
-// The leftmost or uppermost index among the tiles placed at the current turn is passed as currIdx
-void WordBuilder::createOrUpdateEmptyAdjacencyTiles(Angle searchingDir,
-                                                    int currIdx,
-                                                    int currLine,
-                                                    Angle placedDirection) {
-    // First, build letters in the same direction as placedDir
-    std::ostringstream oss;
-    BoardDir backwardDir;
-    BoardDir forwardDir;
-    if (searchingDir == HORIZONTAL) {
-        backwardDir = LEFT;
-        forwardDir = RIGHT;
-    } else {
-        backwardDir = TOP;
-        forwardDir = BOTTOM;
-    }
-
-    int mostBackwardIdx = currIdx;
-
-    // Since the tile could have been placed next to an existing tile,
-    // Traverse backwards once to check whether another placed tile is connected to the one just placed
-    mostBackwardIdx += backwardDir;
-    // Find out the leftmost or uppermost tile that is placed on the board on the same row or column
-    while (isPlacedTileOnTheSameLine(mostBackwardIdx, currLine, searchingDir)) {
-        mostBackwardIdx += backwardDir;
-    }
-
-    // After the while loop above, mostBackwardIdx lands on a spot one index further back
-    // Pull it back with the line below so that a string can be built by traversing to the
-    // bottommost or rightmost index of a placed tile and then create or update emptyAdjacentTile
-    currIdx = mostBackwardIdx + forwardDir;
-    int totalLetterScores = 0;
-    while (isPlacedTileOnTheSameLine(currIdx, currLine, searchingDir)) {
-        totalLetterScores += board->getValue(currIdx);
-        oss << (board->getLetter(currIdx));
-        currIdx += forwardDir;
-    }
-
-    // currIdx now refers to the index on which bottommost or rightmost placed tile is found or off the line.
-    // Assign mostFowardIdx with currIdx for readability.
-    int mostForwardIdx = currIdx;
-    // Create or update the bottommost or rightmost AdjacentTile
-    if (isOnBaseLine(mostForwardIdx, currLine, searchingDir)) {
-        // If the next following tile from the bottommost or rightmost has no AdjacentTile
-        if (!(*adjacentTiles)[mostForwardIdx]) {
-            AdjacentTilePtr currAt = std::make_shared<AdjacentTile>(
-                    totalLetterScores, oss.str(),
-                    forwardDir, mostForwardIdx);
-            (*adjacentTiles)[mostForwardIdx] = currAt;
-        } else {
-            (*adjacentTiles)[mostForwardIdx]->update(totalLetterScores, oss.str(), forwardDir);
-        }
-    }
-
-    // Create or update the uppermost or leftmost emptyAdjacencyTile
-    if (isOnBaseLine(mostBackwardIdx, currLine, searchingDir)) {
-        if (!(*adjacentTiles)[mostBackwardIdx]) {
-            AdjacentTilePtr currAt = std::make_shared<AdjacentTile>(
-                    totalLetterScores, oss.str(),
-                    backwardDir, mostBackwardIdx);
-            (*adjacentTiles)[mostBackwardIdx] = currAt;
-        } else {
-            (*adjacentTiles)[mostBackwardIdx]->update(totalLetterScores, oss.str(), backwardDir);
+                // Add a word if it exists in a dictionary
+                if (dictionary->isInDict(newWord->wordBeingBuilt))
+                    completeWords->push(newWord);
+            }
         }
     }
 }
@@ -722,7 +798,7 @@ int WordBuilder::getCurrLine(int idx, Angle dir) {
     return currLine;
 }
 
-bool WordBuilder::isOnBaseLine(int idx, int baseLine , Angle dir) {
+bool WordBuilder::isOnCurrLine(int idx, int baseLine , Angle dir) {
     bool isOnTheSameLine;
     if (dir == HORIZONTAL) {
         isOnTheSameLine = (idx / BOARD_LENGTH == baseLine);
@@ -737,11 +813,11 @@ bool WordBuilder::isOnBoard(int idx) {
 }
 
 bool WordBuilder::isPlacedTileOnTheSameLine(int idx, int baseLine, Angle dir) {
-    return isOnBoard(idx) && isOnBaseLine(idx, baseLine, dir) && board->hasPlacedTile(idx);
+    return isOnBoard(idx) && isOnCurrLine(idx, baseLine, dir) && board->hasPlacedTile(idx);
 }
 
 bool WordBuilder::isEmptyTileOnTheSameLine(int idx, int baseLine, Angle dir) {
-    return isOnBoard(idx) && isOnBaseLine(idx, baseLine, dir) && !board->hasPlacedTile(idx);
+    return isOnBoard(idx) && isOnCurrLine(idx, baseLine, dir) && !board->hasPlacedTile(idx);
 }
 
 void WordBuilder::setGreedyMap(GreedyMapPtr greedyMap) {
@@ -761,14 +837,16 @@ void WordBuilder::setAdjacentTiles(AdjacentTilesPtr adjacentTiles) {
 }
 
 void WordBuilder::giveHint(const LinkedListPtr<TilePtr>& hand) {
-    wordsInQueue = std::make_shared<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>>();
+    completeWords = std::make_shared<CompleteWords>();
     prioritiseTiles();
     findWords(hand->getLetters());
-    auto chosenTileIndices = wordsInQueue->top()->tileIndices;
+    auto chosenTileIndices = completeWords->top()->tileIndices;
     for (auto tileIndex: chosenTileIndices) {
         std::cout << tileIndex.second << " ";
     }
-    std::cout << "(you may need to combine with another letter already placed on the board): " << std::endl;
+    std::cout <<
+    "(you may need to combine with another letter already placed): "
+    << std::endl;
 }
 
 
@@ -776,11 +854,6 @@ void WordBuilder::giveHint(const LinkedListPtr<TilePtr>& hand) {
  * The code below is for the first tried algorithm using a sorted map to quickly find whether there is any word
  * that can be made given the letters. Therefore, please disregard the section below. It's for my own reference
  * in the future.
- *
- *
- *
- *
- *
  *
  * // Check whether the current index can produce AdjacentTiles that can be solvable by sortedMap
     // Condition 1. the Adjacent tiles to be created should be around the placed tile on the centre line
@@ -806,7 +879,7 @@ void WordBuilder::giveHint(const LinkedListPtr<TilePtr>& hand) {
         } else {
             idxToSearch = ((originalIdx / BOARD_LENGTH) + 1) * BOARD_LENGTH;
         }
-        while (isOnBaseLine(idxToSearch, lineToSearch, searchingDir)) {
+        while (isOnCurrLine(idxToSearch, lineToSearch, searchingDir)) {
             // Check whether the line contains any adjacent tile
             if (adjacentTiles[idxToSearch] != nullptr) {
                 isSolvableBySortedMap = false;
@@ -859,14 +932,14 @@ void WordBuilder::giveHint(const LinkedListPtr<TilePtr>& hand) {
 //            && adjacentTiles[startIdxHorizontal + BOTTOM]) {
 //            baseLine = getCurrLine(startIdxHorizontal, VERTICAL);
 //            at1 = startIdxHorizontal + TOP + TOP;
-//            while (isOnBaseLine(at1, baseLine, VERTICAL)) {
+//            while (isOnCurrLine(at1, baseLine, VERTICAL)) {
 //                if (adjacentTiles[at1] || board->hasPlacedTile(at1))
 //                    isSolvableBySortedMap = false;
 //                at1 += TOP;
 //            }
 //
 //            at2 = startIdxHorizontal + BOTTOM + BOTTOM;
-//            while (isOnBaseLine(at2, baseLine, VERTICAL)) {
+//            while (isOnCurrLine(at2, baseLine, VERTICAL)) {
 //                if (adjacentTiles[at2] || board->hasPlacedTile(at2))
 //                    isSolvableBySortedMap = false;
 //                at2 += BOTTOM;
@@ -894,14 +967,14 @@ void WordBuilder::giveHint(const LinkedListPtr<TilePtr>& hand) {
 //            && adjacentTiles[startIdxVertical + RIGHT]) {
 //            baseLine = getCurrLine(startIdxVertical, HORIZONTAL);
 //            at1 = startIdxVertical + LEFT + LEFT;
-//            while (isOnBaseLine(at1, baseLine, HORIZONTAL)) {
+//            while (isOnCurrLine(at1, baseLine, HORIZONTAL)) {
 //                if (adjacentTiles[at1] || board->hasPlacedTile(at1))
 //                    isSolvableBySortedMap = false;
 //                at1 += LEFT;
 //            }
 //
 //            at2 = startIdxVertical + RIGHT + RIGHT;
-//            while (isOnBaseLine(at2, baseLine, HORIZONTAL)) {
+//            while (isOnCurrLine(at2, baseLine, HORIZONTAL)) {
 //                if (adjacentTiles[at2] || board->hasPlacedTile(at2))
 //                    isSolvableBySortedMap = false;
 //                at2 += RIGHT;
@@ -922,7 +995,7 @@ void WordBuilder::giveHint(const LinkedListPtr<TilePtr>& hand) {
 //    std::ifstream in(fileName);
 //    // Read a file as long as there is a line to read
 //    while (std::getline(in, line)) {
-//        // Use istringstream to work with individual wordsInQueue on a line
+//        // Use istringstream to work with individual completeWords on a line
 //        std::istringstream iss(line);
 //        iss >> mainKey;
 //        originalWordsPtr originalWords = std::make_shared<originalWordsType>();

@@ -31,7 +31,7 @@ std::istream &CommandHandler::getline(std::istream &in,
     std::istringstream iss(userLine);
     std::string userWord;
 
-    // Store all the wordsInQueue delimited by whitespace in userLine
+    // Store all the completeWords delimited by whitespace in userLine
     while (iss >> userWord)
     {
         playerCommand.push_back(userWord);
@@ -136,7 +136,7 @@ bool CommandHandler::isPlaceDoneCommandValid(const BoardPtr& board,
     if (numWords == 2)
     {
         std::string secondWord = playerCommand[1];
-        // Check whether the wordsInQueue are "place Done"
+        // Check whether the completeWords are "place Done"
         if (secondWord != "Done")
         {
             std::cout << "Invalid Input: To end your turn use: place Done"

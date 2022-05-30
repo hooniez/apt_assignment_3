@@ -238,18 +238,17 @@ bool Game::play()
               << std::endl;
 
     bool isGameOver = false;
-    WordBuilderPtr currWordBuilder;
+    WordBuilderPtr currWordBuilder = nullptr;
     while (inSession && !isGameOver)
     {
         printCurrTurn();
-
-        std::shared_ptr<std::map<std::string, char>> tileIndices;
+        std::shared_ptr<indicesToLetters> indicesToLetters = nullptr;
         if (configSetting->count("--ai")) {
             wordBuilder->scanTheBoard();
             if (currPlayer == wordBuilder) {
-                tileIndices = wordBuilder->getTheBestMove();
-                executePlaceCommand(*tileIndices);
-                size_t numTilesPlaced = tileIndices->size();
+                indicesToLetters = wordBuilder->getTheBestMove();
+                executePlaceCommand(*indicesToLetters);
+                size_t numTilesPlaced = indicesToLetters->size();
                 board->makeCurrWords();
                 executePlaceDoneCommand(numTilesPlaced);
             } else {
@@ -261,10 +260,10 @@ bool Game::play()
             else
                 currWordBuilder = wordBuilder2;
             currWordBuilder->scanTheBoard();
-            tileIndices = currWordBuilder->getTheBestMove();
-            if (tileIndices != nullptr) {
-                executePlaceCommand(*tileIndices);
-                size_t numTilesPlaced = tileIndices->size();
+            indicesToLetters = currWordBuilder->getTheBestMove();
+            if (indicesToLetters != nullptr) {
+                executePlaceCommand(*indicesToLetters);
+                size_t numTilesPlaced = indicesToLetters->size();
                 board->makeCurrWords();
                 executePlaceDoneCommand(numTilesPlaced);
             }
@@ -292,7 +291,7 @@ bool Game::play()
                     currPlayer->resetNumPasses();
                 }
             } else {
-                if (tileIndices == nullptr) {
+                if (indicesToLetters == nullptr) {
                     currPlayer->incrementNumPasses();
                 } else {
                     currPlayer->resetNumPasses();
@@ -482,7 +481,7 @@ void Game::executePlaceDoneCommand(size_t &numTilesPlaced)
     }
 }
 
-// Calculate scores from the generated wordsInQueue after "place Done"
+// Calculate scores from the generated completeWords after "place Done"
 int Game::calculateScores()
 {
     auto words = board->getCurrWords();

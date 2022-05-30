@@ -9,7 +9,7 @@ dict(std::make_shared<dictType>()) {
     // so that rehash does not slow down the loading process
     dict->reserve(TOTAL_WORDS_IN_DIC);
 
-    // Read wordsInQueue in the file into dict
+    // Read completeWords in the file into dict
     std::string word;
     std::ifstream in(dictFileName);
     while (std::getline(in, word)) {

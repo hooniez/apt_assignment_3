@@ -24,7 +24,7 @@ void GreedyMap::readFileToMap(const std::string &fileName, mapPtr& map) {
     std::ifstream in(fileName);
     // Read a file as long as there is a line to read
     while (std::getline(in, line)) {
-        // Use istringstream to work with individual wordsInQueue on a line
+        // Use istringstream to work with individual completeWords on a line
         std::istringstream keyLetterCombo(line);
         keyLetterCombo >> key;
         extendableLettersPtr letters = std::make_shared<extendableLettersType>();
@@ -59,7 +59,7 @@ void GreedyMap::readFileToMap(const std::string &fileName, mapPtr& map) {
 //    std::ifstream in(fileName);
 //    // Read a file as long as there is a line to read
 //    while (std::getline(in, line)) {
-//        // Use istringstream to work with individual wordsInQueue on a line
+//        // Use istringstream to work with individual completeWords on a line
 //        std::istringstream weightedProbabilities(line);
 //        weightedProbabilities >> mainKey;
 //        extendableLettersPtr subMap = std::make_shared<extendableLettersType>();

@@ -87,6 +87,6 @@ public:
 };
 
 typedef std::priority_queue<AdjacentTilePtr, std::vector<AdjacentTilePtr>,
-        CompareAdjacentTile> TilesToStartFrom;
+        CompareAdjacentTile> AdjacentTilesToProcess;
 
 #endif //ASSIGNMENT3_ADJACENTTILE_H

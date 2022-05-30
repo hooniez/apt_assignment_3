@@ -6,8 +6,9 @@
 #define ASSIGNMENT3_GREEDYMAP_H
 
 /*
- * GreedyMap was initially preprocessed from the provided dictionary such
- * that each
+ * GreedyMap is a container class that stores forward and backward maps. For
+ * further information on what they are about, please refer to
+ * GreedyMapBuilder.h.
  */
 
 #include <unordered_map>

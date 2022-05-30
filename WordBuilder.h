@@ -4,55 +4,118 @@
 
 #ifndef ASSIGNMENT3_WORDBUILDER_H
 #define ASSIGNMENT3_WORDBUILDER_H
-#include <string>
 
 /*
  * WordBuilder is initialised when --ai or --hint options are enabled.
  *
- * The first step to making the algorithm efficient is to find an efficient way
- * to differentiate hard problems from easy ones.
+ * WordBuilder's functions make up the algorithm that drives tile placements.
+ * It extends the Player class so that it can be polymorphic, able to utilise
+ * the methods of Player.
  *
- * A placement adjacent to only one existing tile is considered easy whereas
- * a placement adjacent to more than one existing tile is considered hard.
+ * The algorithm first fetches the tiles placed in the previous turn; If it
+ * is the first round, it has no placed tiles to process and, hence, inserts
+ * an AdjacentTile at the centre.
  *
- * For example, let's say there is one wordBeingBuilt (GOOD) placed in the board:
+ * Once the placed tiles are fetched in the 1 dimensional notation (e.g. H7
+ * equals BOARD_LENGTH * (BOARD_LENGTH / 2) + (BOARD_LENGTH / 2)), they are
+ * then iterated from the leftmost or uppermost, depending on the angle at
+ * which letters are placed by the other player, to rightmost or bottommost.
+ * For example, if letters are placed as below across the center line,
  *
- *                       XXXX
- *                      YGOODY
- *                       XXXX
+ * | | | | | | | | | | | | | | | |
+ * | | | | | |A|P|T| | | | | | | |
+ * | | | | | | | | | | | | | | | |
+ * FIG-1
  *
- * The cells marked with X are considered easy (as far as tiles are placed in the
- * perpendicular direction). The cells marked with Y are also considered easy
- * (A placement in the same direction is considered easy).
+ * The letters A, P, and T are processed in the order twice vertically and
+ * horizontally.
  *
- * Now, let's place another GOOD across where the second O is
+ * Since the word is placed horizontally, beAwareOfTiles() calls
+ * createOrUpdateAdjacentTiles() horizontally once and vertically three
+ * times to create AdjacentTiles around the word as seen below as noted by
+ * the asterisks.
  *
- *                         Y
- *                        XGX
- *                       XZOZ
- *                      YGOODY
- *                       XZDZ
- *                         Y
+ * | | | | | |*|*|*| | | | | | | |
+ * | | | | |*|A|P|T|*| | | | | | |
+ * | | | | | |*|*|*| | | | | | | |
+ * FIG-2
  *
- * The cells marked by Z are considered hard as more than one check is needed
- * to find out the placement results in valid wordsInQueue.
+ * createOrUpdateAdjacentTiles(), when first called in the horizontal
+ * direction, moves mostBackwardIdx first backward from the placed tile with
+ * the smallest index, in this case A until it finds an empty tile or goes
+ * off the current line. Once it lands on an empty cell (the left most * in
+ * FIG-2), currIdx is assigned to its previous index, in this case where A is.
+ * currIdx then traverses forwards, while keeping track of each of the
+ * letters' values and the letters themselves, until it finds an empty tile
+ * (the rightmost * in FIG-2) or goes off the current line. It is then
+ * an AdjacentTile is created where each of the asterisks is (leftmost and
+ * rightmost); that is as long as it is on the same line as the root index,
+ * that of A. When an AdjacentTile is created, the letters collected are
+ * stored in a manner mentioned in AdjacentTile.h; so is the total score.
  *
- * The algorithm will keep track of available placements (all the X, Y, Z tiles)
- * in two sets, used as priority queues, namely singleWordTiles and multiWordTiles.
- * Each of the tiles in the sets will contain a data member that keeps track of
- * the surrounding letters and their total values.
+ * After the previous steps are complete, the same procedure is repeated in the
+ * vertical direction; this time uppermost and bottommost. By the time
+ * beAwareOfTiles() comes to an end, 8 AdjacentTiles will have been created
+ * and stored in the data member called adjacentTiles, which is a vector of
+ * size BOARD_LENGTH * BOARD_LENGTH initialised with nullptr; an Array could
+ * have been used here as a container does not need to grow, but an Array
+ * needs to be converted to a vector when the container is turned into a
+ * priority queue later on. Therefore, it is reasonable to settle on a vector
+ * to begin with and utilise its convenient data methods.
  *
- * it will prioritise placement on easy tiles using sortedMap coupled with
- * the sorting of the tiles in the hand. For example, if the player
+ * Another example of what happens when letters are placed:
  *
+ * | | | | |*| | | | | | | | | | |
+ * | | | |*|S|*| | | | | | | | | |
+ * | | | |*|C|*|*|*| | | | | | | |
+ * | | | |*|R|A|P|T|*| | | | | | |
+ * | | | |*|A|*|*|*| | | | | | | |
+ * | | | |*|B|*| | | | | | | | | |
+ * | | | |*|B|*| | | | | | | | | |
+ * | | | |*|L|*| | | | | | | | | |
+ * | | | |*|E|*| | | | | | | | | |
+ * | | | | |*| | | | | | | | | | |
+ * FIG-3 (illegal bingo)
  *
- * Two maps are used to make the best decision from a given tile
- * or given continuous tiles without a gap.
+ * In the case above, the uppermost and bottommost AdjacentTiles are created
+ * first and then more are created horizontally. Here, the edge cases worth
+ * noting are the asterisk whose left-hand side is C of SCRABBLE and bottom
+ * side is A of RAPT. For what happens in this case, please refer again to
+ * AdjacentTile.h. However, what is a more interesting case is the right most
+ * AdjacentTile of RAPT. Its value denoting what letters are to its left is
+ * updated when R of SCRABBLE is processed horizontally. Additionally, the
+ * AdjacentTile left to APT is now destroyed, squashed by the big R.
  *
- * Each of the tiles placeable is searched by its letter in both
- * forwardMap and backwardMap, by which one with the highest value
- * (the probability of a letter among valid letters * the score of a letter)
- * can be found.
+ * Once all the AdjacentTiles are created or updated, each of them are then put
+ * into a max-heap based on potential scores from its surrounding placed
+ * tiles. The resultant adjacentTilesToProcess is then processed until empty
+ * (originally it was hard to gauge the efficiency of the algorithm; as such
+ * it was important to have a way of processing a certain number of
+ * adjacentTiles depending on how slow the algorithm runs). Each of
+ * the letters in the hand is then concatenated to verticalLetters and
+ * horizontalLetters if any.
+ *
+ * After concatenation, whether the letter placed on the AdjacentTile can be
+ * extended forwards or backwards or both in both the vertical and horizontal
+ * directions. For example, For an adjacentTile to be extended forwards from
+ * the given letter in the vertical direction, the horizontalLetters must be a
+ * complete word. Once the horizontalLetters is confirmed to exist in the
+ * dictionary, forwardMap is consulted to see whether the verticalLetters
+ * exist as a key. If it does, forwardWordExists is set to true. The same
+ * step is repeated for the backwards direction. If two of the conditions are
+ * met, the combination of the particular letter and the AdjacentTile and
+ * other information mentioned in Word.h is turned into an instance of Word.
+ * The previous steps are repeated for every single letter in the hand before
+ * moving onto the next phase.
+ *
+ * Now, the most backward index and forward index connected to the
+ * AdjacentIdx need to be found out before being able to extend further. As
+ * seen above in createOrUpdateAdjacentTiles(), mostBackwardIdx and
+ * mostForwardIdx will land on the next closest empty tile. There is a
+ * possibility that it may land on a different line in the single dimensional
+ * representation of the board, but isEmptyTileOnTheSameLine() provides for
+ * such an edge case. These steps will be repeated for both directions before
+ * recursively further extending what are still potentially valid letters.
  *
  */
 
@@ -65,6 +128,7 @@
 #include <algorithm>
 #include <sstream>
 #include <array>
+#include <string>
 
 #include "types.h"
 #include "player.h"
@@ -73,62 +137,41 @@
 #include "AdjacentTile.h"
 #include "Word.h"
 
+typedef std::map<std::string, char> indicesToLetters;
+typedef std::shared_ptr<indicesToLetters> indicesToLettersPtr;
+
 class WordBuilder : public Player {
 public:
     // This constructor is called from loading a saved game
-    WordBuilder(const GreedyMapPtr& greedyMap,
-                const DictionaryPtr& dictionary,
+    WordBuilder(GreedyMapPtr  greedyMap,
+                DictionaryPtr  dictionary,
                 const std::string& name,
-                size_t score,
+                int score,
                 LinkedListPtr<TilePtr> hand,
                 BoardPtr board);
 
     // This constructor is called when starting a new game
-    WordBuilder(const GreedyMapPtr& greedyMap,
-                const DictionaryPtr& dictionary,
+    WordBuilder(GreedyMapPtr  greedyMap,
+                DictionaryPtr  dictionary,
                 const std::string& name,
                 BoardPtr board);
+
+    void scanTheBoard();
+
+    void beAwareOfTiles();
+
+    void createOrUpdateAdjacentTiles(Angle searchingDir,
+                                     int currIdx,
+                                     int currLine,
+                                     Angle placedDirection);
 
     // WordBuilder executes the next move
     std::shared_ptr<std::map<std::string, char>> getTheBestMove();
 
-    void findWords(const std::string &);
-
-    // Check if the index is within the board and on the same line as the baseLine
-    bool isOnBaseLine(int idx, int baseLine, Angle dir);
-
-    void createOrUpdateEmptyAdjacencyTiles(Angle searchingDir,
-                                           int currIdx,
-                                           int currLine,
-                                           Angle placedDirection);
-
-    int getCurrLine(int idx, Angle dir);
-
-    void beAwareOfTiles();
-
-    bool isOnBoard(int idx);
     // Convert the processed tiles into a priority queue
     void prioritiseTiles();
 
-    void setGreedyMap(GreedyMapPtr greedyMap);
-
-    void setBoard(BoardPtr board);
-
-    void setDictionary(DictionaryPtr dictionary);
-
-    void setAdjacentTiles(AdjacentTilesPtr adjacentTiles);
-
-    std::shared_ptr<std::map<std::string, char>> convert(std::map<int, char> & tileIndices);
-
-    char convertIntToRowLetter(int);
-
-    bool isPlacedTileOnTheSameLine(int idx, int baseLine, Angle dir);
-
-    bool isEmptyTileOnTheSameLine(int idx, int baseLine, Angle dir);
-
-    void scanTheBoard();
-
-    void giveHint(const LinkedListPtr<TilePtr>& hand);
+    void findWords(const std::string &);
 
     void buildWordForwards(int forwardIdx,
                            int backwardIdx,
@@ -142,18 +185,40 @@ public:
                             Angle angle,
                             const WordPtr& word);
 
+    indicesToLettersPtr convert(std::map<int, char> &);
+
+    // Check if the index is within the board and on the same line as the baseLine
+    bool isOnCurrLine(int idx, int baseLine, Angle dir);
+
+    int getCurrLine(int idx, Angle dir);
+
+    bool isOnBoard(int idx);
+
+    void setGreedyMap(GreedyMapPtr greedyMap);
+
+    void setBoard(BoardPtr board);
+
+    void setDictionary(DictionaryPtr dictionary);
+
+    void setAdjacentTiles(AdjacentTilesPtr adjacentTiles);
+
+    char convertIntToRowLetter(int);
+
+    bool isPlacedTileOnTheSameLine(int idx, int baseLine, Angle dir);
+
+    bool isEmptyTileOnTheSameLine(int idx, int baseLine, Angle dir);
+
+    void giveHint(const LinkedListPtr<TilePtr>& hand);
+
 private:
     GreedyMapPtr greedyMap;
     BoardPtr board;
     DictionaryPtr dictionary;
-    std::shared_ptr<std::priority_queue<WordPtr, std::vector<WordPtr>, CompareWord>> wordsInQueue;
-
+    CompleteWordsPtr completeWords;
     // adjacentTiles keeps track of instances of AdjacentTile
     AdjacentTilesPtr adjacentTiles;
-    // tilesToStartFrom stores AdjacentTiles sorted by its potential scores in ascending order
-    TilesToStartFrom tilesToStartFrom;
-
-
+    // adjacentTilesToProcess stores AdjacentTiles sorted by its potential scores in ascending order
+    AdjacentTilesToProcess adjacentTilesToProcess;
 };
 typedef std::shared_ptr<WordBuilder> WordBuilderPtr;
 

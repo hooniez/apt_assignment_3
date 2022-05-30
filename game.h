@@ -87,7 +87,7 @@ public:
      * command is validated)
      */
     void executePlaceDoneCommand(size_t &numTilesPlaced);
-    // Calculate scores from the generated wordsInQueue after "place Done"
+    // Calculate scores from the generated completeWords after "place Done"
     int calculateScores();
     /*
      * Execute a replace command (This function can only be invoked once the

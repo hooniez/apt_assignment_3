@@ -17,43 +17,30 @@
   <component name="ChangeListManager">
     <list default="true" id="45861f05-9093-4a50-b324-3019e47426f0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AdjacentTile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/AdjacentTile.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AdjacentTile.h" beforeDir="false" afterPath="$PROJECT_DIR$/AdjacentTile.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dictionary.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dictionary.h" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dictionary.o" beforeDir="false" afterPath="$PROJECT_DIR$/Dictionary.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GreedyMap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GreedyMap.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GreedyMap.h" beforeDir="false" afterPath="$PROJECT_DIR$/GreedyMap.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GreedyMapBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/GreedyMapBuilder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GreedyMapBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/GreedyMapBuilder.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SortedMapBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SortedMapBuilder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SortedMapBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/SortedMapBuilder.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Word.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Word.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Word.h" beforeDir="false" afterPath="$PROJECT_DIR$/Word.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WordBuilder.h" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WordBuilder.o" beforeDir="false" afterPath="$PROJECT_DIR$/WordBuilder.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backwardMap" beforeDir="false" afterPath="$PROJECT_DIR$/backwardMap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/battle.save" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/board.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/board.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/board.h" beforeDir="false" afterPath="$PROJECT_DIR$/board.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/board.o" beforeDir="false" afterPath="$PROJECT_DIR$/board.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/commandHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commandHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commandHandler.o" beforeDir="false" afterPath="$PROJECT_DIR$/commandHandler.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/filemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/filemanager.h" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/filemanager.o" beforeDir="false" afterPath="$PROJECT_DIR$/filemanager.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forwardAiMap" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/forwardMap" beforeDir="false" afterPath="$PROJECT_DIR$/forwardMap" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/game.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.h" beforeDir="false" afterPath="$PROJECT_DIR$/game.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.o" beforeDir="false" afterPath="$PROJECT_DIR$/game.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scrabble" beforeDir="false" afterPath="$PROJECT_DIR$/scrabble" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sortedMap" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/ai.save" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ai.save" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/aihint.save" beforeDir="false" afterPath="$PROJECT_DIR$/tests/aihint.save" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/dictionary.save" beforeDir="false" afterPath="$PROJECT_DIR$/tests/dictionary.save" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/first.save" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/utils.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.o" beforeDir="false" afterPath="$PROJECT_DIR$/utils.o" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +171,7 @@
       <workItem from="1653189152197" duration="19775000" />
       <workItem from="1653255195099" duration="531000" />
       <workItem from="1653255866090" duration="380303000" />
-      <workItem from="1653866555088" duration="5775000" />
+      <workItem from="1653866555088" duration="25970000" />
     </task>
     <servers />
   </component>
@@ -208,7 +195,7 @@
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/board.cpp</url>
           <line>481</line>
-          <option name="timeStamp" value="399" />
+          <option name="timeStamp" value="401" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
