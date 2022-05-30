@@ -117,6 +117,29 @@
  * such an edge case. These steps will be repeated for both directions before
  * recursively further extending what are still potentially valid letters.
  *
+ * At this point, verticalLettersToExtend and horizontalLettersToExtend
+ * contain all the concatenated letters to extend, and their corresponding
+ * remaining letters in the hand, and the letters to actually place as
+ * instances of Word as well as two boolean values for each Word indicating
+ * whether its stored letters can be extended forwards or backwards or both
+ * based on the results found by forwardMap and backwardMap. It is then with
+ * this information, recursive functions are, buildWordForwards and
+ * buildWordBackwards, accordingly called.
+ *
+ * Each recursive case iterates the remaining tiles in the hand associated
+ * with the Word object on which a recursive call was made. Using the forward
+ * and backward greedy maps, it can be determined that whether the
+ * wordBeingBuilt is extendable in the time complexity of O(1). If it is,
+ * whether there is an AdjacentTile at the current index is checked. If so,
+ * similar steps mentioned three paragraphs above are executed and new Words
+ * objects are created and their forwardability and backwardability are also
+ * checked (the same results for the index where there is no AdjacentTile
+ * with fewer checks). After that, depending on whether a new Word can be
+ * extended forwards or backwards, recursive functions are called on it.
+ * After a new Word comes back from the recursion, its wordBeingBuilt is
+ * checked in the dictionary. If so, it is added to completeWords (a
+ * max-heap) for finding the best possible placement.
+ *
  */
 
 #include <map>
@@ -212,12 +235,15 @@ public:
 
 private:
     GreedyMapPtr greedyMap;
+
     BoardPtr board;
+
     DictionaryPtr dictionary;
+
     CompleteWordsPtr completeWords;
-    // adjacentTiles keeps track of instances of AdjacentTile
+
     AdjacentTilesPtr adjacentTiles;
-    // adjacentTilesToProcess stores AdjacentTiles sorted by its potential scores in ascending order
+
     AdjacentTilesToProcess adjacentTilesToProcess;
 };
 typedef std::shared_ptr<WordBuilder> WordBuilderPtr;

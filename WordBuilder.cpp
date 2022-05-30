@@ -202,8 +202,8 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
 
         std::string verticalLetters;
         std::string horizontalLetters;
-        std::map<WordPtr, std::tuple<bool, bool>> verticalValidLetters;
-        std::map<WordPtr, std::tuple<bool, bool>> horizontalValidLetters;
+        std::map<WordPtr, std::tuple<bool, bool>> verticalLettersToExtend;
+        std::map<WordPtr, std::tuple<bool, bool>> horizontalLettersToExtend;
         std::map<int, char> tileIndices;
         bool forwardWordExists;
         bool backwardWordExists;
@@ -282,7 +282,7 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
                         if (horizontalLetters.size() > 1) {
                             newWord->builtWords.push_back(horizontalLetters);
                         }
-                        verticalValidLetters.insert(std::make_pair(
+                        verticalLettersToExtend.insert(std::make_pair(
                                 newWord,
                                 wordAvailability));
                     } else {
@@ -293,7 +293,7 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
                         if (verticalLetters.size() > 1) {
                             newWord->builtWords.push_back(verticalLetters);
                         }
-                        horizontalValidLetters.insert(
+                        horizontalLettersToExtend.insert(
                                 std::make_pair(newWord,
                                                wordAvailability));
                     }
@@ -319,7 +319,7 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
         bool isForwardable = false;
         bool isBackwardable = false;
 
-        if (!verticalValidLetters.empty()) {
+        if (!verticalLettersToExtend.empty()) {
             currIdx = at->idx;
             currVerticalLine = getCurrLine(currIdx, VERTICAL);
             mostBackwardIdx = currIdx;
@@ -328,8 +328,9 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
             forwardDir = BOTTOM;
 
             /*
-             * currIdx is occupied by one of the letters in verticalValidLetters
-             * Therefore move backward to find the next empty cell
+             * currIdx is occupied by one of the letters in
+             * verticalLettersToExtend. Therefore, move backward to find the
+             * next empty cell
              */
             mostBackwardIdx = currIdx + backwardDir;
             // As long as on the board and there are already placed tiles
@@ -365,7 +366,7 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
             }
 
             // Build words
-            for (auto & verticalValidLetter : verticalValidLetters) {
+            for (auto & verticalValidLetter : verticalLettersToExtend) {
                 if (isForwardable &&
                     std::get<FORWARDWORDEXISTS>(verticalValidLetter.second)) {
                     buildWordForwards(mostForwardIdx,
@@ -385,7 +386,7 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
             }
         }
 
-        if (!horizontalValidLetters.empty()) {
+        if (!horizontalLettersToExtend.empty()) {
             currIdx = at->idx;
             currHorizontalLine = getCurrLine(currIdx, HORIZONTAL);
             mostBackwardIdx = currIdx;
@@ -428,7 +429,7 @@ void WordBuilder::findWords(const std::string& lettersInHand) {
             }
 
             // Build words
-            for (auto & horizontalValidLetter : horizontalValidLetters) {
+            for (auto & horizontalValidLetter : horizontalLettersToExtend) {
                 if (isForwardable &&
                     std::get<FORWARDWORDEXISTS>(horizontalValidLetter.second))
                     buildWordForwards(mostForwardIdx,
