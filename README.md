@@ -2,16 +2,16 @@
 
 The enchancements implemented are 
 
---dictionary
---hint
---ai
+* --dictionary
+* --hint
+* --ai
 
 The possible combination of the enhancements is:
---dictionary
---hint
---ai
---dictionary --hint
---hint --ai
+* --dictionary
+* --hint
+* --ai
+* --dictionary --hint
+* --hint --ai
 
 When --ai or --hint is configured, the program automatically loads --dictionary. 
 
