@@ -10,7 +10,6 @@ The possible combination of the enhancements is:
 * --dictionary
 * --hint
 * --ai
-* --dictionary --hint
 * --hint --ai
 
 When --ai or --hint is configured, the program automatically loads --dictionary. 
